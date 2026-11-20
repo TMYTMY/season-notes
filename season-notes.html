@@ -1679,7 +1679,7 @@ function carSVG(spec,w,h,isMe){
   if(isMe){
     g+='<circle cx="'+k(W*0.04)+'" cy="0" r="'+k(Math.max(1.6,H*0.10))+'" fill="#f7e3ae"/>';
     g+='<text x="0" y="'+k(-H*0.86)+'" text-anchor="middle" font-family="ui-monospace,monospace" '+
-       'font-size="'+k(Math.max(11,H*0.85))+'" font-weight="700" fill="#f7e3ae">"+L.selfMark+"</text>';
+       'font-size="'+k(Math.max(11,H*0.85))+'" font-weight="700" fill="#f7e3ae">'+L.selfMark+'</text>';
   }
   g+='</g>';
   return '<g class="car"><g transform="scale(1,'+(1/1.55)+')">'+g.replace('<g class="car" transform="translate(0,0)">','<g>')+'</g></g>';
