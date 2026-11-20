@@ -2,192 +2,578 @@
 <html lang="zh-Hant">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Season Notes — Draft</title>
-<style>
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#0d1322">
+<title>Season Notes — AURORA JUNIOR</title>
+<style>/* =====================================================================
+   SEASON NOTES — DESIGN TOKENS
+   ---------------------------------------------------------------------
+   Single source of truth. Every colour, type size, spacing step, radius
+   and fixed dimension is a token here; component rules only consume
+   var(--token). The mobile block overrides TOKENS, not components.
+
+   COMPONENT MAP (for the design spec)
+   .screen.on        screen panel          #scCreate #scRace #scResult #scSeason
+   .hud                 top bar              .hud .right numeric readouts
+   .brand               wordmark
+   .eyebrow             tracked gold section label
+   .card(.hi) surface panel
+   .btn(.is-gold/.sel) action button, >=44px tap target on mobile
+   .moment            decision column
+   .scene               SVG scene frame      .cap .spd .sceneMsg
+   .radio-inline        pit-wall radio quote
+   .opts             decision list        .opts .btn, .risk chip
+   .side                right column
+   .stat                key / value row
+   .rounds              8-round progress strip
+   .rrow          classification row
+   .srow          season calendar row
+   .crow           championship row
+   .tierBox            end-of-season contract panel
+   ===================================================================== */
 :root{
-  --ink:#0d1322;--ink2:#080d18;--card:#121a2c;--card2:#0e1524;--line:#1e2a40;--line2:#27354e;
-  --cream:#f2efe6;--tx:#e8ecf4;--slate:#b9c0cc;--muted:#7d8798;
-  --gold:#f2c14e;--gold2:#d8a63a;--red:#d9533f;--green:#3fbf8b;
-  --serif:Georgia,"Times New Roman","Noto Serif TC","Songti TC",serif;
-  --sans:"Noto Sans TC",-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang TC","Microsoft JhengHei",sans-serif;
-  --mono:ui-monospace,"SF Mono",Menlo,Consolas,monospace;
+  /* ---------- COLOUR : surfaces ---------- */
+  --bg:#05080f;
+  --ink:#0d1322;
+  --ink2:#080d18;
+  --card:#121a2c;
+  --card2:#0e1524;
+  --sunken:#0a1220;
+  --overlay:rgba(6,10,18,.88);
+  --scene-1:#0c1524;
+  --scene-2:#080d16;
+  /* ---------- COLOUR : lines ---------- */
+  --line:#1e2a40;
+  --line2:#27354e;
+  --line-soft:#182238;
+  --line-faint:#162034;
+  --line-rule:#233049;
+  --line-hover:#3d5173;
+  --line-track:#141d2e;
+  /* ---------- COLOUR : text ---------- */
+  --tx:#e8ecf4;
+  --slate:#b9c0cc;
+  --muted:#7d8798;
+  --faint:#5a6476;
+  --ghost:#3f4b60;
+  --cream:#f2efe6;
+  --track-dim:#4a6488;
+  /* ---------- COLOUR : accent ---------- */
+  --gold:#f2c14e;
+  --gold2:#d8a63a;
+  --gold-bright:#f6cb63;
+  --gold-mid:#e8b23c;
+  --gold-line:#c9992f;
+  --gold-ink:#2a1c05;
+  --red:#d9533f;
+  --green:#3fbf8b;
+  --blue:#4ea0ff;
+  --warn:#ff9b7a;
+  /* ---------- COLOUR : tints / effects ---------- */
+  --glow-gold:rgba(242,193,78,.05);
+  --glow-blue:rgba(78,160,255,.06);
+  --tint-hover:rgba(255,255,255,.03);
+  --tint-panel:rgba(255,255,255,.02);
+  --tint-gold-06:rgba(242,193,78,.06);
+  --tint-gold-08:rgba(242,193,78,.08);
+  --tint-gold-32:rgba(242,193,78,.32);
+  --tint-gold-40:rgba(242,193,78,.40);
+  --tint-gold-45:rgba(242,193,78,.45);
+  --tint-gold-50:rgba(242,193,78,.50);
+  --tint-gold-55:rgba(242,193,78,.55);
+  --tint-gold-60:rgba(242,193,78,.60);
+  --tint-gold-75:rgba(242,193,78,.75);
+  --tint-red-05:rgba(217,83,63,.05);
+  --tint-red-07:rgba(217,83,63,.07);
+  --tint-red-10:rgba(217,83,63,.10);
+  --tint-red-28:rgba(217,83,63,.28);
+  --tint-red-40:rgba(217,83,63,.40);
+  --tint-red-45:rgba(217,83,63,.45);
+  --tint-red-55:rgba(217,83,63,.55);
+  --tint-red-75:rgba(217,83,63,.75);
+  --tint-green-28:rgba(63,191,139,.28);
+  --tint-green-35:rgba(63,191,139,.35);
+  --shadow-card:0 20px 50px -40px rgba(242,193,78,.7);
+  --shadow-gold:0 0 14px rgba(242,193,78,.7);
+  --shadow-text:0 1px 4px #05080f;
+  /* ---------- TYPE : families ---------- */
+  --ff-serif:Georgia,"Times New Roman","Noto Serif TC","Songti TC",serif;
+  --ff-sans:"Noto Sans TC",-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang TC","Microsoft JhengHei",sans-serif;
+  --ff-mono:ui-monospace,"SF Mono",Menlo,Consolas,monospace;
+  /* ---------- TYPE : scale ---------- */
+  --fs-9:9px;
+  --fs-9-5:9.5px;
+  --fs-10:10px;
+  --fs-10-5:10.5px;
+  --fs-11:11px;
+  --fs-11-5:11.5px;
+  --fs-12:12px;
+  --fs-12-5:12.5px;
+  --fs-13:13px;
+  --fs-13-5:13.5px;
+  --fs-14:14px;
+  --fs-14-5:14.5px;
+  --fs-15:15px;
+  --fs-20:20px;
+  --fs-24:24px;
+  --fs-26:26px;
+  --fs-29:29px;
+  --fs-30:30px;
+  --fs-31:31px;
+  --fs-52:52px;
+  --fs-58:58px;
+  --fs-96:96px;
+  /* ---------- TYPE : rhythm ---------- */
+  --lh-flat:.95;
+  --lh-tight:1.15;
+  --lh-snug:1.3;
+  --lh-heading:1.35;
+  --lh-ui:1.45;
+  --lh-copy:1.55;
+  --lh-body:1.8;
+  --lh-prose:1.9;
+  --lh-read:2;
+  --lh-story:2.05;
+  --ls-hero:-.01em;
+  --ls-xl:.22em;
+  --ls-lg:.2em;
+  --ls-label:.18em;
+  --ls-md:.16em;
+  --ls-sm:.14em;
+  --ls-xs:.12em;
+  --ls-2xs:.1em;
+  --ls-3xs:.08em;
+  --fw-regular:400;
+  --fw-medium:500;
+  --fw-semibold:600;
+  --fw-bold:700;
+  --fw-black:800;
+  /* ---------- SPACE (px scale) ---------- */
+  --sp-2:2px;
+  --sp-3:3px;
+  --sp-4:4px;
+  --sp-5:5px;
+  --sp-6:6px;
+  --sp-7:7px;
+  --sp-8:8px;
+  --sp-9:9px;
+  --sp-10:10px;
+  --sp-11:11px;
+  --sp-12:12px;
+  --sp-13:13px;
+  --sp-14:14px;
+  --sp-16:16px;
+  --sp-18:18px;
+  --sp-20:20px;
+  --sp-22:22px;
+  --sp-24:24px;
+  --sp-26:26px;
+  --sp-30:30px;
+  --sp-60:60px;
+  /* ---------- RADIUS ---------- */
+  --r-2:2px;
+  --r-3:3px;
+  --r-8:8px;
+  --r-9:9px;
+  --r-10:10px;
+  --r-12:12px;
+  --r-14:14px;
+  --r-16:16px;
+  --r-pill:20px;
+  --r-round:999px;
+  /* ---------- SIZE ---------- */
+  --w-stage:1440px;
+  --h-stage:900px;
+  --h-hud:34px;
+  --h-scene:172px;
+  --h-tap:44px;
+  --h-btn:30px;
+  --w-aside:460px;
+  --w-side:372px;
+  --w-moment:800px;
+  --w-prose:660px;
+  --w-copy:520px;
+  --pad-stage:22px 26px;
+  --pad-card:16px 18px;
+  --pad-btn:11px 16px;
+  --pad-option:14px 18px;
+  --pad-option-mobile:14px 86px 14px 15px;
+  /* ---------- LAYOUT ---------- */
+  --g-create:1fr var(--w-aside);
+  --g-race:1fr var(--w-side);
+  --g-result:1.25fr 1fr;
+  --g-season:1.12fr 1fr;
+  --g-styles:repeat(3,1fr);
+  --g-srow:26px 1fr 30px 42px 46px;
+  --g-crow:22px 1fr 84px 40px;
+  --g-rrow:36px 54px 1fr 74px;
+  --dur-fast:.15s;
+  --dur-med:.35s;
+  --ease:cubic-bezier(.4,.1,.2,1);
 }
+
 *{box-sizing:border-box}
-html,body{margin:0;height:100%;background:#05080f;overflow:hidden}
-body{color:var(--tx);font-family:var(--sans)}
+html,body{margin:0;height:100%;background:var(--bg);overflow:hidden}
+body{color:var(--tx);font-family:var(--ff-sans);-webkit-text-size-adjust:100%}
 #app{position:fixed;inset:0;display:flex;align-items:center;justify-content:center}
-#stage{width:1440px;height:900px;transform-origin:center center;position:relative;
+#stage{width:var(--w-stage);height:var(--h-stage);transform-origin:center center;position:relative;
   background:
-    radial-gradient(1200px 700px at 15% -10%,rgba(242,193,78,.05),transparent 60%),
-    radial-gradient(900px 600px at 95% 110%,rgba(78,160,255,.06),transparent 60%),
-    linear-gradient(180deg,#0d1322,#080d18);
-  border:1px solid #162034;border-radius:16px;padding:22px 26px;overflow:hidden}
-.screen{position:absolute;inset:22px 26px;display:none;flex-direction:column}
+    radial-gradient(1200px 700px at 15% -10%,var(--glow-gold),transparent 60%),
+    radial-gradient(900px 600px at 95% 110%,var(--glow-blue),transparent 60%),
+    linear-gradient(180deg,var(--ink),var(--ink2));
+  border:1px solid var(--line-faint);border-radius:var(--r-16);padding:var(--pad-stage);overflow:hidden}
+
+/* ---------- screens ---------- */
+.screen{position:absolute;inset:var(--pad-stage);display:none;flex-direction:column}
 .screen.on{display:flex}
-.eyebrow{font-size:10.5px;letter-spacing:.22em;color:var(--gold);text-transform:uppercase;font-weight:700}
-h1,h2,h3{font-family:var(--serif);font-weight:400;margin:0;letter-spacing:-.01em}
-.card{background:linear-gradient(180deg,var(--card),var(--card2));border:1px solid var(--line);
-  border-radius:14px;padding:16px 18px}
-.card.hi{border-color:rgba(242,193,78,.32);box-shadow:0 20px 50px -40px rgba(242,193,78,.7)}
-.small{font-size:11.5px;color:var(--muted)}
-.mono{font-family:var(--mono);font-variant-numeric:tabular-nums}
-.btn{font-family:var(--sans);font-size:13px;font-weight:700;border-radius:10px;border:1px solid var(--line2);
-  background:transparent;color:var(--slate);padding:11px 16px;cursor:pointer;transition:.15s;text-align:left}
-.btn:hover{border-color:#3d5173;color:var(--cream);background:rgba(255,255,255,.03)}
-.btn.gold{background:linear-gradient(180deg,#f6cb63,#e8b23c);color:#2a1c05;border-color:#c9992f}
-.btn.gold:hover{filter:brightness(1.06);color:#2a1c05}
-.btn.sel{border-color:var(--gold);color:var(--gold);background:rgba(242,193,78,.08)}
-.brand{display:flex;align-items:center;gap:10px;font-weight:800;letter-spacing:.16em;font-size:12px}
-.brand i{width:10px;height:10px;background:var(--gold);border-radius:2px;box-shadow:0 0 14px rgba(242,193,78,.7)}
-.brand span{color:var(--muted);font-weight:500;letter-spacing:.1em;font-size:10.5px}
+.eyebrow{font-size:var(--fs-10-5);letter-spacing:var(--ls-xl);color:var(--gold);
+  text-transform:uppercase;font-weight:var(--fw-bold)}
+h1,h2,h3{font-family:var(--ff-serif);font-weight:var(--fw-regular);margin:0;letter-spacing:var(--ls-hero)}
 
+/* ---------- surfaces ---------- */
+.card{background:linear-gradient(180deg,var(--card),var(--card2));
+  border:1px solid var(--line);border-radius:var(--r-14);padding:var(--pad-card)}
+.card.hi{border-color:var(--tint-gold-32);box-shadow:var(--shadow-card)}
+.card-log{flex:1;overflow:hidden;display:flex;flex-direction:column}
+.card-body{margin-top:var(--sp-10)}
+.card-body-sm{margin-top:var(--sp-9)}
+.card-body-xs{margin-top:var(--sp-8)}
+.col{min-width:0}
+.stack{display:flex;flex-direction:column;gap:var(--sp-14);min-width:0}
+.small{font-size:var(--fs-11-5);color:var(--muted)}
+.mono{font-family:var(--ff-mono);font-variant-numeric:tabular-nums}
+.is-hidden{display:none}
 
-/* 建立車手 */
-.create{flex:1;display:grid;grid-template-columns:1fr 460px;gap:60px;align-items:center;padding:0 30px}
-.create h1{font-size:52px;line-height:1.15;color:var(--cream)}
+/* ---------- buttons ---------- */
+.btn{font-family:var(--ff-sans);font-size:var(--fs-13);font-weight:var(--fw-bold);
+  border-radius:var(--r-10);border:1px solid var(--line2);
+  background:transparent;color:var(--slate);padding:var(--pad-btn);
+  cursor:pointer;transition:var(--dur-fast);text-align:left}
+.btn:hover{border-color:var(--line-hover);color:var(--cream);background:var(--tint-hover)}
+.btn:disabled{opacity:.5;cursor:default}
+.btn.is-gold{background:linear-gradient(180deg,var(--gold-bright),var(--gold-mid));
+  color:var(--gold-ink);border-color:var(--gold-line)}
+.btn.is-gold:hover{filter:brightness(1.06);color:var(--gold-ink)}
+.btn.sel{border-color:var(--gold);color:var(--gold);background:var(--tint-gold-08)}
+.btn-block{width:100%;text-align:center;padding:var(--sp-14);font-size:var(--fs-14)}
+.btn-block-sm{width:100%;text-align:center;padding:var(--sp-12);
+  margin-top:var(--sp-8);font-size:var(--fs-13)}
+.btn-next{margin-top:var(--sp-18);padding:var(--sp-14) var(--sp-22)}
+.btn-season{margin-top:var(--sp-16);padding:var(--sp-14) var(--sp-22)}
+
+/* ---------- wordmark ---------- */
+.brand{display:flex;align-items:center;gap:var(--sp-10);font-weight:var(--fw-black);
+  letter-spacing:var(--ls-md);font-size:var(--fs-12);white-space:nowrap}
+.brand i{width:10px;height:10px;background:var(--gold);border-radius:var(--r-2);
+  box-shadow:var(--shadow-gold);flex:none}
+.brand span{color:var(--muted);font-weight:var(--fw-medium);
+  letter-spacing:var(--ls-2xs);font-size:var(--fs-10-5)}
+
+/* ---------- create / create ---------- */
+.create{flex:1;display:grid;grid-template-columns:var(--g-create);
+  gap:var(--sp-60);align-items:center;padding:0 var(--sp-30)}
+.create h1{font-size:var(--fs-52);line-height:var(--lh-tight);color:var(--cream)}
 .create h1 em{font-style:normal;color:var(--gold)}
-.create p{font-size:14px;line-height:2;color:var(--slate);margin:20px 0 0;max-width:520px}
-.field{margin-bottom:16px}
-.field label{display:block;font-size:10.5px;letter-spacing:.18em;color:var(--muted);margin-bottom:7px;text-transform:uppercase}
-.field input{width:100%;background:#0a1220;border:1px solid var(--line2);border-radius:9px;
-  padding:11px 13px;color:var(--cream);font-family:var(--mono);font-size:15px;outline:none}
+.create p{font-size:var(--fs-14);line-height:var(--lh-read);color:var(--slate);
+  margin:var(--sp-20) 0 0;max-width:var(--w-copy)}
+.field{margin-bottom:var(--sp-16)}
+.field-tight{margin-bottom:var(--sp-8)}
+.field label{display:block;font-size:var(--fs-10-5);letter-spacing:var(--ls-label);
+  color:var(--muted);margin-bottom:var(--sp-7);text-transform:uppercase}
+.field input{width:100%;background:var(--sunken);border:1px solid var(--line2);
+  border-radius:var(--r-9);padding:var(--sp-11) var(--sp-13);color:var(--cream);
+  font-family:var(--ff-mono);font-size:var(--fs-15);outline:none}
 .field input:focus{border-color:var(--gold2)}
-.styles{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px}
-.styles .opt{border:1px solid var(--line2);border-radius:10px;padding:11px 10px;cursor:pointer;transition:.15s}
-.styles .opt:hover{border-color:#3d5173}
-.styles .opt.sel{border-color:var(--gold);background:rgba(242,193,78,.08)}
-.styles .opt b{display:block;font-size:12.5px;color:var(--cream);margin-bottom:3px}
-.styles .opt span{font-size:10.5px;color:var(--muted);line-height:1.5}
+.field-value{color:var(--slate);font-size:var(--fs-12-5)}
+.styles{display:grid;grid-template-columns:var(--g-styles);gap:var(--sp-8)}
+.styles .opt{border:1px solid var(--line2);border-radius:var(--r-10);
+  padding:var(--sp-11) var(--sp-10);cursor:pointer;transition:var(--dur-fast);min-height:52px}
+.opt:hover{border-color:var(--line-hover)}
+.opt.sel{border-color:var(--gold);background:var(--tint-gold-08)}
+.opt b{display:block;font-size:var(--fs-12-5);color:var(--cream);margin-bottom:var(--sp-3)}
+.opt span{font-size:var(--fs-10-5);color:var(--muted);
+  line-height:var(--lh-ui);display:block}
+.seedline{font-family:var(--ff-mono);font-size:var(--fs-10-5);color:var(--faint);margin-top:var(--sp-10)}
 
-/* HUD 頂 */
-.hud{display:flex;justify-content:space-between;align-items:center;height:34px;margin-bottom:14px}
-.hud .right{display:flex;gap:18px;font-family:var(--mono);font-size:11px;color:var(--muted)}
-.hud .right b{color:var(--cream);font-weight:600}
+/* ---------- hud ---------- */
+.hud{display:flex;justify-content:space-between;align-items:center;height:var(--h-hud);
+  margin-bottom:var(--sp-14);gap:var(--sp-16)}
+.hud .right{display:flex;gap:var(--sp-18);font-family:var(--ff-mono);
+  font-size:var(--fs-11);color:var(--muted);margin-left:auto}
+.hud .right b{color:var(--cream);font-weight:var(--fw-semibold)}
+.hudBtn{font-family:var(--ff-sans);font-size:var(--fs-10-5);font-weight:var(--fw-bold);
+  letter-spacing:var(--ls-2xs);color:var(--slate);background:var(--tint-hover);
+  border:1px solid var(--line2);border-radius:var(--r-8);padding:0 var(--sp-12);
+  height:var(--h-btn);cursor:pointer;transition:var(--dur-fast);white-space:nowrap;flex:none}
+.hudBtn:hover{color:var(--gold);border-color:var(--tint-gold-45)}
 
-/* 比賽：卡片 */
-.raceWrap{flex:1;display:grid;grid-template-columns:1fr 372px;gap:18px;min-height:0;align-items:center}
-.moment{display:flex;flex-direction:column;justify-content:center;max-width:800px}
-.moment .beat{font-family:var(--mono);font-size:11px;letter-spacing:.2em;color:var(--gold2);margin-bottom:12px}
-.moment h2{font-size:33px;line-height:1.35;color:var(--cream);margin-bottom:14px}
-.moment .prompt{font-size:14.5px;line-height:2;color:var(--slate);margin-bottom:26px;max-width:660px}
-.opts{display:flex;flex-direction:column;gap:9px;width:100%}
-.opts .btn{padding:14px 18px;font-size:13.5px;line-height:1.55;position:relative;padding-right:96px}
-.opts .btn .risk{position:absolute;right:14px;top:50%;transform:translateY(-50%);
-  font-family:var(--mono);font-size:10.5px;letter-spacing:.08em;color:#ff9b7a;
-  border:1px solid rgba(217,83,63,.45);background:rgba(217,83,63,.10);padding:3px 7px;border-radius:20px}
-.opts .btn.danger{border-color:rgba(217,83,63,.4)}
-.opts .btn.danger:hover{border-color:rgba(217,83,63,.75);background:rgba(217,83,63,.07)}
-.opts .btn.safe{border-color:rgba(63,191,139,.28)}
-.opts .btn small{display:block;font-weight:400;font-size:11.5px;color:var(--muted);margin-top:3px}
+/* ---------- race : moment column ---------- */
+.race-wrap{flex:1;display:grid;grid-template-columns:var(--g-race);gap:var(--sp-18);
+  min-height:0;align-items:center}
+.moment{display:flex;flex-direction:column;justify-content:center;
+  max-width:var(--w-moment);min-width:0}
+.moment .beat{font-family:var(--ff-mono);font-size:var(--fs-11);
+  letter-spacing:var(--ls-lg);color:var(--gold2);margin-bottom:var(--sp-12)}
+.moment .title{font-size:var(--fs-31);line-height:var(--lh-heading);
+  color:var(--cream);margin-bottom:var(--sp-12)}
+.moment .prompt{font-size:var(--fs-14);line-height:var(--lh-prose);
+  color:var(--slate);margin-bottom:var(--sp-14);max-width:var(--w-prose)}
+.opts{display:flex;flex-direction:column;gap:var(--sp-9);width:100%}
+.opts .btn{padding:var(--pad-option);font-size:var(--fs-13-5);
+  line-height:var(--lh-copy);position:relative;padding-right:96px}
+.opts .btn .risk{position:absolute;right:var(--sp-14);top:50%;transform:translateY(-50%);
+  font-family:var(--ff-mono);font-size:var(--fs-10-5);letter-spacing:var(--ls-3xs);
+  color:var(--warn);border:1px solid var(--tint-red-45);background:var(--tint-red-10);
+  padding:var(--sp-3) var(--sp-7);border-radius:var(--r-pill)}
+.opts .btn.danger{border-color:var(--tint-red-40)}
+.opts .btn.danger:hover{border-color:var(--tint-red-75);background:var(--tint-red-07)}
+.opts .btn.safe{border-color:var(--tint-green-28)}
+.opts .btn small{display:block;font-weight:var(--fw-regular);font-size:var(--fs-11-5);
+  color:var(--muted);margin-top:var(--sp-3)}
 .opts .btn:hover small{color:var(--slate)}
-.consequence{margin-top:20px;font-size:13px;line-height:1.9;color:var(--gold);font-family:var(--serif);
-  opacity:0;transform:translateY(4px);transition:.35s}
+.consequence{margin-top:var(--sp-16);font-size:var(--fs-13);line-height:var(--lh-prose);
+  color:var(--gold);font-family:var(--ff-serif);opacity:0;transform:translateY(4px);
+  transition:var(--dur-med);min-height:0}
 .consequence.on{opacity:1;transform:none}
-.scene{width:100%;height:172px;border:1px solid var(--line);border-radius:12px;overflow:hidden;
-  background:linear-gradient(180deg,#0c1524,#080d16);position:relative;margin-bottom:16px}
-.scene svg{width:100%;height:100%;display:block}
-.scene .cap{position:absolute;left:14px;top:11px;font-family:var(--mono);font-size:9.5px;
-  letter-spacing:.2em;color:rgba(242,193,78,.75)}
-.scene .spd{position:absolute;right:14px;top:11px;font-family:var(--mono);font-size:9.5px;color:var(--muted)}
-.carD{transition:transform .45s cubic-bezier(.4,.1,.2,1)}
-.sceneMsg{position:absolute;left:50%;bottom:9px;transform:translate(-50%,6px);
-  font-family:var(--mono);font-size:12px;letter-spacing:.14em;padding:5px 13px;border-radius:20px;
-  background:rgba(6,10,18,.88);border:1px solid var(--line2);color:var(--slate);
-  opacity:0;transition:.22s;white-space:nowrap;pointer-events:none}
+
+/* ---------- scene ---------- */
+.scene{width:100%;height:var(--h-scene);border:1px solid var(--line);
+  border-radius:var(--r-12);overflow:hidden;position:relative;margin-bottom:var(--sp-14);flex:none;
+  background:linear-gradient(180deg,var(--scene-1),var(--scene-2))}
+.scene svg{width:100%;height:100%;display:block;animation:sceneIn .5s ease}
+@keyframes sceneIn{from{opacity:0;transform:scale(1.02)}to{opacity:1;transform:none}}
+.scene .cap{position:absolute;left:var(--sp-14);top:var(--sp-11);font-family:var(--ff-mono);
+  font-size:var(--fs-9-5);letter-spacing:var(--ls-lg);color:var(--tint-gold-75);
+  text-shadow:var(--shadow-text)}
+.scene .spd{position:absolute;right:var(--sp-14);top:var(--sp-11);font-family:var(--ff-mono);
+  font-size:var(--fs-9-5);color:#a7b2c4;text-shadow:var(--shadow-text)}
+.car{transition:transform var(--dur-med) var(--ease)}
+.sceneMsg{position:absolute;left:50%;bottom:var(--sp-9);transform:translate(-50%,6px);
+  font-family:var(--ff-mono);font-size:var(--fs-12);letter-spacing:var(--ls-sm);
+  padding:var(--sp-5) var(--sp-13);border-radius:var(--r-pill);background:var(--overlay);
+  border:1px solid var(--line2);color:var(--slate);opacity:0;
+  transition:.22s;white-space:nowrap;pointer-events:none;max-width:92%;overflow:hidden;
+  text-overflow:ellipsis}
 .sceneMsg.on{opacity:1;transform:translate(-50%,0)}
-.sceneMsg.ok{color:var(--gold);border-color:rgba(242,193,78,.55)}
-.sceneMsg.bad{color:#ff9b7a;border-color:rgba(217,83,63,.55)}
+.sceneMsg.ok{color:var(--gold);border-color:var(--tint-gold-55)}
+.sceneMsg.bad{color:var(--warn);border-color:var(--tint-red-55)}
 .scene.shake{animation:shk .4s ease}
 @keyframes shk{0%,100%{transform:translateX(0)}20%{transform:translateX(-4px)}
   45%{transform:translateX(3px)}70%{transform:translateX(-2px)}}
 .flash{position:absolute;inset:0;pointer-events:none;opacity:0;transition:.25s;
-  background:radial-gradient(circle at 50% 55%,rgba(242,193,78,.22),transparent 62%)}
-.flash.bad{background:radial-gradient(circle at 50% 55%,rgba(217,83,63,.28),transparent 62%)}
+  background:radial-gradient(circle at 50% 55%,var(--tint-gold-32),transparent 62%)}
+.flash.bad{background:radial-gradient(circle at 50% 55%,var(--tint-red-28),transparent 62%)}
 .flash.on{opacity:1}
+.blink{animation:bl .75s steps(1,end) infinite}
+@keyframes bl{0%,48%{opacity:1}50%,100%{opacity:.12}}
 
-.side{display:flex;flex-direction:column;gap:12px}
-.stat{display:flex;justify-content:space-between;font-size:12px;padding:5px 0;border-bottom:1px solid #182238}
+/* ---------- radio ---------- */
+.radio-inline{display:flex;gap:var(--sp-11);align-items:flex-start;
+  border-left:2px solid var(--tint-gold-45);padding:var(--sp-2) 0 var(--sp-2) var(--sp-13);
+  margin:0 0 var(--sp-16);max-width:var(--w-prose)}
+.radio-inline-wave{display:flex;align-items:center;gap:var(--sp-3);height:16px;
+  margin-top:var(--sp-3);flex:none}
+.radio-inline-wave i{width:2px;background:var(--tint-gold-60);border-radius:1px;
+  display:block;animation:wv 1.1s ease-in-out infinite}
+@keyframes wv{0%,100%{height:4px;opacity:.4}50%{height:14px;opacity:.95}}
+.radio-inline-body{min-width:0}
+.radio-inline-who{font-family:var(--ff-mono);font-size:var(--fs-9);
+  letter-spacing:var(--ls-md);color:var(--gold2);display:block}
+.radio-inline-text{margin:var(--sp-5) 0 0;font-family:var(--ff-serif);
+  font-size:var(--fs-13);line-height:var(--lh-body);color:var(--slate)}
+.radio-head{display:flex;align-items:center;gap:var(--sp-8);margin-bottom:var(--sp-6)}
+.radio-head b{font-size:var(--fs-11);letter-spacing:var(--ls-2xs);color:var(--gold)}
+.radio-head span{font-size:var(--fs-10);color:var(--muted);font-family:var(--ff-mono)}
+.wave{display:flex;align-items:center;gap:var(--sp-3);height:16px}
+.wave i{width:2px;background:var(--tint-gold-55);border-radius:1px;display:block;
+  animation:wv 1.1s ease-in-out infinite}
+
+/* ---------- side ---------- */
+.side{display:flex;flex-direction:column;gap:var(--sp-12);min-width:0}
+.stat{display:flex;justify-content:space-between;font-size:var(--fs-12);
+  padding:var(--sp-5) 0;border-bottom:1px solid var(--line-soft)}
 .stat:last-child{border:0}
 .stat span{color:var(--muted)}
-.stat b{font-family:var(--mono);color:var(--cream);font-weight:600}
-.badge{display:inline-block;font-size:10px;letter-spacing:.12em;padding:3px 8px;border-radius:20px;
-  border:1px solid rgba(242,193,78,.4);color:var(--gold)}
+.stat b{font-family:var(--ff-mono);color:var(--cream);font-weight:var(--fw-semibold)}
+.badge{display:inline-block;font-size:var(--fs-10);letter-spacing:var(--ls-xs);
+  padding:var(--sp-3) var(--sp-8);border-radius:var(--r-pill);
+  border:1px solid var(--tint-gold-40);color:var(--gold)}
+.rounds{display:flex;gap:var(--sp-4);margin-top:var(--sp-11)}
+.rounds i{flex:1;height:4px;border-radius:var(--r-2);background:#1b2437;display:block;
+  transition:.3s}
+.rounds i.done{background:var(--tint-gold-45)}
+.rounds i.podium{background:var(--gold);box-shadow:0 0 8px var(--tint-gold-45)}
+.rounds i.dnf{background:var(--red)}
+.rounds i.cur{background:var(--track-dim)}
+.log-item{margin-bottom:var(--sp-4)}
+.log-empty{color:var(--faint)}
+.log{margin-top:var(--sp-8);line-height:var(--lh-body);color:var(--slate);
+  font-size:var(--fs-11-5);overflow-y:auto}
+.savedot{font-family:var(--ff-mono);font-size:var(--fs-9-5);color:#5f6b7e;
+  letter-spacing:var(--ls-2xs);margin-top:var(--sp-6);transition:.4s}
+.savedot.on{color:var(--gold2)}
 
-/* 結果 */
-.resultWrap{flex:1;display:grid;grid-template-columns:1.25fr 1fr;gap:26px;min-height:0;align-items:start}
-.posBig{font-family:var(--mono);font-size:96px;line-height:.95;color:var(--gold);font-weight:600}
-.posBig small{font-size:26px;color:var(--muted);font-weight:400}
-.rrow{display:grid;grid-template-columns:36px 54px 1fr 74px;gap:10px;font-size:12px;padding:5px 0;
-  border-bottom:1px solid #162034;font-family:var(--mono);color:var(--slate)}
+/* ---------- result ---------- */
+.resultWrap{flex:1;display:grid;grid-template-columns:var(--g-result);
+  gap:var(--sp-26);min-height:0;align-items:start}
+.result-head{display:flex;align-items:flex-end;gap:var(--sp-18);
+  margin:var(--sp-10) 0 var(--sp-6)}
+.result-head-meta{padding-bottom:var(--sp-10)}
+.result-head-sub{margin-top:var(--sp-8)}
+.posBig{font-family:var(--ff-mono);font-size:var(--fs-96);line-height:var(--lh-flat);
+  color:var(--gold);font-weight:var(--fw-semibold)}
+.posBig small{font-size:var(--fs-26);color:var(--muted);font-weight:var(--fw-regular)}
+.result-table{margin-top:var(--sp-10)}
+.rrow{display:grid;grid-template-columns:var(--g-rrow);gap:var(--sp-10);
+  font-size:var(--fs-12);padding:var(--sp-5) 0;border-bottom:1px solid var(--line-faint);
+  font-family:var(--ff-mono);color:var(--slate)}
 .rrow.me{color:var(--gold)}
-.story{font-family:var(--serif);font-size:14px;line-height:2.1;color:var(--slate)}
-.wave{display:flex;align-items:center;gap:3px;height:16px;margin-bottom:8px}
-.wave i{width:2px;background:rgba(242,193,78,.55);border-radius:1px;display:block;
-  animation:wv 1.1s ease-in-out infinite}
-@keyframes wv{0%,100%{height:4px;opacity:.4}50%{height:14px;opacity:.95}}
-.radioHead{display:flex;align-items:center;gap:8px;margin-bottom:6px}
-.radioHead b{font-size:11px;letter-spacing:.1em;color:var(--gold)}
-.radioHead span{font-size:10px;color:var(--muted);font-family:var(--mono)}
-.story b{color:var(--cream);font-weight:600;font-family:var(--sans);font-size:13px}
-.trackArt{position:absolute;right:-120px;bottom:-140px;width:720px;height:520px;opacity:.06;pointer-events:none}
-.seedline{font-family:var(--mono);font-size:10.5px;color:#5a6476;margin-top:10px}
-/* ---------- 手機直向（responsive） ---------- */
+.rrow-team{font-family:var(--ff-sans);font-size:var(--fs-11)}
+.story{font-family:var(--ff-serif);font-size:var(--fs-14);
+  line-height:var(--lh-story);color:var(--slate)}
+.story-spaced{margin-top:var(--sp-16)}
+.story b{color:var(--cream);font-weight:var(--fw-semibold);
+  font-family:var(--ff-sans);font-size:var(--fs-13)}
+.track-art{position:absolute;right:-120px;bottom:-160px;width:720px;height:520px;
+  opacity:.06;pointer-events:none}
+
+/* ---------- season ---------- */
+.seasonWrap{flex:1;display:grid;grid-template-columns:var(--g-season);
+  gap:var(--sp-24);align-items:start;min-height:0}
+.season-title{font-size:var(--fs-30);line-height:var(--lh-snug);
+  margin:var(--sp-8) 0 var(--sp-14);color:var(--cream)}
+.srow{display:grid;grid-template-columns:var(--g-srow);gap:var(--sp-8);
+  font-family:var(--ff-mono);font-size:var(--fs-11);color:var(--slate);
+  padding:var(--sp-5) 0;border-bottom:1px solid var(--line-faint);align-items:center}
+.srow.head{color:var(--muted);font-size:var(--fs-9);
+  letter-spacing:var(--ls-sm);border-bottom-color:var(--line-rule);
+  padding-bottom:var(--sp-6)}
+.srow.me{color:var(--gold)}
+.srow.pending{color:var(--ghost)}
+.crow{display:grid;grid-template-columns:var(--g-crow);gap:var(--sp-6);
+  font-size:var(--fs-11);padding:var(--sp-4) 0;border-bottom:1px solid var(--line-faint);
+  font-family:var(--ff-mono);color:var(--slate);align-items:center}
+.crow.me{color:var(--gold)}
+.crow-name{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.crow-team{font-size:var(--fs-9-5);color:#6c788c}
+.rlog{font-size:var(--fs-11-5);line-height:1.65;color:var(--slate);
+  max-height:168px;overflow-y:auto;padding-right:var(--sp-4)}
+.rlog div{padding:var(--sp-3) 0;border-bottom:1px solid var(--line-track)}
+.rlog b{color:var(--gold);font-family:var(--ff-mono);font-size:var(--fs-10);
+  margin-right:var(--sp-6)}
+.rlog em{font-style:normal;color:var(--muted);font-family:var(--ff-mono);
+  font-size:var(--fs-10);margin-right:var(--sp-6)}
+.tierBox{border-radius:var(--r-12);padding:var(--sp-14) var(--sp-16);
+  border:1px solid var(--line2);background:var(--tint-panel)}
+.tierBox.a{border-color:var(--tint-gold-50);background:var(--tint-gold-06)}
+.tierBox.c{border-color:var(--tint-red-40);background:var(--tint-red-05)}
+.tierBox h2{font-size:var(--fs-24);color:var(--cream);margin-bottom:var(--sp-10)}
+.tierBox .eyebrow{margin-bottom:var(--sp-6)}
+.tierBox .story{font-size:var(--fs-13)}
+.season-end{margin-top:var(--sp-16)}
+
+/* =====================================================================
+   MOBILE — token overrides only (plus 3 structural rules that cannot be
+   expressed as a token: fixed positioning, flex direction of the hud and
+   vertical scrolling of the page).
+   ===================================================================== */
 @media (max-width:980px){
+  :root{
+    --fs-9-5:9px;
+    --fs-10:10px;
+    --fs-10-5:10.5px;
+    --fs-11:11px;
+    --fs-11-5:12px;
+    --fs-12:13px;
+    --fs-12-5:12.5px;
+    --fs-13:13.5px;
+    --fs-13-5:14.5px;
+    --fs-14:14px;
+    --fs-14-5:14.5px;
+    --fs-20:20px;
+    --fs-30:26px;
+    --fs-31:20px;
+    --fs-52:29px;
+    --fs-58:58px;
+    --h-scene:146px;
+    --h-tap:44px;
+    --w-moment:none;
+    --w-prose:none;
+    --w-copy:none;
+    --w-side:none;
+    --w-aside:none;
+    --g-create:1fr;
+    --g-race:1fr;
+    --g-result:1fr;
+    --g-season:1fr;
+    --g-srow:22px 1fr 26px 34px 38px;
+    --g-crow:20px 1fr 62px 34px;
+    --g-rrow:24px 44px 1fr 40px;
+    --pad-stage:calc(12px + env(safe-area-inset-top)) 14px calc(28px + env(safe-area-inset-bottom));
+    --pad-card:14px;
+    --pad-option:14px 86px 14px 15px;
+    --sp-26:16px;
+    --sp-18:14px;
+    --sp-16:14px;
+  }
   html,body{overflow-x:hidden;overflow-y:auto;height:auto}
   #app{position:static;display:block}
   #stage{width:100%!important;height:auto!important;min-height:100dvh;transform:none!important;
-    border-radius:0;border:0;
-    padding:calc(12px + env(safe-area-inset-top)) 14px calc(28px + env(safe-area-inset-bottom))}
-  .screen{position:static;inset:auto;display:none;min-height:calc(100dvh - 40px);justify-content:flex-start}
+    border-radius:0;border:0;padding:var(--pad-stage)}
+  .screen{position:static;inset:auto;display:none;
+    min-height:calc(100dvh - 40px);justify-content:flex-start}
   .screen.on{display:flex}
-  .trackArt{display:none}
-  .brand{font-size:11px}
-  .brand span{font-size:9.5px}
+  .track-art{display:none}
+  .brand{font-size:var(--fs-11)}
+  .brand span{font-size:var(--fs-9-5)}
+  button,.btn,.opt,.hudBtn{min-height:var(--h-tap)}
 
-  .create{grid-template-columns:1fr;gap:18px;align-items:start;padding:0}
-  .create h1{font-size:31px;line-height:1.38}
-  .create p{font-size:13px;line-height:1.85;margin-top:14px}
-  .card{padding:14px}
+  .create{gap:var(--sp-18);align-items:start;padding:0}
+  .create h1{line-height:1.4}
+  .create p{font-size:var(--fs-13);line-height:1.85;margin-top:var(--sp-14)}
 
-  .hud{flex-direction:column;align-items:flex-start;gap:8px;height:auto;margin-bottom:10px}
-  .hud .right{gap:16px;font-size:10.5px}
-  .raceWrap{grid-template-columns:1fr;gap:14px;align-items:start}
+  .hud{flex-wrap:wrap;align-items:center;gap:var(--sp-8);height:auto;
+    margin-bottom:var(--sp-10)}
+  .hud .right{gap:var(--sp-14);font-size:var(--fs-11);margin-left:0;order:3;width:100%;
+    justify-content:space-between;border-top:1px solid #17202f;padding-top:var(--sp-7)}
+  .hudBtn{height:var(--h-tap);padding:0 var(--sp-12);font-size:var(--fs-10)}
+
+  .race-wrap{gap:var(--sp-12);align-items:start}
   .moment{max-width:none}
-  .moment h2{font-size:21px;line-height:1.45}
-  .moment .beat{font-size:10px;margin-bottom:8px}
-  .moment .prompt{font-size:14.5px;line-height:1.9;margin-bottom:16px}
-  .scene{height:146px;margin-bottom:12px;border-radius:10px}
-  .scene .cap{font-size:8.5px;letter-spacing:.14em}
-  .opts{gap:8px}
-  .opts .btn{padding:14px 86px 14px 15px;font-size:14.5px;min-height:62px;line-height:1.45}
-  .opts .btn small{font-size:12.5px;margin-top:3px}
-  .opts .btn .risk{right:10px;font-size:9.5px;padding:2px 6px}
-  .consequence{font-size:13.5px;margin-top:14px}
+  .moment .title{line-height:var(--lh-ui)}
+  .moment .beat{font-size:var(--fs-10);margin-bottom:var(--sp-7)}
+  .moment .prompt{font-size:var(--fs-14);line-height:1.85;margin-bottom:var(--sp-12)}
+  .scene{margin-bottom:var(--sp-10);border-radius:var(--r-10)}
+  .scene .cap{font-size:var(--fs-9);letter-spacing:.13em;left:var(--sp-10);
+    top:var(--sp-9);right:var(--sp-10);overflow:hidden;text-overflow:ellipsis;
+    white-space:nowrap}
+  .scene .spd{font-size:var(--fs-9);right:var(--sp-10);top:var(--sp-9)}
+  .radio-inline{margin-bottom:var(--sp-14);padding-left:var(--sp-11);gap:var(--sp-9)}
+  .radio-inline-text{line-height:1.75}
+  .opts{gap:var(--sp-8)}
+  .opts .btn{min-height:62px;line-height:var(--lh-ui)}
+  .opts .btn small{font-size:var(--fs-12-5);margin-top:var(--sp-3)}
+  .opts .btn .risk{right:var(--sp-10);font-size:var(--fs-9-5);
+    padding:var(--sp-2) var(--sp-6)}
 
-  .side{gap:10px}
-  .side .card{padding:12px}
-  .stat{font-size:13px;padding:6px 0}
-  .radioHead b{font-size:10px}
-  #radio{font-size:13.5px!important;line-height:1.8}
-  .eyebrow{font-size:11px}
-  .hud .right{font-size:12px}
-  .small{font-size:12.5px}
+  .side{gap:var(--sp-10)}
+  .stat{font-size:var(--fs-13);padding:var(--sp-6) 0}
 
-  .resultWrap{grid-template-columns:1fr;gap:16px}
-  .posBig{font-size:62px}
-  .story{font-size:13px;line-height:1.95}
-  .rrow{font-size:11px;grid-template-columns:30px 46px 1fr 44px;padding:4px 0}
-  .btn{min-height:44px}
-  .seedline{font-size:10px;word-break:break-all}
+  .posBig{font-size:var(--fs-58)}
+  .story{font-size:var(--fs-13);line-height:1.9}
+  .rrow{font-size:var(--fs-10-5);gap:var(--sp-6);padding:var(--sp-4) 0}
+  .rrow-team{font-size:var(--fs-10)}
+  .seasonWrap{gap:var(--sp-14)}
+  .srow{font-size:var(--fs-10);gap:var(--sp-5)}
+  .crow{font-size:var(--fs-10);gap:var(--sp-5)}
+  .rlog{max-height:none;font-size:var(--fs-11-5)}
+  .seedline{font-size:var(--fs-10);word-break:break-all}
 }
-
-
 </style>
 </head>
 <body>
 <div id="app"><div id="stage">
-<div class="trackArt" id="art"></div>
+<div class="track-art" id="art"></div>
 
 <!-- 1. 建立車手 -->
 <section class="screen on" id="scCreate">
@@ -212,11 +598,12 @@ h1,h2,h3{font-family:var(--serif);font-weight:400;margin:0;letter-spacing:-.01em
           <div class="opt" data-s="fight"><b>硬淨</b><span>超車狠，得罪人多</span></div>
         </div>
       </div>
-      <div class="field" style="margin-bottom:8px">
+      <div class="field field-tight">
         <label>車隊</label>
-        <div class="small" style="color:var(--slate);font-size:12.5px">AURORA JUNIOR · 衛星隊，資源最少</div>
+        <div class="field-value">AURORA JUNIOR · 衛星隊，資源最少</div>
       </div>
-      <button class="btn gold" id="startBtn" style="width:100%;text-align:center;padding:14px;margin-top:14px;font-size:14px">簽約，開始季前測試 →</button>
+      <button class="btn is-gold btn-block" id="startBtn">簽約，開始季前測試 →</button>
+      <button class="btn btn-block-sm" id="continueBtn" style="display:none">繼續生涯 →</button>
       <div class="seedline" id="seedLine">種子 · ——</div>
     </div>
   </div>
@@ -231,52 +618,46 @@ h1,h2,h3{font-family:var(--serif);font-weight:400;margin:0;letter-spacing:-.01em
       <div>聲望 <b id="hRep">0</b></div>
       <div>體能 <b id="hFit">100</b></div>
     </div>
+    <button class="hudBtn" id="tableBtn">積分表</button>
   </div>
-  <div class="raceWrap">
+  <div class="race-wrap">
     <div class="moment">
       <div class="scene" id="scene">
-        <svg viewBox="0 0 800 172" preserveAspectRatio="none" id="sceneSvg">
-          <defs>
-            <linearGradient id="asph" x1="0" y1="0" x2="1" y2="1">
-              <stop offset="0" stop-color="#2b3543"/><stop offset="1" stop-color="#202935"/>
-            </linearGradient>
-          </defs>
-          <rect width="800" height="172" fill="#080d16"/>
-          <g id="trackG"></g>
-          <g id="carsG"></g>
-        </svg>
-        <div class="cap" id="sceneCap">TURN 1 · 內線 / 外線</div>
-        <div class="spd" id="sceneSpd">280 km/h</div>
+        <svg id="sceneSvg" viewBox="0 0 800 172" preserveAspectRatio="none"></svg>
+        <div class="cap" id="sceneCap"></div>
+        <div class="spd" id="sceneSpd"></div>
         <div class="flash" id="sceneFlash"></div>
         <div class="sceneMsg" id="sceneMsg"></div>
       </div>
       <div class="beat" id="beatLbl">DECISION 1 / 6</div>
-      <h2 id="beatTitle">——</h2>
+      <h2 class="title" id="beatTitle">——</h2>
       <div class="prompt" id="beatPrompt">——</div>
+      <div class="radio-inline">
+        <span class="radio-inline-wave"><i></i><i></i><i></i><i></i></span>
+        <div class="radio-inline-body">
+          <span class="radio-inline-who" id="radioWho">RACE ENGINEER · AURORA JR</span>
+          <p class="radio-inline-text" id="radio">「第一次跑呢條賽道，慢慢嚟，先摸熟。」</p>
+        </div>
+      </div>
       <div class="opts" id="opts"></div>
       <div class="consequence" id="cons"></div>
     </div>
     <div class="side">
       <div class="card">
         <div class="eyebrow">今場狀態</div>
-        <div style="margin-top:10px">
+        <div class="card-body-sm">
           <div class="stat"><span>位置</span><b id="sPos">P6</b></div>
           <div class="stat"><span>賽段</span><b id="sPhase">排位賽</b></div>
           <div class="stat"><span>累積風險</span><b id="sRisk">0%</b></div>
           <div class="stat"><span>賽道位置</span><b id="sTrack">中段</b></div>
         </div>
+        <div class="rounds" id="rounds"></div>
       </div>
-      <div class="card">
-        <div class="radioHead"><span class="wave"><i></i><i></i><i></i><i></i><i></i></span>
-          <b>PIT RADIO</b><span id="radioWho">ENG · AURORA JR</span></div>
-        <div id="radio" style="font-size:12.5px;line-height:1.85;color:var(--slate);font-family:var(--serif)">
-          「第一次跑呢條賽道，慢慢嚟，先摸熟。」
-        </div>
-      </div>
-      <div class="card" style="flex:1;overflow:hidden">
+      <div class="card card-log">
         <div class="eyebrow">你嘅紀錄</div>
-        <div id="log" style="margin-top:8px;line-height:1.9;color:var(--slate);font-size:11.5px">
-          <span style="color:#5a6476">仲未有紀錄 —— 每個選擇都會寫入呢度。</span></div>
+        <div class="log" id="log">
+          <span class="log-empty">仲未有紀錄 —— 每個選擇都會寫入呢度。</span></div>
+        <div class="savedot" id="saveDot">● 自動存檔</div>
       </div>
     </div>
   </div>
@@ -287,23 +668,56 @@ h1,h2,h3{font-family:var(--serif);font-weight:400;margin:0;letter-spacing:-.01em
   <div class="hud">
     <div class="brand"><i></i> SEASON NOTES <span id="hudRace2">ROUND 1 · 8</span></div>
     <div class="right"><div>積分 <b id="hPts2">0</b></div><div>聲望 <b id="hRep2">0</b></div></div>
+    <button class="hudBtn" id="tableBtn2">積分表</button>
   </div>
   <div class="resultWrap">
     <div>
       <div class="eyebrow" id="resEyebrow">ROUND 1 · VALGRANDE</div>
-      <div style="display:flex;align-items:flex-end;gap:18px;margin:10px 0 6px">
+      <div class="result-head">
         <div class="posBig" id="resPos">P1<small>／12</small></div>
-        <div style="padding-bottom:10px">
+        <div class="result-head-meta">
           <div class="badge" id="resPts">+25 分</div>
-          <div class="small" id="resHead" style="margin-top:8px">——</div>
+          <div class="small result-head-sub" id="resHead">——</div>
         </div>
       </div>
-      <div class="card story" id="resStory" style="margin-top:18px">——</div>
-      <button class="btn gold" id="nextBtn" style="margin-top:20px;padding:14px 22px">繼續 →</button>
+      <div class="card story story-spaced" id="resStory">——</div>
+      <button class="btn is-gold btn-next" id="nextBtn">繼續 →</button>
     </div>
     <div class="card">
       <div class="eyebrow">Classification</div>
-      <div id="resTable" style="margin-top:10px"></div>
+      <div class="result-table" id="resTable"></div>
+    </div>
+  </div>
+</section>
+
+<!-- 4. 賽季 -->
+<section class="screen" id="scSeason">
+  <div class="hud">
+    <div class="brand"><i></i> SEASON NOTES <span id="hudSeason">SEASON 2027</span></div>
+    <div class="right"><div>積分 <b id="hPts3">0</b></div><div>聲望 <b id="hRep3">0</b></div></div>
+    <button class="hudBtn" id="backBtn" style="display:none">返比賽</button>
+  </div>
+  <div class="seasonWrap">
+    <div class="col">
+      <div class="eyebrow" id="seasonEyebrow">SEASON 2027 · AURORA JUNIOR</div>
+      <h2 class="season-title" id="seasonTitle">賽季成績</h2>
+      <div class="card">
+        <div class="srow head"><span>R</span><span>賽道</span><span>P</span><span>分</span><span>累計</span></div>
+        <div id="seasonRows"></div>
+      </div>
+      <div class="season-end" id="seasonEnd" style="display:none"></div>
+      <button class="btn is-gold btn-season" id="newSeasonBtn" style="display:none">開始新賽季 →</button>
+      <button class="btn btn-season" id="restartBtn" style="display:none">放棄生涯 · 開新賽季</button>
+    </div>
+    <div class="stack">
+      <div class="card">
+        <div class="eyebrow">Championship</div>
+        <div class="card-body" id="standings"></div>
+      </div>
+      <div class="card">
+        <div class="eyebrow">聲望變化</div>
+        <div class="rlog card-body-xs" id="repLog"><span class="small">仲未有紀錄。</span></div>
+      </div>
     </div>
   </div>
 </section>
@@ -312,427 +726,951 @@ h1,h2,h3{font-family:var(--serif);font-weight:400;margin:0;letter-spacing:-.01em
 
 <script>
 'use strict';
-/* ---------- 種子 ---------- */
-let SEED = (Date.now() % 100000) | 0;
-function rng(){ // mulberry32 on SEED (advancing)
-  SEED |= 0; SEED = SEED + 0x6D2B79F5 | 0;
-  let t = Math.imul(SEED ^ SEED >>> 15, 1 | SEED);
-  t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t;
-  return ((t ^ t >>> 14) >>> 0) / 4294967296;
-}
-const rint = (a,b)=>a+Math.floor(rng()*(b-a+1));
-const pick = arr=>arr[Math.floor(rng()*arr.length)];
+/* ============ 工具 ============ */
+const $ = id => document.getElementById(id);
+const clamp = (v,a,b) => Math.max(a,Math.min(b,v));
+function hash(s){let h=2166136261;for(let i=0;i<s.length;i++){h^=s.charCodeAt(i);h=Math.imul(h,16777619);}return h>>>0;}
+function mulberry(a){return function(){a|=0;a=a+0x6D2B79F5|0;let t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296;};}
+function shuffle(arr,rnd){const a=arr.slice();for(let i=a.length-1;i>0;i--){const j=Math.floor(rnd()*(i+1));const t=a[i];a[i]=a[j];a[j]=t;}return a;}
 
-/* ---------- 生涯狀態 ---------- */
-const C = {
-  name:'KAI', style:'brake', round:1, races:8,
-  points:0, rep:0, fit:100, cash:0,
-  results:[]
+/* ============ 常數 ============ */
+const SAVE_KEY='seasonNotes.save.v2';
+const RACES=8;
+const CATS=['straight','t1','tyre','sc','team','last'];
+const STYLE={
+  brake:{label:'遲剎車',bonus:1,riskMul:1.25,note:'單圈快，風險高'},
+  tyre:{label:'識保胎',bonus:0,riskMul:0.70,note:'慢少少，少出錯'},
+  fight:{label:'硬淨',bonus:1,riskMul:1.10,note:'超車狠，得罪人多'}
 };
-const STYLE = {
-  brake:{label:'遲剎車', bonus:1, riskMul:1.25},
-  tyre:{label:'識保胎',  bonus:0, riskMul:0.7},
-  fight:{label:'硬淨',   bonus:1, riskMul:1.1}
-};
-
-/* ---------- 賽道（背景剪影） ---------- */
-const TRACK_PTS=[[706,392],[520,394],[262,394],[168,380],[116,332],[102,270],[132,214],[198,194],
-  [252,176],[286,130],[332,90],[406,72],[472,78],[522,106],[554,150],[598,176],[652,174],[696,148],
-  [718,182],[728,240],[724,300],[716,352]];
-(function art(){
-  const d=TRACK_PTS.map((p,i)=>(i?'L':'M')+p[0]+' '+p[1]).join(' ')+' Z';
-  document.getElementById('art').innerHTML=
-    `<svg viewBox="0 0 834 504" preserveAspectRatio="xMidYMid meet">
-      <path d="${d}" fill="none" stroke="#f2c14e" stroke-width="26" stroke-linejoin="round"/>
-      <path d="${d}" fill="none" stroke="#05080f" stroke-width="16" stroke-linejoin="round"/></svg>`;
-})();
-
-/* ---------- 一場比賽：6 個抉擇 ---------- */
+const CIRCUITS=[
+  {n:'CIRCUIT VALGRANDE',s:'VALGRANDE'},
+  {n:'PORTE NOIRE',s:'PORTE NOIRE'},
+  {n:'KESTREL RING',s:'KESTREL RING'},
+  {n:'LAGO SABBIA',s:'LAGO SABBIA'},
+  {n:'NORDFJORD',s:'NORDFJORD'},
+  {n:'MONTE ARIDO',s:'MONTE ARIDO'},
+  {n:'SABLE STRAIT',s:'SABLE STRAIT'},
+  {n:'DUNMORE PARK',s:'DUNMORE PARK'}
+];
 const RIVALS=['BOS','HAL','ORT','LIN','RUI','ABB','KOV','MAR','NOV','VET','PAL','DUN'];
+const TEAMS=['VELOCE','MERIDIAN','KESTREL','NORDFJORD','TALON','HELIOS','SABLE','DRAKON','PRISM','VETRA','PALLAS','DUNMORE'];
+const PTS=[25,18,15,12,10,8,6,4,2,1,0,0];
 
-function makeRace(){
-  // 起點：排位中段（玩家喺衛星隊）
-  return {pos: rint(6,9), laps: 30, risk: 0, beats:0, log:[], best:'—', crashed:false};
+/* ============ 內容庫：6 類 × 5 張 = 30 張 ============ */
+const LIB={
+straight:[
+ {t:'排位賽，最後一圈',p:'車隊叫你用最後一圈幫隊友拉真空，但你仲未做出好時間。',
+  r:'如果你仲想跑自己嘅圈，我明白。但佢係我哋爭車隊積分嘅人。',who:'RACE ENGINEER · AURORA JR',o:[
+  {t:'照幫隊友拉真空',s:'排位跌 1 位，但車隊記住你',fx:{d:-1,rep:2},l:'你讓咗。隊友入到 Q3，領隊拍你膊頭。'},
+  {t:'跑自己嘅圈',s:'你自己嘅排位，但得罪人',fx:{d:2,rep:-1},l:'你做出一個好圈。無線電靜咗三秒。'},
+  {t:'兩樣都搏',s:'可能兩樣都拿，也可能兩樣都輸',fx:{d:1,risk:14},l:'你試，最後一個彎擦到牆，但圈速仲算數。'}]},
+ {t:'直路尾流，三架車一串',p:'前面兩架車互相拉真空，你貼喺第三位，速度差 8 km/h。',
+  r:'你係最快嗰架，但你要決定幾時抽出嚟。',who:'RACE ENGINEER',o:[
+  {t:'早少少抽出嚟',s:'搶先機，但尾流未斷',fx:{d:2,risk:16},l:'你抽出去。前車冇預料，你搶咗個位。'},
+  {t:'等多兩個彎',s:'等尾流拉盡先動手',fx:{d:1,risk:4},l:'你等到最後一刻。出彎嗰下你剛剛好過咗佢。'},
+  {t:'保持距離，守住胎',s:'唔爭，留返後面',fx:{d:0,fit:3,risk:0},l:'你收一收。胎溫降咗，車仲好揸。'}]},
+ {t:'水溫錶紅咗',p:'連續兩圈貼住前車，水溫升到 118 度。工程師叫你降溫。',
+  r:'你可以收油兩秒，或者繼續貼，博佢快啲爆胎。',who:'RACE ENGINEER',o:[
+  {t:'收油降溫',s:'保住引擎，但蝕位',fx:{d:-1,fit:2,risk:0},l:'你收咗兩秒。水溫回落，但後面嗰架過咗你。'},
+  {t:'繼續貼',s:'博前車先頂唔順',fx:{d:1,risk:12},l:'你繼續貼。第三圈，前車讓開咗 —— 佢把車泊咗喺路邊。'},
+  {t:'抽出去自己跑',s:'離開尾流，散熱快啲',fx:{d:0,risk:3},l:'你抽出嚟。冇咗尾流，但引擎終於可以呼吸。'}]},
+ {t:'起步，兩邊都有車',p:'燈滅，你左邊係一架起步慢嘅車，右邊係你隊友。',
+  r:'左邊嗰架慢咗半秒。你想點？',who:'RACE ENGINEER',o:[
+  {t:'抽左邊',s:'搶兩個位，但兩架車好近',fx:{d:2,risk:10},l:'你抽左邊。兩架車嘅鏡幾乎碰埋，但你過咗。'},
+  {t:'跟隊友後面',s:'安全，車隊會滿意',fx:{d:0,rep:1,risk:2},l:'你跟住隊友。領隊喺無線電講咗聲「好」。'},
+  {t:'收油避免碰撞',s:'最安全，但輸位',fx:{d:-2,risk:0},l:'你收油。後面兩架車即刻貼上嚟。'}]},
+ {t:'直路尾，煞車點前 80 米',p:'你前面嗰架車遲遲未決定入彎路線，你已經貼到 0.3 秒。',
+  r:'你冇位，但你快。你自己揀。',who:'RACE ENGINEER',o:[
+  {t:'外線遲剎車',s:'一個彎定勝負',fx:{d:3,risk:20},l:'你遲咗 30 米先踩。車尾擺咗一下，但你出彎喺佢前面。'},
+  {t:'內線早剎，等佢出錯',s:'穩陣，等機會',fx:{d:0,risk:4},l:'你早剎。佢冇出錯，但你都冇輸位。'},
+  {t:'收一收，保住架車',s:'唔搏，保住架車',fx:{d:-1,risk:0},l:'你收油。工程師冇講嘢，但你知佢鬆咗口氣。'}]}
+],
+t1:[
+ {t:'第一個彎，三架車並排',p:'你外線有位。內線兩架車明顯會撞埋一齊，但你唔肯定幾時。',
+  r:'外面有空間，但入面嗰兩個都唔收油。',who:'RACE ENGINEER',o:[
+  {t:'收入內線搏位',s:'賺兩三個位，或者即刻收工',fx:{d:3,risk:22},l:'你插咗入去。有車擦到你尾翼，但仲行得。'},
+  {t:'行外線等機會',s:'安全，但可能被夾',fx:{d:0,risk:6},l:'你走外線，讓咗個位，但保住架車。'},
+  {t:'大力收油避開',s:'最安全，但輸位',fx:{d:-2,risk:0},l:'你避開咗。後面兩架車撞埋，賽道出黃旗。'}]},
+ {t:'T1 之前有人鎖死輪胎',p:'前面架車鎖死，一團白煙。你可以行內線過，但會踩到佢啲膠粒。',
+  r:'佢仲喺你前面，但你快過佢。',who:'RACE ENGINEER',o:[
+  {t:'內線硬過',s:'踩住膠粒都要過',fx:{d:2,risk:14},l:'你踩住膠粒過咗。車震到手指發麻，但位係你嘅。'},
+  {t:'等佢出彎先過',s:'穩陣少少',fx:{d:1,risk:5},l:'你等佢出彎。佢讓開半個位，你順勢過。'},
+  {t:'收油，睇清楚先',s:'唔搏，保住架車',fx:{d:0,risk:0,fit:1},l:'你收油。雖然蝕位，但你睇清楚成個彎發生咩事。'}]},
+ {t:'重新起步，第一彎',p:'安全車走咗，你前面一大堆車擠成一團。',
+  r:'重開嗰刻係你今場最好嘅機會。',who:'RACE ENGINEER',o:[
+  {t:'一次過搏兩個位',s:'重開亂戰，衝',fx:{d:2,risk:18},l:'你衝入去。兩架車讓咗，你由 P7 變 P5。'},
+  {t:'穩住，等前面撞',s:'唔做第一個',fx:{d:0,risk:5},l:'你留喺後面。前面真係有人鎖死，但你冇位過。'},
+  {t:'保守，守住後面',s:'唔貪，保住位置',fx:{d:-1,risk:0},l:'你守住線。後面嗰架試咗兩次都過唔到。'}]},
+ {t:'隊友喺你隔籬',p:'你同隊友並排入 T1，車隊無線電未出聲。',
+  r:'……（無線電靜咗）',who:'NO RADIO',o:[
+  {t:'讓半個位俾隊友',s:'車隊會記住',fx:{d:-1,rep:2},l:'你收咗半個位。隊友過咗，賽後講咗聲多謝。'},
+  {t:'唔讓，各安天命',s:'你自己嘅位',fx:{d:1,rep:-1,risk:8},l:'你冇讓。兩架車擦身而過，隊友望住你。'},
+  {t:'一齊收油',s:'兩個都蝕，但冇人撞',fx:{d:-1,rep:1,risk:0},l:'兩個都收。車隊冇損失，但兩個都蝕位。'}]},
+ {t:'T1 出口，你喺草地邊緣',p:'你出彎太闊，右邊兩條胎已經喺白線外。',
+  r:'如果你而家收油，會即刻被人過。如果你唔收，會唔會出去？',who:'RACE ENGINEER',o:[
+  {t:'唔收，硬食',s:'四個轆都要留喺賽道',fx:{d:1,risk:24},l:'你冇收。車彈咗一下，但你返到賽道，仲喺前面。'},
+  {t:'收油返線',s:'保住架車',fx:{d:-2,risk:0},l:'你收油。兩架車過咗你，但架車完整。'},
+  {t:'半收，壓住線',s:'中間路線',fx:{d:0,risk:9},l:'你半收。車壓住白線，裁判冇出聲。'}]}
+],
+tyre:[
+ {t:'第 8 圈，胎開始跌',p:'你嘅軟胎已經 8 圈，後面嗰架用中胎。你估佢可以撐多十圈。',
+  r:'佢條胎新過你，你撐唔到最後。你想早入站定係撐？',who:'RACE ENGINEER',o:[
+  {t:'即刻入站（undercut）',s:'換新胎，賭佢出嚟喺你後面',fx:{d:1,risk:4},l:'你入站。出嚟啱啱喺佢前面，車隊做得好。'},
+  {t:'撐多 3 圈',s:'保住賽道位置，但出嚟會落後',fx:{d:-1,risk:2},l:'你撐到第 11 圈。胎已經唔聽話，但位置仲喺。'},
+  {t:'留喺外面賭安全車',s:'高風險高回報',fx:{d:0,risk:16},l:'你唔入站。每次過彎都滑，但安全車真係出咗。'}]},
+ {t:'左前胎起泡',p:'左前胎起泡，每次入彎都震。工程師叫你減速 1.5 秒一圈。',
+  r:'你可以慢，或者你繼續推，睇佢幾時爆。',who:'RACE ENGINEER',o:[
+  {t:'減速保胎',s:'慢，但一定返到終點',fx:{d:-1,fit:2,risk:0},l:'你減速。後面嗰架貼咗上嚟，但條胎冇爆。'},
+  {t:'繼續推',s:'博佢唔爆',fx:{d:1,risk:15},l:'你繼續推。條胎震到方向盤都震，但仲喺度。'},
+  {t:'提早入站',s:'止蝕，換胎',fx:{d:0,risk:3},l:'你入站。早咗三圈，但至少唔使擔心。'}]},
+ {t:'兩套胎，兩個策略',p:'你手上有兩套：一套軟胎可以跑 12 圈，一套硬胎可以跑 20 圈。',
+  r:'你想用邊套？定係你想我哋幫你決定？',who:'RACE STRATEGIST',o:[
+  {t:'軟胎，搏前三',s:'快，但尾段會跌',fx:{d:2,risk:10},l:'你揀軟胎。頭幾圈快到連工程師都吹口哨。'},
+  {t:'硬胎，跑到尾',s:'慢，但唔使再入站',fx:{d:0,risk:2},l:'你揀硬胎。冇人過你，但你都過唔到人。'},
+  {t:'跟隊友策略',s:'唔輸給隊友',fx:{d:1,rep:1,risk:4},l:'你跟隊友。兩個一齊入站，車隊好滿意。'}]},
+ {t:'胎已經冇咗，後面貼到好近',p:'你胎壽命見底，後面嗰架每圈快 1.2 秒。仲有 6 圈。',
+  r:'你守得住幾耐？我哋可以叫你入站，但你會跌到第八。',who:'RACE ENGINEER',o:[
+  {t:'死守',s:'用盡路面擋佢',fx:{d:0,risk:12},l:'你守咗四圈。第五圈，佢終於過咗 —— 但你仲喺第三。'},
+  {t:'入站保新胎',s:'放棄位置，換速度',fx:{d:-3,risk:0},l:'你入站。出嚟第八，但最後兩圈你係全場最快。'},
+  {t:'迫佢犯錯',s:'用盡路面，賭佢衝出嚟',fx:{d:1,risk:20},l:'你封線封到盡。佢撞咗你一下，但你冇讓。'}]},
+ {t:'賽後胎溫',p:'你落車，工程師遞咗個平板俾你：四條胎溫度差 40 度。',
+  r:'你今場嘅開法，會唔會影響下場？',who:'PERFORMANCE COACH',o:[
+  {t:'承認自己開得太狠',s:'車隊會覺得你成熟',fx:{rep:2,fit:-2},l:'你點頭。教練話：「識認，先會改。」'},
+  {t:'話係車嘅問題',s:'推卸，但保住面子',fx:{rep:-2,fit:1},l:'你話係車。工程師冇反駁，但佢記住咗。'},
+  {t:'唔出聲，記住數據',s:'自己消化',fx:{rep:0,fit:3},l:'你冇講嘢，只係望住個平板。下場你會記得。'}]}
+],
+sc:[
+ {t:'安全車出動',p:'賽道壓縮，所有人距離拉近。你仲有一半賽程。',
+  r:'安全車期間入站只蝕 9 秒。你想唔想換？',who:'RACE ENGINEER',o:[
+  {t:'入站換新胎',s:'用平價入站換一套新胎',fx:{d:2,risk:3},l:'你入站，好快就出返嚟。呢個係免費嘅運氣。'},
+  {t:'唔入站，保住位置',s:'重開嗰刻你有優勢',fx:{d:0,risk:5},l:'你選擇留喺賽道。重開嗰刻你頂住兩架車。'},
+  {t:'入站，但只換兩條',s:'省時間，賭一半',fx:{d:1,risk:8},l:'你只換兩條。出嚟快，但車頭車尾唔平衡。'}]},
+ {t:'安全車，你喺前列',p:'你喺前幾位，後面大部分車都入咗站，你唔入。',
+  r:'如果你而家入站，你會跌出前五。如果你唔入，你要用舊胎跑 14 圈。',who:'RACE ENGINEER',o:[
+  {t:'唔入，守住',s:'賭舊胎撐得住',fx:{d:0,risk:14},l:'你唔入。重開嗰刻你頂住，但胎一路跌。'},
+  {t:'入站，接受第五',s:'用新胎追返',fx:{d:-4,risk:0},l:'你入站。出嚟第五，但你手上係全場最新嘅胎。'},
+  {t:'賭對手中途要再入',s:'計數，唔搏即時',fx:{d:1,risk:9},l:'你唔入。你計啱咗 —— 前面兩架車最後都要再入站。'}]},
+ {t:'安全車期間，無線電有雜音',p:'車隊叫你入站，但講到一半斷線。你唔肯定係咪講你。',
+  r:'……（靜電）……pit……confirm……',who:'NO RADIO',o:[
+  {t:'照入站',s:'如果係講你，就賺咗',fx:{d:-2,risk:2},l:'你入站。技師有啲意外，但佢哋反應好快。'},
+  {t:'唔入，等下一個指令',s:'唔賭',fx:{d:1,risk:6},l:'你唔入。車隊之後確認嗰句係講隊友。'},
+  {t:'問清楚先',s:'用一圈換確定',fx:{d:-1,risk:0},l:'你問清楚。雖然蝕位，但冇做錯決定。'}]},
+ {t:'安全車走，前面一片混亂',p:'你就喺車群前面。你決定幾時加速。',
+  r:'你控制節奏。你想幾時踩？',who:'RACE ENGINEER',o:[
+  {t:'即刻踩，拉開',s:'唔俾後面機會',fx:{d:2,risk:10},l:'你即刻踩。後面兩架車反應慢咗半秒。'},
+  {t:'慢慢加速，等後面迫埋',s:'迫佢哋犯錯',fx:{d:0,risk:3},l:'你慢慢加速。後面貼到好近，但冇人敢過。'},
+  {t:'等最後一個彎先踩',s:'經典招式',fx:{d:1,risk:7},l:'你等到最後一個彎。後面嗰架預唔到，你拉開兩個車位。'}]},
+ {t:'車群壓縮，煞車過熱',p:'跟咗五圈慢車，煞車溫度 780 度。重開之後你要即刻用盡佢。',
+  r:'你可以冷卻一圈，但你會蝕位。',who:'RACE ENGINEER',o:[
+  {t:'冷卻一圈',s:'保住煞車',fx:{d:-2,risk:0},l:'你冷卻一圈。煞車回復，但兩個位冇咗。'},
+  {t:'照用',s:'賭佢頂得住',fx:{d:0,risk:16},l:'你照踩。煞車震得厲害，但冇失效。'},
+  {t:'半冷卻，跟住前面',s:'中間路線',fx:{d:-1,risk:5},l:'你半冷卻。蝕咗一個位，但煞車仲喺。'}]}
+],
+team:[
+ {t:'最後 8 圈，隊友喺你前面',p:'你比隊友快，但車隊無線電叫你讓位 —— 佢爭年度積分。',
+  r:'我哋明白你想贏。但呢個係車隊決定。',who:'TEAM PRINCIPAL',o:[
+  {t:'讓位',s:'車隊會記住，但你少幾個位',fx:{d:-2,rep:3},l:'你收油。賽後領隊話：「下年有你份。」'},
+  {t:'唔讓，繼續追',s:'你自己嘅成績，但關係破裂',fx:{d:1,rep:-2},l:'你冇收油。無線電冇再出聲。'},
+  {t:'讓，但條件係下場優先',s:'博一個承諾',fx:{d:-1,rep:1,risk:2},l:'你讓，同時要一個承諾。領隊停咗一秒，然後答「好」。'}]},
+ {t:'車隊叫你慳油',p:'油量計算出錯，你要喺最後 10 圈慳 3% 油。',
+  r:'你可以跟車尾流慳油，但你會冇機會超車。',who:'RACE ENGINEER',o:[
+  {t:'跟尾流慳油',s:'慢，但一定捱到尾',fx:{d:-1,rep:1},l:'你跟住前面。油耗降返，你捱到終點。'},
+  {t:'照推，賭計錯',s:'快，但可能冇油',fx:{d:1,risk:14},l:'你照推。最後一圈，油燈閃咗，但你過咗線。'},
+  {t:'問隊友幫手拉',s:'用隊友嘅尾流',fx:{d:0,rep:1,risk:2},l:'你問隊友。佢拉咗你三圈，兩個都省到油。'}]},
+ {t:'合約年',p:'你嘅合約今年完。領隊喺你耳邊講：「今日表現，我哋會記住。」',
+  r:'你知唔知自己而家係第幾？',who:'TEAM PRINCIPAL',o:[
+  {t:'搏一個頒獎台',s:'搏到就翻身',fx:{d:2,risk:16},l:'你搏。最後你上咗台，領隊喺台下望住你。'},
+  {t:'穩穩陣陣拿分',s:'唔搏，保住合約',fx:{d:0,risk:2},l:'你穩住。有分，冇驚喜，但領隊點頭。'},
+  {t:'幫隊友拿車隊分',s:'做隊友嘅後盾',fx:{d:-1,rep:3},l:'你幫隊友。賽後車隊積分多咗六分。'}]},
+ {t:'二號車手',p:'你架車今場用舊規格引擎。工程師細聲講：「唔好講出去。」',
+  r:'我哋今場冇辦法幫你。',who:'RACE ENGINEER',o:[
+  {t:'照揸，用技術補',s:'用彎速補直路',fx:{d:1,risk:6},l:'你用彎速補。雖然直路慢，但你冇輸位。'},
+  {t:'公開講',s:'記者會見',fx:{rep:-3,d:0},l:'你講咗。第二日報紙有標題，車隊好嬲。'},
+  {t:'接受，幫隊友收集數據',s:'做一個好隊友',fx:{d:-1,rep:2,fit:1},l:'你接受。工程師話：「呢個人情，我記住。」'}]},
+ {t:'隊友撞車，你喺隔籬',p:'隊友撞咗，安全車出動。車隊叫你入站，但你唔想。',
+  r:'我哋需要你嘅分。',who:'TEAM PRINCIPAL',o:[
+  {t:'入站，聽車隊',s:'穩陣拿分',fx:{d:-1,rep:2,risk:2},l:'你入站。出嚟第八，但胎新，你追上咗兩個位。'},
+  {t:'唔入，自己判斷',s:'你覺得賽道位置更重要',fx:{d:1,rep:-1,risk:8},l:'你唔入。重開嗰刻你頂住，但車隊唔出聲。'},
+  {t:'入站但要求換軟胎',s:'爭取最好嘅胎',fx:{d:0,risk:5},l:'你入站，要軟胎。技師猶豫咗一下，但照做。'}]}
+],
+last:[
+ {t:'最後兩圈，前面嗰架失誤',p:'佢跑開咗，賽道內側有位。你嘅胎已經 20 圈。',
+  r:'佢條胎都冇咗。你自己決定。',who:'RACE ENGINEER',o:[
+  {t:'搏入內線',s:'一個彎決定成敗',fx:{d:2,risk:18},l:'你插咗入去。兩架車並排過咗個彎 —— 你贏咗。'},
+  {t:'跟住，等佢自己出錯',s:'穩陣，但可能冇機會',fx:{d:0,risk:2},l:'你貼住佢。最後一圈，佢守得住。'},
+  {t:'收油保車',s:'保住積分，唔搏',fx:{d:-1,risk:0},l:'你收油。有人話你唔夠狠。'}]},
+ {t:'最後一圈，差 0.4 秒',p:'你冇 DRS，前面嗰架每個彎都守得死。',
+  r:'最後一個彎。你只有一次機會。',who:'RACE ENGINEER',o:[
+  {t:'外線大膽一搏',s:'一次過，或者撞',fx:{d:2,risk:22},l:'你走外線。兩架車差 10 厘米，但你過咗。'},
+  {t:'內線假動作',s:'騙佢開門',fx:{d:1,risk:12},l:'你假動作。佢讓咗半個位，你即刻插上去。'},
+  {t:'接受 P2',s:'保住亞軍',fx:{d:0,risk:0,rep:1},l:'你收油。P2 都係好成績，車隊有分。'}]},
+ {t:'最後一圈，後面越嚟越近',p:'後面嗰架每圈快你 0.5 秒，你冇得再等。',
+  r:'唔好犯錯。就係咁簡單。',who:'RACE ENGINEER',o:[
+  {t:'保守跑線',s:'唔好犯錯',fx:{d:0,risk:2},l:'你保守跑線。後面追到 0.9 秒，但你守得住。'},
+  {t:'推盡，拉開',s:'證明你唔止贏咁少',fx:{d:1,risk:13},l:'你推盡。最後一圈做出全場最快，贏 2.4 秒。'},
+  {t:'提早收油，保引擎',s:'贏少啲都要贏',fx:{d:0,fit:2,risk:0},l:'你收油。贏 0.7 秒，但引擎溫度正常。'}]},
+ {t:'最後兩圈，黃旗',p:'前面有車出咗去，黃旗。你可以超，但要小心。',
+  r:'黃旗區域唔可以超車。你知嘅。',who:'RACE ENGINEER',o:[
+  {t:'守法，唔超',s:'規矩要緊',fx:{d:-1,rep:2},l:'你冇超。賽後裁判讚你專業。'},
+  {t:'照超，賭無人睇到',s:'快，但可能被罰',fx:{d:1,rep:-3,risk:12},l:'你超咗。賽後調查，你冇被罰，但車隊唔高興。'},
+  {t:'超，但即刻讓返',s:'博個位再還',fx:{d:0,risk:3},l:'你超咗再讓返。冇人投訴，但你都冇賺。'}]},
+ {t:'衝線前，車隊叫你減速',p:'你引擎溫度爆錶。工程師叫你最後半圈收油。',
+  r:'你而家 P4。如果你收油，你可能變 P6。',who:'RACE ENGINEER',o:[
+  {t:'收油，保引擎',s:'保住下場嘅引擎',fx:{d:-2,fit:3,risk:0},l:'你收油。P6，但引擎冇事。下場仲有得跑。'},
+  {t:'唔收，衝埋佢',s:'P4 要緊',fx:{d:0,risk:18},l:'你冇收。引擎捱到終點，但聲音明顯唔同咗。'},
+  {t:'收一半',s:'中間路線',fx:{d:-1,risk:6},l:'你收一半。P5，引擎溫度回落。'}]}
+]
+};
+const CARD={};
+CATS.forEach(cat=>{LIB[cat].forEach((c,i)=>{c.id=cat+'-'+(i+1);c.cat=cat;CARD[c.id]=c;});});
+
+/* ============ 場景（全部內嵌 SVG，程序化） ============ */
+function lt(x0,x1,y,step,w,op){
+  let s='';
+  for(let x=x0;x<x1;x+=step){s+='<rect x="'+x+'" y="'+y+'" width="'+(w||8)+'" height="2.6" fill="#f2c14e" opacity="'+(op||.35)+'"/>';}
+  return s;
 }
-let R = null;
-
-const BEATS = [
-  {
-    title:'排位賽，最後一圈。',
-    prompt:'車隊叫你用最後一圈幫隊友拉真空（slipstream），但你仲未做出好時間。',
-    radio:'工程師：「如果你仲想跑自己嘅圈，我明白。但佢係我哋爭車隊積分嘅人。」',
-    opts:[
-      {t:'照幫隊友拉真空', s:'你排位跌 1 位，但車隊記住你', fx:{d:-1, rep:2}, line:'你讓咗，隊友入到 Q3。領隊拍你膊頭。'},
-      {t:'跑自己嘅圈', s:'你自己嘅排位，但得罪人', fx:{d:2, rep:-1}, line:'你做出一個好圈。無線電靜咗三秒。'},
-      {t:'兩樣都搏（風險）', s:'可能兩樣都拿，也可能兩樣都輸', fx:{d:1, risk:14}, line:'你試，最後一個彎擦到牆，但圈速仲算數。'}
-    ]
-  },
-  {
-    title:'第一個彎，三架車並排。',
-    prompt:'你外線有位。內線兩架車明顯會撞埋一齊，但你唔肯定幾時。',
-    radio:'工程師：「外面有空間，但入面嗰兩個都唔收油。」',
-    opts:[
-      {t:'收入內線搏位', s:'賺兩三個位，或者即刻收工', fx:{d:3, risk:22}, line:'你插咗入去。有車擦到你尾翼，但仲行得。'},
-      {t:'行外線等機會', s:'安全，但可能被夾', fx:{d:0, risk:6}, line:'你走外線，讓咗個位，但保住架車。'},
-      {t:'大力踩 brake 避開', s:'最安全，但輸位', fx:{d:-2, risk:0}, line:'你避開咗。後面兩架車撞埋，賽道出黃旗。'}
-    ]
-  },
-  {
-    title:'第 8 圈，胎開始跌。',
-    prompt:'你嘅軟胎已經 8 圈，後面嗰架用中胎。你估佢可以撐多十圈。',
-    radio:'工程師：「佢條胎新過你，你撐唔到最後。你想早入站定係撐？」',
-    opts:[
-      {t:'即刻入站（undercut）', s:'換新胎，賭佢出嚟喺你後面', fx:{d:1, risk:4}, line:'你入站。出嚟啱啱喺佢前面，車隊做得好。'},
-      {t:'撐多 3 圈', s:'保住賽道位置，但出嚟會落後', fx:{d:-1, risk:2}, line:'你撐到第 11 圈。胎已經唔聽話，但位置仲喺。'},
-      {t:'留喺外面賭安全車', s:'高風險高回報', fx:{d:0, risk:16}, line:'你唔入站。每一次過彎都滑，但安全車真係出咗。'}
-    ]
-  },
-  {
-    title:'安全車出動。',
-    prompt:'賽道壓縮，所有人距離拉近。你仲有一半賽程。',
-    radio:'工程師：「安全車期間入站只蝕 9 秒。你想唔想換？」',
-    opts:[
-      {t:'入站換新胎', s:'用平價入站換一套新胎', fx:{d:2, risk:3}, line:'你入站，好快就出返嚟。呢個係免費嘅運氣。'},
-      {t:'唔入站，保住位置', s:'重開嗰刻你有優勢', fx:{d:0, risk:5}, line:'你選擇留喺賽道。重開嗰刻你頂住兩架車。'}
-    ]
-  },
-  {
-    title:'最後 8 圈，隊友喺你前面。',
-    prompt:'你比隊友快，但車隊無線電叫你讓位 —— 佢爭年度積分。',
-    radio:'領隊：「我哋明白你想贏。但呢個係車隊決定。」',
-    opts:[
-      {t:'讓位', s:'車隊會記住，但你少幾個位', fx:{d:-2, rep:3}, line:'你收油。賽後領隊話：「下年有你份。」'},
-      {t:'唔讓，繼續追', s:'你自己嘅成績，但關係破裂', fx:{d:1, rep:-2}, line:'你冇收油。無線電冇再出聲。'},
-      {t:'讓，但條件係下場優先', s:'博一個承諾', fx:{d:-1, rep:1, risk:2}, line:'你讓，同時要一個承諾。領隊停咗一秒，然後答「好」。'}
-    ]
-  },
-  {
-    title:'最後兩圈。前面嗰架失誤。',
-    prompt:'佢跑開咗，賽道內側有位。你嘅胎已經 20 圈。',
-    radio:'工程師：「佢條胎都冇咗。你自己決定。」',
-    opts:[
-      {t:'搏入內線', s:'一個彎決定成敗', fx:{d:2, risk:18}, line:'你插咗入去。兩架車並排過咗個彎 —— 你贏咗。'},
-      {t:'跟住，等佢自己出錯', s:'穩陣，但可能冇機會', fx:{d:0, risk:2}, line:'你貼住佢。最後一圈，佢守得住。'},
-      {t:'收油保車', s:'保住積分，唔搏', fx:{d:-1, risk:0}, line:'你收油。有人話你唔夠狠。'}
-    ]
+function kerbs(x0,x1,y,step){
+  let s='';
+  for(let i=0,x=x0;x<x1;x+=step,i++){
+    s+='<rect x="'+x+'" y="'+y+'" width="'+step+'" height="4" fill="'+(i%2?'#e9e3d5':'#c8402f')+'" opacity=".8"/>';
   }
-];
+  return s;
+}
+const SCENES={
+straight:()=>({
+  cap:'STRAIGHT · 尾流',spd:'318 km/h',
+  cars:[{c:'#d9533f',r:'rgba(255,255,255,.5)'},{c:'#4ea0ff',r:'rgba(255,255,255,.5)'}],
+  init:{me:{lane:1,f:.40},rv:[{lane:1,f:.58},{lane:0,f:.62}]},
+  lanes:['M -40 118 C 200 116 470 110 840 98','M -40 138 C 200 136 470 130 840 118','M -40 158 C 200 156 470 150 840 138'],
+  svg:
+  '<rect x="-20" y="-20" width="840" height="215" fill="#0a1220"/>'+
+  '<rect x="-20" y="-20" width="840" height="96" fill="url(#gSk)"/>'+
+  '<rect x="-20" y="26" width="840" height="40" fill="#0f1a2b"/>'+
+  lt(-16,824,32,22,7,.30)+
+  '<rect x="-20" y="66" width="840" height="5" fill="#070d16"/>'+
+  '<path d="M-20 71 L820 62 L820 98 L-20 108 Z" fill="#0d1725"/>'+
+  '<path d="M-20 98 L820 88 L820 176 L-20 176 Z" fill="url(#gRd)"/>'+
+  '<path d="M-20 103 L820 93" stroke="#e9e3d5" stroke-opacity=".55" stroke-width="1.6" fill="none"/>'+
+  '<path d="M-20 170 L820 160" stroke="#e9e3d5" stroke-opacity=".28" stroke-width="1.6" fill="none"/>'+
+  '<path d="M-20 128 C 200 126 470 120 820 108" stroke="#e9e3d5" stroke-opacity=".2" stroke-width="1.4" stroke-dasharray="16 18" fill="none"/>'+
+  '<path d="M-20 148 C 200 146 470 140 820 128" stroke="#e9e3d5" stroke-opacity=".2" stroke-width="1.4" stroke-dasharray="16 18" fill="none"/>'+
+  '<g stroke="#8fa7c4" stroke-opacity=".16" stroke-width="1.1" fill="none">'+
+    '<path d="M40 132 L210 130"/><path d="M40 142 L230 140"/><path d="M60 152 L250 150"/></g>'+
+  '<g opacity=".55"><rect x="726" y="60" width="34" height="17" rx="2" fill="#0b1422" stroke="#2a3a55"/>'+
+    '<rect x="731" y="66" width="5" height="5" fill="#f2c14e"/><rect x="739" y="66" width="5" height="5" fill="#f2c14e"/>'+
+    '<rect x="747" y="66" width="5" height="5" fill="#3a4a63"/></g>'+
+  '<g id="lns"><path id="ln0" d="M -40 118 C 200 116 470 110 840 98" fill="none" stroke="none"/>'+
+    '<path id="ln1" d="M -40 138 C 200 136 470 130 840 118" fill="none" stroke="none"/>'+
+    '<path id="ln2" d="M -40 158 C 200 156 470 150 840 138" fill="none" stroke="none"/></g>'+
+  '<defs><linearGradient id="gSk" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#13223a"/><stop offset="1" stop-color="#0a1220"/></linearGradient>'+
+    '<linearGradient id="gRd" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#2e3846"/><stop offset="1" stop-color="#19222e"/></linearGradient></defs>'
+}),
+t1:()=>({
+  cap:'TURN 1 · 三車並排',spd:'146 km/h',
+  cars:[{c:'#d9533f',r:'rgba(255,255,255,.5)'},{c:'#4ea0ff',r:'rgba(255,255,255,.5)'}],
+  init:{me:{lane:1,f:.42},rv:[{lane:0,f:.47},{lane:2,f:.49}]},
+  lanes:['M -40 120 C 110 118 190 98 270 78 C 350 58 430 40 560 32 L 840 24',
+         'M -40 146 C 110 144 190 124 270 104 C 350 84 430 66 560 58 L 840 50',
+         'M -40 172 C 110 170 190 150 270 130 C 350 110 430 92 560 84 L 840 76'],
+  svg:
+  '<rect x="-20" y="-20" width="840" height="215" fill="#0a1220"/>'+
+  '<rect x="-20" y="-20" width="840" height="110" fill="url(#gSk2)"/>'+
+  '<rect x="-20" y="0" width="840" height="10" fill="#0f1a2b"/>'+
+  '<path d="M-20 104 C 110 102 190 82 270 62 C 350 42 430 24 560 16 L 820 8 L 820 -20 L -20 -20 Z" fill="#0d1725"/>'+
+  '<path d="M-40 146 C 110 144 190 124 270 104 C 350 84 430 66 540 58 L 840 50" stroke="#2b3543" stroke-width="86" fill="none" stroke-linecap="round"/>'+
+  '<path d="M-40 146 C 110 144 190 124 270 104 C 350 84 430 66 540 58 L 840 50" stroke="#232c39" stroke-width="70" fill="none"/>'+
+  '<path d="M-40 103 C 110 101 190 81 270 61 C 350 41 430 23 540 15 L 840 7" stroke="#e9e3d5" stroke-opacity=".45" stroke-width="2" fill="none"/>'+
+  '<path d="M-40 189 C 110 187 190 167 270 147 C 350 127 430 109 540 101 L 840 93" stroke="#e9e3d5" stroke-opacity=".25" stroke-width="2" fill="none"/>'+
+  '<g transform="rotate(-21 300 120)">'+kerbs(210,420,96,14)+'</g>'+
+  '<path d="M-40 200 C 120 198 200 178 280 158 L 420 148 L 420 210 L -40 210 Z" fill="#1a1f26"/>'+
+  '<g fill="#2b333d" opacity=".8">'+
+    '<circle cx="60" cy="192" r="2.2"/><circle cx="96" cy="190" r="2"/><circle cx="140" cy="188" r="2.4"/>'+
+    '<circle cx="190" cy="184" r="2"/><circle cx="238" cy="180" r="2.2"/><circle cx="300" cy="174" r="2"/>'+
+    '<circle cx="352" cy="170" r="2.2"/><circle cx="120" cy="200" r="2"/><circle cx="270" cy="196" r="2.3"/></g>'+
+  '<path d="M-40 96 C 110 94 190 74 270 54 C 350 34 430 16 560 8 L 840 0" stroke="#38506e" stroke-opacity=".5" stroke-width="1.4" stroke-dasharray="8 10" fill="none"/>'+
+  '<g id="lns"><path id="ln0" d="M -40 120 C 110 118 190 98 270 78 C 350 58 430 40 560 32 L 840 24" fill="none" stroke="none"/>'+
+    '<path id="ln1" d="M -40 146 C 110 144 190 124 270 104 C 350 84 430 66 560 58 L 840 50" fill="none" stroke="none"/>'+
+    '<path id="ln2" d="M -40 172 C 110 170 190 150 270 130 C 350 110 430 92 560 84 L 840 76" fill="none" stroke="none"/></g>'+
+  '<defs><linearGradient id="gSk2" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#16263f"/><stop offset="1" stop-color="#0a1220"/></linearGradient></defs>'
+}),
+tyre:()=>({
+  cap:'TYRE WEAR · 胎溫 112°C',spd:'204 km/h',
+  cars:[{c:'#d9533f',r:'rgba(255,255,255,.5)'},{c:'#4ea0ff',r:'rgba(255,255,255,.5)'}],
+  init:{me:{lane:1,f:.44},rv:[{lane:1,f:.60},{lane:0,f:.30}]},
+  lanes:['M -40 116 C 220 112 470 108 840 100','M -40 140 C 220 136 470 132 840 124','M -40 164 C 220 160 470 156 840 148'],
+  svg:
+  '<rect x="-20" y="-20" width="840" height="215" fill="#080e18"/>'+
+  '<rect x="-20" y="-20" width="840" height="104" fill="url(#gSk3)"/>'+
+  '<path d="M-20 100 L820 92 L820 176 L-20 176 Z" fill="url(#gRd3)"/>'+
+  '<path d="M-20 104 L820 96" stroke="#e9e3d5" stroke-opacity=".4" stroke-width="1.6" fill="none"/>'+
+  '<path d="M-20 170 L820 162" stroke="#e9e3d5" stroke-opacity=".22" stroke-width="1.6" fill="none"/>'+
+  '<g stroke="#0d131c" stroke-opacity=".55" stroke-width="3" fill="none">'+
+    '<path d="M-20 132 C 240 128 470 126 820 118"/><path d="M-20 136 C 240 132 470 130 820 122"/></g>'+
+  '<g fill="#1b232f">'+
+    '<ellipse cx="300" cy="150" rx="9" ry="2.6"/><ellipse cx="520" cy="142" rx="7" ry="2.2"/>'+
+    '<ellipse cx="640" cy="136" rx="10" ry="3"/><ellipse cx="410" cy="156" rx="6" ry="2"/>'+
+    '<ellipse cx="700" cy="146" rx="8" ry="2.4"/><ellipse cx="180" cy="158" rx="7" ry="2.2"/></g>'+
+  '<g opacity=".9">'+
+    '<rect x="654" y="18" width="128" height="60" rx="6" fill="#0c1523" stroke="#22314a"/>'+
+    '<rect x="664" y="42" width="16" height="26" rx="2" fill="#3fbf8b" opacity=".85"/>'+
+    '<rect x="686" y="36" width="16" height="32" rx="2" fill="#f2c14e" opacity=".9"/>'+
+    '<rect x="708" y="30" width="16" height="38" rx="2" fill="#f2c14e"/>'+
+    '<rect x="730" y="46" width="16" height="22" rx="2" fill="#d9533f" opacity=".8"/>'+
+    '<rect x="752" y="54" width="16" height="14" rx="2" fill="#d9533f" opacity=".55"/></g>'+
+  '<g opacity=".55" fill="#c9d2e0">'+
+    '<ellipse cx="60" cy="150" rx="16" ry="6"/><ellipse cx="60" cy="140" rx="16" ry="6"/>'+
+    '<ellipse cx="60" cy="130" rx="16" ry="6"/></g>'+
+  '<g id="lns"><path id="ln0" d="M -40 116 C 220 112 470 108 840 100" fill="none" stroke="none"/>'+
+    '<path id="ln1" d="M -40 140 C 220 136 470 132 840 124" fill="none" stroke="none"/>'+
+    '<path id="ln2" d="M -40 164 C 220 160 470 156 840 148" fill="none" stroke="none"/></g>'+
+  '<defs><linearGradient id="gSk3" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#12203a"/><stop offset="1" stop-color="#080e18"/></linearGradient>'+
+    '<linearGradient id="gRd3" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#2a323e"/><stop offset="1" stop-color="#171e28"/></linearGradient></defs>'
+}),
+sc:()=>({
+  cap:'SAFETY CAR · 車群壓縮',spd:'92 km/h',
+  cars:[{c:'#d9533f',r:'rgba(255,255,255,.5)'},{c:'#4ea0ff',r:'rgba(255,255,255,.5)'}],
+  init:{me:{lane:1,f:.34},rv:[{lane:0,f:.40},{lane:2,f:.44}]},
+  lanes:['M -40 114 C 220 110 470 106 840 98','M -40 138 C 220 134 470 130 840 122','M -40 162 C 220 158 470 154 840 146'],
+  svg:
+  '<rect x="-20" y="-20" width="840" height="215" fill="#070b13"/>'+
+  '<rect x="-20" y="-20" width="840" height="104" fill="url(#gSk4)"/>'+
+  '<g opacity=".6">'+lt(-16,824,20,30,10,.16)+'</g>'+
+  '<path d="M-20 98 L820 90 L820 176 L-20 176 Z" fill="url(#gRd4)"/>'+
+  '<path d="M-20 102 L820 94" stroke="#e9e3d5" stroke-opacity=".35" stroke-width="1.6" fill="none"/>'+
+  '<g>'+
+    '<rect x="0" y="76" width="840" height="7" fill="#101a28"/>'+
+    kerbs(0,840,70,26)+'</g>'+
+  '<rect x="512" y="72" width="46" height="26" rx="5" fill="#e9e3d5" opacity=".92"/>'+
+  '<rect x="508" y="78" width="54" height="7" rx="3" fill="#f2c14e" class="blink"/>'+
+  '<rect x="516" y="98" width="8" height="6" rx="1" fill="#0b1220"/>'+
+  '<rect x="546" y="98" width="8" height="6" rx="1" fill="#0b1220"/>'+
+  '<g fill="#f2c14e" opacity=".8"><rect x="620" y="66" width="4" height="4"/><rect x="632" y="66" width="4" height="4"/><rect x="644" y="66" width="4" height="4"/></g>'+
+  '<g opacity=".4" fill="#d9533f"><rect x="700" y="120" width="90" height="3"/><rect x="700" y="132" width="90" height="3"/><rect x="700" y="144" width="90" height="3"/></g>'+
+  '<g id="lns"><path id="ln0" d="M -40 114 C 220 110 470 106 840 98" fill="none" stroke="none"/>'+
+    '<path id="ln1" d="M -40 138 C 220 134 470 130 840 122" fill="none" stroke="none"/>'+
+    '<path id="ln2" d="M -40 162 C 220 158 470 154 840 146" fill="none" stroke="none"/></g>'+
+  '<defs><linearGradient id="gSk4" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#0e1a2c"/><stop offset="1" stop-color="#070b13"/></linearGradient>'+
+    '<linearGradient id="gRd4" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#252d39"/><stop offset="1" stop-color="#151b24"/></linearGradient></defs>'
+}),
+team:()=>({
+  cap:'TEAM ORDERS · 隊友前面',spd:'188 km/h',
+  cars:[{c:'#f2efe6',r:'#c9b98a'},{c:'#4ea0ff',r:'rgba(255,255,255,.5)'}],
+  init:{me:{lane:1,f:.42},rv:[{lane:1,f:.58},{lane:0,f:.24}]},
+  lanes:['M -40 116 C 220 112 470 108 840 100','M -40 140 C 220 136 470 132 840 124','M -40 164 C 220 160 470 156 840 148'],
+  svg:
+  '<rect x="-20" y="-20" width="840" height="215" fill="#080e18"/>'+
+  '<rect x="-20" y="-20" width="840" height="104" fill="url(#gSk5)"/>'+
+  '<g opacity=".9">'+
+    '<rect x="-20" y="24" width="270" height="52" fill="#101a2a"/>'+
+    '<rect x="-20" y="18" width="270" height="8" fill="#1a2740"/>'+
+    '<g fill="#f2c14e" opacity=".55"><rect x="10" y="38" width="26" height="5"/><rect x="10" y="50" width="26" height="5"/>'+
+      '<rect x="48" y="38" width="26" height="5"/><rect x="48" y="50" width="26" height="5"/>'+
+      '<rect x="86" y="38" width="26" height="5"/><rect x="86" y="50" width="26" height="5"/></g>'+
+    '<path d="M236 24 L236 6" stroke="#3a4a63" stroke-width="2"/>'+
+    '<path d="M236 8 C 262 12 262 30 236 34" stroke="#f2c14e" stroke-opacity=".5" stroke-width="1.4" fill="none"/>'+
+    '<path d="M236 12 C 254 16 254 26 236 30" stroke="#f2c14e" stroke-opacity=".3" stroke-width="1.4" fill="none"/>'+
+  '</g>'+
+  '<path d="M-20 98 L820 90 L820 176 L-20 176 Z" fill="url(#gRd5)"/>'+
+  '<path d="M-20 102 L820 94" stroke="#e9e3d5" stroke-opacity=".4" stroke-width="1.6" fill="none"/>'+
+  '<path d="M-20 132 C 240 128 470 126 820 118" stroke="#e9e3d5" stroke-opacity=".18" stroke-width="1.4" stroke-dasharray="14 16" fill="none"/>'+
+  '<g opacity=".7"><rect x="600" y="66" width="70" height="26" rx="3" fill="#0b1422" stroke="#2a3a55"/>'+
+    '<rect x="608" y="72" width="8" height="14" fill="#f2c14e"/><rect x="622" y="72" width="8" height="14" fill="#f2c14e"/>'+
+    '<rect x="640" y="72" width="22" height="3" fill="#3a4a63"/><rect x="640" y="79" width="16" height="3" fill="#3a4a63"/></g>'+
+  '<g id="lns"><path id="ln0" d="M -40 116 C 220 112 470 108 840 100" fill="none" stroke="none"/>'+
+    '<path id="ln1" d="M -40 140 C 220 136 470 132 840 124" fill="none" stroke="none"/>'+
+    '<path id="ln2" d="M -40 164 C 220 160 470 156 840 148" fill="none" stroke="none"/></g>'+
+  '<defs><linearGradient id="gSk5" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#13203a"/><stop offset="1" stop-color="#080e18"/></linearGradient>'+
+    '<linearGradient id="gRd5" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#2b333f"/><stop offset="1" stop-color="#161d27"/></linearGradient></defs>'
+}),
+last:()=>({
+  cap:'LAST 2 LAPS · 日落',spd:'272 km/h',
+  cars:[{c:'#d9533f',r:'rgba(255,255,255,.5)'},{c:'#4ea0ff',r:'rgba(255,255,255,.5)'}],
+  init:{me:{lane:1,f:.40},rv:[{lane:0,f:.56},{lane:1,f:.63}]},
+  lanes:['M -40 114 C 220 110 470 106 840 98','M -40 138 C 220 134 470 130 840 122','M -40 162 C 220 158 470 154 840 146'],
+  svg:
+  '<rect x="-20" y="-20" width="840" height="215" fill="#0a0c15"/>'+
+  '<rect x="-20" y="-20" width="840" height="110" fill="url(#gSk6)"/>'+
+  '<circle cx="612" cy="46" r="26" fill="#f2c14e" opacity=".22"/>'+
+  '<circle cx="612" cy="46" r="13" fill="#f6d98a" opacity=".55"/>'+
+  '<path d="M-20 74 L300 62 L300 76 L-20 88 Z" fill="#151824"/>'+
+  '<g fill="#f2c14e" opacity=".3"><rect x="20" y="66" width="3" height="3"/><rect x="44" y="65" width="3" height="3"/>'+
+    '<rect x="70" y="64" width="3" height="3"/><rect x="98" y="63" width="3" height="3"/><rect x="130" y="62" width="3" height="3"/></g>'+
+  '<path d="M-20 92 L820 84 L820 176 L-20 176 Z" fill="url(#gRd6)"/>'+
+  '<path d="M-20 96 L820 88" stroke="#e9cf9f" stroke-opacity=".45" stroke-width="1.8" fill="none"/>'+
+  '<path d="M-20 130 C 240 126 470 124 820 116" stroke="#e9cf9f" stroke-opacity=".16" stroke-width="1.4" stroke-dasharray="18 20" fill="none"/>'+
+  '<g opacity=".8">'+
+    '<rect x="704" y="96" width="16" height="20" rx="2" fill="#101a28" stroke="#3a4a63"/>'+
+    '<rect x="744" y="92" width="16" height="20" rx="2" fill="#101a28" stroke="#3a4a63"/>'+
+    '<rect x="784" y="88" width="16" height="20" rx="2" fill="#101a28" stroke="#3a4a63"/>'+
+    '<rect x="707" y="101" width="10" height="3" fill="#f2c14e"/><rect x="747" y="97" width="10" height="3" fill="#f2c14e"/>'+
+    '<rect x="787" y="93" width="10" height="3" fill="#d9533f"/></g>'+
+  '<g opacity=".25" stroke="#f2c14e" stroke-width="1" fill="none">'+
+    '<path d="M-20 158 L820 150"/><path d="M-20 166 L820 158"/></g>'+
+  '<g id="lns"><path id="ln0" d="M -40 114 C 220 110 470 106 840 98" fill="none" stroke="none"/>'+
+    '<path id="ln1" d="M -40 138 C 220 134 470 130 840 122" fill="none" stroke="none"/>'+
+    '<path id="ln2" d="M -40 162 C 220 158 470 154 840 146" fill="none" stroke="none"/></g>'+
+  '<defs><linearGradient id="gSk6" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#3a2330"/><stop offset=".55" stop-color="#1c1626"/><stop offset="1" stop-color="#0a0c15"/></linearGradient>'+
+    '<linearGradient id="gRd6" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#3a3038"/><stop offset="1" stop-color="#1a1822"/></linearGradient></defs>'
+})
+};
 
-/* ---------- 處境圖（內線／中線／外線） ---------- */
-const LANES=[
-  {d:'M -40 96 C 180 96 300 92 430 104 C 520 112 560 140 640 152 L 850 152', y:0},
-  {d:'M -40 116 C 180 116 300 112 430 122 C 520 130 560 152 640 162 L 850 162', y:1},
-  {d:'M -40 138 C 180 138 300 132 430 140 C 520 148 560 164 640 170 L 850 170', y:2}
-];
-let sceneReady=false, carEls={}, lanePaths=[];
+/* ============ 狀態 / 存檔 ============ */
+function newCareer(){
+  return {v:2, seed:(Math.random()*1e9)|0, name:'KAI', style:'brake', round:1, races:RACES,
+    points:0, rep:0, fit:100, results:[], repLog:[], rivalPts:{}, decks:{}, race:null, done:false};
+}
+let C=newCareer();
+let R=null;
+let hasSave=false;
+let activeScreen='scCreate';
 
-function buildScene(){
-  if(sceneReady) return;
-  const tg=document.getElementById('trackG');
-  // 瀝青底
-  const base=document.createElementNS('http://www.w3.org/2000/svg','path');
-  base.setAttribute('d','M -40 80 C 180 80 300 76 430 90 C 520 100 560 132 640 146 L 850 146 L 850 186 L 640 186 C 560 172 520 140 430 130 C 300 116 180 120 -40 120 Z');
-  base.setAttribute('fill','url(#asph)');
-  tg.appendChild(base);
-  // 白邊
-  LANES.forEach((L,i)=>{
-    const p=document.createElementNS('http://www.w3.org/2000/svg','path');
-    p.setAttribute('d',L.d); p.setAttribute('fill','none');
-    p.setAttribute('stroke', i===0?'rgba(233,227,213,.55)':(i===2?'rgba(233,227,213,.35)':'rgba(120,140,160,.35)'));
-    p.setAttribute('stroke-width', i===1?1:1.6);
-    if(i===1) p.setAttribute('stroke-dasharray','10 12');
-    tg.appendChild(p); lanePaths.push(p);
+function save(){
+  try{
+    localStorage.setItem(SAVE_KEY, JSON.stringify(C));
+    const d=$('saveDot'); if(d){d.classList.add('on'); setTimeout(()=>d.classList.remove('on'),700);}
+  }catch(e){}
+}
+function loadSave(){
+  try{
+    const raw=localStorage.getItem(SAVE_KEY);
+    if(!raw) return false;
+    const o=JSON.parse(raw);
+    if(!o||o.v!==2||!Array.isArray(o.results)) return false;
+    C=Object.assign(newCareer(),o);
+    R=C.race||null;
+    hasSave=true;
+    return true;
+  }catch(e){ return false; }
+}
+function clearSave(){ try{localStorage.removeItem(SAVE_KEY);}catch(e){} }
+
+/* 牌庫 */
+function initDecks(){
+  C.decks={};
+  CATS.forEach(cat=>{
+    const rnd=mulberry(hash(C.seed+'|'+cat));
+    C.decks[cat]={order:shuffle(LIB[cat].map(c=>c.id),rnd), idx:0, last:null};
   });
-  // 路肩
-  for(let x=380;x<820;x+=16){
-    const r=document.createElementNS('http://www.w3.org/2000/svg','rect');
-    r.setAttribute('x',x); r.setAttribute('y',138); r.setAttribute('width',8); r.setAttribute('height',4);
-    r.setAttribute('fill', (Math.floor(x/16)%2)?'#c8402f':'#e9e3d5');
-    r.setAttribute('transform','rotate(8 '+x+' 140)');
-    tg.appendChild(r);
+}
+function drawCard(cat){
+  const d=C.decks[cat];
+  if(!d){ initDecks(); return drawCard(cat); }
+  if(d.idx>=d.order.length){
+    const rnd=mulberry(hash(C.seed+'|'+cat+'|'+C.round+'|'+d.order.join(',')));
+    d.order=shuffle(LIB[cat].map(c=>c.id),rnd);
+    d.idx=0;
+    if(d.order[0]===d.last&&d.order.length>1){ const t=d.order[0]; d.order[0]=d.order[1]; d.order[1]=t; }
   }
-  // 車：你（金）＋兩架對手
-  const mk=(color,ring)=>{
-    const g=document.createElementNS('http://www.w3.org/2000/svg','g');
-    g.setAttribute('class','carD');
-    const r=document.createElementNS('http://www.w3.org/2000/svg','rect');
-    r.setAttribute('x',-11); r.setAttribute('y',-5.5); r.setAttribute('width',22); r.setAttribute('height',11);
-    r.setAttribute('rx',3); r.setAttribute('fill',color);
-    r.setAttribute('stroke',ring); r.setAttribute('stroke-width',1.2);
-    g.appendChild(r); document.getElementById('carsG').appendChild(g); return g;
-  };
-  carEls.me=mk('#f2c14e','#fff3d0');
-  const you=document.createElementNS('http://www.w3.org/2000/svg','text');
-  you.setAttribute('id','youTag'); you.setAttribute('fill','#f7e3ae');
-  you.setAttribute('font-size','9'); you.setAttribute('font-family','monospace');
-  you.setAttribute('text-anchor','middle'); you.textContent='你';
-  carEls.me.appendChild(you);
-  you.setAttribute('y','-9');
-  carEls.r1=mk('#d9533f','rgba(255,255,255,.5)');
-  carEls.r2=mk('#4ea0ff','rgba(255,255,255,.5)');
-  sceneReady=true;
+  const id=d.order[d.idx++];
+  d.last=id;
+  return id;
+}
+function makeRace(){
+  const rnd=mulberry(hash(C.seed+'|round'+C.round+'|cards'));
+  const cats=shuffle(CATS.slice(),rnd);
+  const cards=cats.map(cat=>drawCard(cat));
+  const startPos=6+Math.floor(rnd()*4);
+  return {cards:cards, beats:0, pos:startPos, startPos:startPos, risk:0, log:[], crashed:false, laps:30, result:null};
 }
 
-function placeAt(g, lane, frac){
-  const path=lanePaths[lane];
-  const len=path.getTotalLength();
-  const pt=path.getPointAtLength(len*frac);
-  g.setAttribute('transform',`translate(${pt.x.toFixed(1)},${pt.y.toFixed(1)})`);
+/* ============ 場景渲染 ============ */
+let laneEls=[], carEls={}, playerF=.52, rivalF=[.6,.66], anim=null, rafId=null, lastTs=0, curCat='straight';
+let CARW=22, CARH=11;
+
+function carSVG(spec,w,h,isMe){
+  let s='<g class="car" transform="translate(0,0)">';
+  s+='<rect x="'+(-w/2)+'" y="'+(-h/2)+'" width="'+w+'" height="'+h+'" rx="'+Math.min(7,h/2)+'" fill="'+spec.c+'" stroke="'+spec.r+'" stroke-width="1.2"/>';
+  if(isMe){
+    s+='<path d="M '+(w*0.08)+' '+(-h*0.5)+' L '+(w*0.52)+' 0 L '+(w*0.08)+' '+(h*0.5)+'" fill="#fff8e2" opacity=".92"/>';
+    s+='<rect x="'+(-w/2)+'" y="'+(-h/2)+'" width="'+w+'" height="'+h+'" rx="'+Math.min(7,h/2)+'" fill="none" stroke="rgba(242,193,78,.35)" stroke-width="3"/>';
+  }
+  s+='</g>';
+  return s;
 }
 
-let previewLane=1;
-let anim=null, lastTs=0, rafId=null;
-let playerF=0.52, rivalF=[0.68,0.72];
-
+function paintScene(cat,preserve){
+  const sc=SCENES[cat]();
+  curCat=cat;
+  const box=$('scene').getBoundingClientRect();
+  const bw=box.width||760, bh=box.height||172;
+  const sx=bw/800, sy=bh/172;
+  CARW=clamp(28/Math.max(sx,.05),14,64);
+  CARH=clamp(13/Math.max(sy,.05),7,26);
+  const svg=$('sceneSvg');
+  let cars='';
+  cars+=carSVG({c:'#f2c14e',r:'#fff3d0'},CARW,CARH,true);
+  cars+=carSVG(sc.cars[0],CARW,CARH,false);
+  cars+=carSVG(sc.cars[1],CARW,CARH,false);
+  svg.innerHTML=sc.svg+'<g id="carLayer">'+cars+'</g>';
+  const groups=svg.querySelectorAll('#carLayer .car');
+  carEls={me:groups[0],r1:groups[1],r2:groups[2]};
+  laneEls=[svg.querySelector('#ln0'),svg.querySelector('#ln1'),svg.querySelector('#ln2')];
+  $('sceneCap').textContent=sc.cap;
+  $('sceneSpd').textContent=sc.spd;
+  if(!preserve){
+    playerF=sc.init.me.f; rivalF=[sc.init.rv[0].f,sc.init.rv[1].f];
+  }
+  placeAt(carEls.me,sc.init.me.lane,playerF);
+  placeAt(carEls.r1,sc.init.rv[0].lane,rivalF[0]);
+  placeAt(carEls.r2,sc.init.rv[1].lane,rivalF[1]);
+  carEls.me.setAttribute('opacity','1');
+}
+function placeAt(g,lane,frac){
+  if(!g) return;
+  const p=laneEls[lane]||laneEls[1]||laneEls[0];
+  if(!p) return;
+  const L=p.getTotalLength();
+  const pt=p.getPointAtLength(L*clamp(frac,0,1));
+  g.setAttribute('transform','translate('+pt.x.toFixed(1)+','+pt.y.toFixed(1)+')');
+}
 function setMsg(txt,kind){
-  const m=document.getElementById('sceneMsg');
+  const m=$('sceneMsg');
   m.textContent=txt; m.className='sceneMsg on'+(kind?' '+kind:'');
-  const fl=document.getElementById('sceneFlash');
-  fl.className='flash on'+(kind==='bad'?' bad':'');
-  document.getElementById('scene').classList.toggle('shake',kind==='bad');
+  $('sceneFlash').className='flash on'+(kind==='bad'?' bad':'');
+  $('scene').classList.toggle('shake',kind==='bad');
 }
 function clearMsg(){
-  document.getElementById('sceneMsg').className='sceneMsg';
-  document.getElementById('sceneFlash').className='flash';
-  document.getElementById('scene').classList.remove('shake');
+  $('sceneMsg').className='sceneMsg';
+  $('sceneFlash').className='flash';
+  $('scene').classList.remove('shake');
 }
-function easeInOut(p){return p<0.5?2*p*p:1-Math.pow(-2*p+2,2)/2;}
+function easeInOut(p){return p<.5?2*p*p:1-Math.pow(-2*p+2,2)/2;}
 
-function runAnim(opts){
-  // opts: {lane, to, crash, backRival, dur}
-  anim={t:0,dur:opts.dur||1.7,from:playerF,to:opts.to,lane:opts.lane,
-        crash:!!opts.crash,backRival:!!opts.backRival};
+function runAnim(o){
+  anim={t:0,dur:o.dur||1.7,from:playerF,to:o.to,lane:o.lane,crash:!!o.crash,back:!!o.back};
   carEls.me.setAttribute('opacity','1');
   lastTs=0;
   if(!rafId) rafId=requestAnimationFrame(tick);
 }
-
 function tick(ts){
   if(!anim){ rafId=null; return; }
   if(!lastTs) lastTs=ts;
-  const dt=Math.min(0.05,(ts-lastTs)/1000); lastTs=ts;
+  const dt=Math.min(.05,(ts-lastTs)/1000); lastTs=ts;
   anim.t+=dt;
   const p=Math.min(1,anim.t/anim.dur), e=easeInOut(p);
   playerF=anim.from+(anim.to-anim.from)*e;
-  placeAt(carEls.me, anim.lane, playerF);
-
-  // 對手讓位／後退
-  if(anim.backRival){
-    rivalF[0]=0.68-(0.68-0.55)*e;
+  if(anim.crash){
+    const lane=laneEls[anim.lane]||laneEls[1];
+    const L=lane.getTotalLength();
+    const pt=lane.getPointAtLength(L*clamp(playerF,0,1));
+    carEls.me.setAttribute('transform','translate('+pt.x.toFixed(1)+','+pt.y.toFixed(1)+') rotate('+((1-p)*18).toFixed(1)+')');
+    carEls.me.setAttribute('opacity',String(1-p*0.5));
+  }else{
+    placeAt(carEls.me,anim.lane,playerF);
+  }
+  if(anim.back){
+    rivalF[0]=rivalF[0]-0.055*e;
     placeAt(carEls.r1,1,rivalF[0]);
   }
-  if(anim.crash){
-    carEls.me.setAttribute('opacity',String(1-p*0.55));
-    const path=lanePaths[anim.lane], pt=path.getPointAtLength(path.getTotalLength()*playerF);
-    carEls.me.setAttribute('transform',
-      `translate(${pt.x.toFixed(1)},${pt.y.toFixed(1)}) rotate(${((1-p)*16).toFixed(1)})`);
-  }
   if(p<1){ rafId=requestAnimationFrame(tick); }
-  else { rafId=null; anim.done=true; }
-}
-function setScene(beat, lane){
-  buildScene();
-  placeAt(carEls.me, lane, 0.52);
-  placeAt(carEls.r1, 1, 0.68);
-  placeAt(carEls.r2, lane===0?2:0, 0.72);
-  const caps=[
-    'QUALIFYING · 最後一圈','TURN 1 · 三車並排','LAP 8 · 輪胎退化',
-    'SAFETY CAR · 車群壓縮','LAP 22 · 隊友前面','LAST 2 LAPS · 機會'
-  ];
-  document.getElementById('sceneCap').textContent=caps[Math.min(beat,caps.length-1)];
+  else { rafId=null; anim=null; }
 }
 
-/* ---------- 流程 ---------- */
-const $=id=>document.getElementById(id);
-function show(id){document.querySelectorAll('.screen').forEach(s=>s.classList.remove('on'));$(id).classList.add('on');}
+/* ============ 畫面流程 ============ */
+function show(id){
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('on'));
+  const el=$(id); if(!el) return;
+  el.classList.add('on');
+  activeScreen=id;
+  document.body.dataset.screen=id;
+  if(window.innerWidth<980) window.scrollTo(0,0);
+}
+
+function paintHud(){
+  $('hPts').textContent=C.points;
+  $('hRep').textContent=(C.rep>0?'+':'')+C.rep;
+  $('hFit').textContent=C.fit;
+  $('hudRace').textContent='ROUND '+C.round+' · '+C.races;
+  $('hudRace2').textContent='ROUND '+C.round+' · '+C.races;
+  $('hPts2').textContent=C.points;
+  $('hRep2').textContent=(C.rep>0?'+':'')+C.rep;
+  $('hPts3').textContent=C.points;
+  $('hRep3').textContent=(C.rep>0?'+':'')+C.rep;
+  $('hudSeason').textContent='SEASON 2027';
+  if(R){
+    $('sPos').textContent='P'+R.pos;
+    $('sRisk').textContent=R.risk+'%';
+    $('sTrack').textContent=R.pos<=3?'前排':(R.pos<=7?'中段':'後排');
+  }
+  // progress dots
+  let dots='';
+  for(let i=0;i<C.races;i++){
+    const r=C.results[i];
+    let cls='';
+    if(r) cls = r.dnf?'dnf':(r.pos<=3?'podium':'done');
+    else if(i===C.round-1) cls='cur';
+    dots+='<i class="'+cls+'"></i>';
+  }
+  const pr=$('rounds'); if(pr) pr.innerHTML=dots;
+}
 
 function startCareer(){
-  C.name=($('nameIn').value||'KAI').trim().toUpperCase().slice(0,12);
-  C.round=1; C.points=0; C.rep=0; C.fit=100; C.results=[];
+  const nm=($('nameIn').value||'KAI').trim().toUpperCase().slice(0,12)||'KAI';
+  C=newCareer();
+  C.name=nm; C.style=document.querySelector('#styles .opt.sel')?document.querySelector('#styles .opt.sel').dataset.s:'brake';
+  initDecks();
+  R=null; hasSave=true;
+  save();
   startRace();
 }
-
 function startRace(){
-  R = makeRace();
-  R.beats = 0;
-  playerF=0.52; rivalF=[0.68,0.72]; anim=null;
-  clearMsg&&clearMsg();
-  $('hudRace').textContent = `ROUND ${C.round} · ${C.races}`;
-  $('log').innerHTML = '';
-  updateHud();
+  if(!R){ R=makeRace(); C.race=R; save(); }
+  else { C.race=R; }
+  playerF=.52; rivalF=[.6,.66]; anim=null;
+  clearMsg();
+  $('log').innerHTML='<span class="log-empty">仲未有紀錄 —— 每個選擇都會寫入呢度。</span>';
+  paintHud();
   show('scRace');
   renderBeat();
 }
 
-function updateHud(){
-  $('hPts').textContent = C.points;
-  $('hRep').textContent = (C.rep>0?'+':'')+C.rep;
-  $('hFit').textContent = C.fit;
-  $('sPos').textContent = 'P'+R.pos;
-  const ph=['排位賽','第 1 圈','第 8 圈','第 14 圈','第 22 圈','最後 2 圈'][R.beats]||'比賽';
-  $('sPhase').textContent = ph;
-  $('sRisk').textContent = R.risk+'%';
-  $('sTrack').textContent = R.pos<=3?'前排':(R.pos<=7?'中段':'後排');
-}
-
 function renderBeat(){
-  const b=BEATS[R.beats];
-  $('beatLbl').textContent=`DECISION ${R.beats+1} / ${BEATS.length}`;
-  $('beatTitle').textContent=b.title;
-  $('beatPrompt').textContent=b.prompt;
-  $('radio').textContent=b.radio;
-  $('sPhase')&&updateHud();
+  const id=R.cards[R.beats], card=CARD[id];
+  if(!card){ finishRace(); return; }
+  $('beatLbl').textContent='DECISION '+(R.beats+1)+' / '+R.cards.length+'  ·  '+card.cat.toUpperCase();
+  $('beatTitle').textContent=card.t;
+  $('beatPrompt').textContent=card.p;
+  $('radio').textContent='「'+card.r+'」';
+  $('radioWho').textContent=card.who||'RACE ENGINEER';
   $('cons').classList.remove('on');
   $('cons').textContent='';
+  clearMsg();
+  paintScene(card.cat,false);
+  paintHud();
+  if(R.log&&R.log.length) renderLog();
+  $('sPhase').textContent=['起步','第 5 圈','第 10 圈','第 15 圈','第 20 圈','最後 3 圈'][R.beats]||'比賽';
   const wrap=$('opts'); wrap.innerHTML='';
-  setScene(R.beats, 1);
-  b.opts.forEach((o,i)=>{
+  card.o.forEach((o,i)=>{
     const btn=document.createElement('button');
-    const rk=(o.fx&&o.fx.risk)?Math.round(o.fx.risk*STYLE[C.style].riskMul):0;
+    const rk=Math.round((o.fx&&o.fx.risk?o.fx.risk:0)*STYLE[C.style].riskMul);
     btn.className='btn'+(rk>=14?' danger':(rk===0?' safe':''));
-    btn.innerHTML=`${o.t}<small>${o.s}</small>${rk?`<span class="risk">風險 ${rk}%</span>`:''}`;
-    btn.onmouseenter=()=>setScene(R.beats, i===0?0:(i===1?1:2));
+    const riskHTML=rk?('<span class="risk">風險 '+rk+'%</span>'):'';
+    btn.innerHTML='<span>'+o.t+'</span><small>'+o.s+'</small>'+riskHTML;
     btn.onclick=()=>choose(i);
     wrap.appendChild(btn);
   });
+  document.body.dataset.beat=String(R.beats);
+  document.body.dataset.cat=card.cat;
 }
 
 function choose(i){
-  const b=BEATS[R.beats], o=b.opts[i], fx=o.fx||{};
+  const card=CARD[R.cards[R.beats]];
+  const o=card.o[i];
+  const fx=o.fx||{};
   const riskPct=Math.round((fx.risk||0)*STYLE[C.style].riskMul);
-  const crash = riskPct>0 && rng()*100 < riskPct*0.55;
+  const crashChance=riskPct*0.45+R.risk*0.10;
+  const crash=crashChance>0 && Math.random()*100<crashChance;
 
-  // 狀態更新（即時計，動畫之後才顯示文字）
   R.risk=Math.min(95,Math.round(R.risk*0.55+riskPct));
-  if(fx.d && !crash) R.pos=Math.max(1,Math.min(12,R.pos-fx.d));
+  if(fx.d&&!crash) R.pos=clamp(R.pos-fx.d,1,12);
   if(fx.rep) C.rep+=fx.rep;
-  R.laps=Math.max(2,R.laps-Math.round(30/BEATS.length));
+  if(fx.fit) C.fit=clamp(C.fit+fx.fit,30,100);
+  R.laps=Math.max(2,R.laps-5);
   if(crash) R.crashed=true;
-  R.log.push(o.line);
-  $('log').innerHTML=R.log.map(l=>'· '+l).join('<br>');
+  R.log.push({t:card.t,l:o.l});
+  if(fx.rep) C.repLog.push({round:C.round,d:fx.rep,t:o.t});
+  renderLog();
+  paintHud();
 
-  // 鎖住選項
-  const btns=[...document.querySelectorAll('#opts .btn')];
+  const btns=Array.prototype.slice.call(document.querySelectorAll('#opts .btn'));
   btns.forEach(x=>x.disabled=true);
   $('cons').classList.remove('on'); $('cons').textContent='';
 
-  // 動畫目標
   const lane=i===0?0:(i===1?1:2);
-  let to=playerF, msg='', kind='';
-  if(crash){
-    to=playerF+0.03; msg='撞車 · 退賽'; kind='bad';
-  } else if((fx.d||0)>0){
-    to=0.80; msg=`爬頭成功 · +${fx.d} 位`; kind='ok';
-  } else if((fx.d||0)<0){
-    to=0.40; msg=`被爬 · ${fx.d} 位`; kind='bad';
-  } else {
-    to=playerF+0.02; msg='位置不變'; kind='';
-  }
+  let to=playerF,msg='位置不變',kind='';
+  if(crash){ to=playerF+0.02; msg='撞車 · 退賽'; kind='bad'; }
+  else if((fx.d||0)>0){ to=0.82; msg='爬頭成功 · +'+fx.d+' 位'; kind='ok'; }
+  else if((fx.d||0)<0){ to=0.34; msg='被爬 · '+fx.d+' 位'; kind='bad'; }
+  else { to=Math.min(0.72,playerF+0.02); }
 
-  runAnim({lane,to,crash,backRival:(fx.d||0)>0&&!crash});
-  const msgDelay = crash?800:620;
-  setTimeout(()=>setMsg(msg,kind), msgDelay);
+  runAnim({lane:lane,to:to,crash:crash,back:!crash&&(fx.d||0)>0,dur:1.7});
+  setTimeout(()=>setMsg(msg,kind),crash?800:620);
 
-  const total = crash?2000:1700;
   setTimeout(()=>{
-    $('cons').textContent=o.line;
+    $('cons').textContent=o.l;
     $('cons').classList.add('on');
     setTimeout(()=>{
       clearMsg();
-      updateHud();
       R.beats++;
-      if(R.beats<BEATS.length){
-        playerF=0.52; rivalF=[0.68,0.72];
-        carEls.me.setAttribute('opacity','1');
+      C.race=R;
+      save();
+      if(R.beats<R.cards.length){
         renderBeat();
-      } else {
+      }else{
         finishRace();
       }
-    }, 1000);
-  }, total);
+    },1000);
+  },crash?2000:1700);
 }
 
+function renderLog(){
+  if(!R||!R.log.length) return;
+  $('log').innerHTML=R.log.map(function(x){
+    return '<div class="log-item"><span style="color:var(--faint)">·</span> '+x.l+'</div>';
+  }).join('');
+  $('log').scrollTop=0;
+}
+
+/* ============ 賽果 ============ */
 function finishRace(){
-  // 風險判定
-  const dnf = !!R.crashed;
-  let finalPos = R.pos - STYLE[C.style].bonus + rint(-1,1);
-  finalPos = Math.max(1,Math.min(12,finalPos));
-  if(dnf) finalPos = 12;
+  document.body.dataset.race='done';
+  const dnf=!!R.crashed;
+  let pos=R.pos- STYLE[C.style].bonus + (Math.floor(Math.random()*3)-1);
+  if(C.fit<55) pos+=1;
+  pos=clamp(pos,1,12);
+  if(dnf) pos=12;
+  const pts=dnf?0:PTS[pos-1];
+  const repGain=dnf?-1:(pos<=3?3:(pos<=6?1:0));
+  C.points+=pts;
+  C.rep+=repGain;
+  C.fit=clamp(C.fit-(dnf?8:4),30,100);
+  if(repGain) C.repLog.push({round:C.round,d:repGain,t:(dnf?'退賽 · ':('P'+pos+' · '))+CIRCUITS[(C.round-1)%CIRCUITS.length].s});
 
-  const pts = [25,18,15,12,10,8,6,4,2,1,0,0][finalPos-1] || 0;
-  C.points += pts;
-  C.rep += finalPos<=3 ? 3 : (finalPos<=6 ? 1 : 0);
-  C.fit = Math.max(40, C.fit - (dnf?8:4));
-  C.results.push({round:C.round,pos:finalPos,dnf});
-
-  $('hudRace2').textContent=`ROUND ${C.round} · ${C.races}`;
-  $('hPts2').textContent=C.points; $('hRep2').textContent=(C.rep>0?'+':'')+C.rep;
-  $('resEyebrow').textContent=`ROUND ${C.round} · CIRCUIT VALGRANDE`;
-  $('resPos').innerHTML=`P${finalPos}<small>／12</small>`;
-  $('resPts').textContent=dnf?'DNF':(pts?`+${pts} 分`:'冇分');
-  $('resHead').textContent=dnf?'退賽':(finalPos<=3?'頒獎台':'完成賽事');
-  $('resStory').innerHTML=buildStory(finalPos,dnf);
-
-  // 名次表
-  let rows=`<div class="rrow"><span>P</span><span>CAR</span><span>TEAM</span><span>PTS</span></div>`;
-  const names=[...RIVALS];
-  const teams=['VELOCE','MERIDIAN','KESTREL','NORDFJORD','TALON','HELIOS','SABLE','DRAKON','PRISM','VETRA','PALLAS','DUNMORE'];
+  // 全場名次（其他 11 架）
+  const order=[];
+  const pool=shuffle(RIVALS.slice(),mulberry(hash(C.seed+'|order'+C.round)));
   for(let p=1;p<=12;p++){
-    const me=(p===finalPos);
-    const who=me?C.name:names.shift();
-    rows+=`<div class="rrow${me?' me':''}"><span>${p}</span><span>${who}</span>
-      <span style="font-family:var(--sans);font-size:11px">${me?'AURORA JR':(teams[p-1]||'—')}</span>
-      <span>${[25,18,15,12,10,8,6,4,2,1,0,0][p-1]}</span></div>`;
+    if(p===pos) order.push({p:p,name:C.name,team:'AURORA JR',me:true});
+    else order.push({p:p,name:pool.pop()||'—',team:TEAMS[(p*3+C.round)%TEAMS.length],me:false});
   }
-  $('resTable').innerHTML=rows;
+  order.forEach(function(e){ if(!e.me) C.rivalPts[e.name]=(C.rivalPts[e.name]||0)+PTS[e.p-1]; });
+
+  const res={round:C.round,pos:pos,dnf:dnf,pts:pts,rep:repGain,circuit:CIRCUITS[(C.round-1)%CIRCUITS.length],order:order};
+  R.result=res;
+  C.results.push(res);
+  C.race=R;
+  save();
+  renderResult(res);
   show('scResult');
 }
 
-function buildStory(pos,dnf){
-  const styleName=STYLE[C.style].label;
-  if(dnf) return `第 ${R.laps} 圈，架車停咗喺賽道邊。<br><br>
-    你行返 pit lane，工程師冇講嘢，只係遞咗支水俾你。<br>
-    你嘅風格係<b>${styleName}</b> —— 今次賭輸咗。<br><br>
-    <span class="small">體能 -8 · 車隊仍然會俾你下一場。</span>`;
-  if(pos<=3) return `你喺 P${pos} 過終點。<br><br>
-    無線電傳嚟一陣雜音，然後有人講：「做得好。」<br>
-    呢個係你第一個<b>頒獎台</b> —— 亦係第一次，有人喺看台上記住你個名。<br><br>
-    <span class="small">聲望今場 +3（累計 ${(C.rep>0?'+':'')+C.rep}）· 車隊積分 +${[25,18,15][pos-1]}</span>`;
-  if(pos<=6) return `P${pos}，有分。<br><br>
-    唔算精彩，但工程師話：「你今日冇做錯嘢。」<br>
-    喺呢個級別，冇做錯嘢已經係一種本事。<br><br>
-    <span class="small">聲望今場 +1（累計 ${(C.rep>0?'+':'')+C.rep}）· 下一場繼續。</span>`;
-  return `P${pos}。冇分。<br><br>
-    你落車嗰刻，隔離車隊嘅人望都冇望你一眼。<br>
-    但你記得第 ${Math.max(2,R.laps)} 圈嗰個彎 —— 你係對嘅，只係冇人見到。<br><br>
-    <span class="small">下一場：再嚟。</span>`;
+function renderResult(res){
+  $('hudRace2').textContent='ROUND '+res.round+' · '+C.races;
+  $('hPts2').textContent=C.points;
+  $('hRep2').textContent=(C.rep>0?'+':'')+C.rep;
+  $('resEyebrow').textContent='ROUND '+res.round+' · '+res.circuit.n;
+  $('resPos').innerHTML='P'+res.pos+'<small>／12</small>';
+  $('resPts').textContent=res.dnf?'DNF':(res.pts?('+'+res.pts+' 分'):'冇分');
+  $('resHead').textContent=res.dnf?'退賽':(res.pos<=3?'頒獎台':(res.pos<=6?'有分完賽':'完成賽事'));
+  $('resStory').innerHTML=buildStory(res);
+  let rows='<div class="rrow"><span>P</span><span>CAR</span><span>TEAM</span><span>PTS</span></div>';
+  res.order.forEach(function(e){
+    rows+='<div class="rrow'+(e.me?' me':'')+'"><span>'+e.p+'</span><span>'+e.name+'</span>'+
+      '<span class="rrow-team">'+e.team+'</span><span>'+PTS[e.p-1]+'</span></div>';
+  });
+  $('resTable').innerHTML=rows;
+  $('nextBtn').textContent = res.round<C.races ? '下一場 →' : '季終 · 睇成績 →';
+  paintHud();
 }
 
-/* ---------- 事件 ---------- */
-document.querySelectorAll('#styles .opt').forEach(o=>{
-  o.onclick=()=>{
-    document.querySelectorAll('#styles .opt').forEach(x=>x.classList.remove('sel'));
+function buildStory(res){
+  const styleName=STYLE[C.style].label;
+  const pos=res.pos;
+  if(res.dnf) return '第 '+R.laps+' 圈，架車停咗喺賽道邊。<br><br>'+
+    '你行返 pit lane，工程師冇講嘢，只係遞咗支水俾你。<br>'+
+    '你嘅風格係<b>'+styleName+'</b> —— 今次賭輸咗。<br><br>'+
+    '<span class="small">體能 -8 · 聲望 -1 · 車隊仍然會俾你下一場。</span>';
+  if(pos<=3) return '你喺 P'+pos+' 過終點。<br><br>'+
+    '無線電傳嚟一陣雜音，然後有人講：「做得好。」<br>'+
+    '呢個係你第 '+C.results.filter(function(r){return !r.dnf&&r.pos<=3;}).length+' 個<b>頒獎台</b> —— 亦係第一次，有人喺看台上記住你個名。<br><br>'+
+    '<span class="small">聲望 +3（累計 '+(C.rep>0?'+':'')+C.rep+'）· 積分 +'+res.pts+' · 賽季累計 '+C.points+'</span>';
+  if(pos<=6) return 'P'+pos+'，有分。<br><br>'+
+    '唔算精彩，但工程師話：「你今日冇做錯嘢。」<br>'+
+    '喺呢個級別，冇做錯嘢已經係一種本事。<br><br>'+
+    '<span class="small">聲望 +1（累計 '+(C.rep>0?'+':'')+C.rep+'）· 積分 +'+res.pts+' · 下一場繼續。</span>';
+  return 'P'+pos+'。'+(res.pts?'有 1 分。':'冇分。')+'<br><br>'+
+    '你落車嗰刻，隔離車隊嘅人望都冇望你一眼。<br>'+
+    '但你記得第 '+Math.max(2,R.laps)+' 圈嗰個彎 —— 你係對嘅，只係冇人見到。<br><br>'+
+    '<span class="small">體能 -4 · 下一場：再嚟。</span>';
+}
+
+/* ============ 賽季 ============ */
+function renderSeason(final){
+  const wide=window.innerWidth>=980;
+  $('seasonEyebrow').textContent='SEASON 2027 · '+C.name+' · AURORA JUNIOR';
+  $('seasonTitle').textContent=final?'季終成績':'賽季積分';
+  $('seasonEyebrow').textContent='SEASON 2027 · AURORA JUNIOR · '+C.name;
+  let rows='';
+  let cum=0;
+  for(let i=0;i<C.races;i++){
+    const r=C.results[i];
+    const cir=CIRCUITS[i];
+    if(r){
+      cum+=r.pts;
+      rows+='<div class="srow'+(r.round===C.round?' me':'')+'"><span>R'+(i+1)+'</span><span>'+cir.s+'</span>'+
+        '<span>'+(r.dnf?'—':('P'+r.pos))+'</span><span>'+(r.dnf?'DNF':r.pts)+'</span><span>'+cum+'</span></div>';
+    }else{
+      rows+='<div class="srow pending"><span>R'+(i+1)+'</span><span>'+cir.s+'</span><span>—</span><span>—</span><span>'+cum+'</span></div>';
+    }
+  }
+  $('seasonRows').innerHTML=rows;
+
+  // 車手榜
+  const board=[{name:C.name,team:'AURORA JR',pts:C.points,me:true}];
+  Object.keys(C.rivalPts).forEach(function(k){ board.push({name:k,team:'—',pts:C.rivalPts[k],me:false}); });
+  board.sort(function(a,b){return b.pts-a.pts;});
+  let st='';
+  board.slice(0,12).forEach(function(e,i){
+    st+='<div class="crow'+(e.me?' me':'')+'"><span>'+(i+1)+'</span><span class="crow-name">'+e.name+'</span>'+
+      '<span class="crow-team">'+e.team+'</span><span>'+e.pts+'</span></div>';
+  });
+  $('standings').innerHTML=st;
+
+  // 聲望紀錄
+  if(C.repLog.length){
+    $('repLog').innerHTML=C.repLog.slice().reverse().map(function(x){
+      return '<div><b>'+(x.d>0?'+':'')+x.d+'</b><em>R'+x.round+'</em>'+x.t+'</div>';
+    }).join('');
+  }else{
+    $('repLog').innerHTML='<span class="small">仲未有紀錄。</span>';
+  }
+  paintHud();
+
+  if(final){
+    const podiums=C.results.filter(function(r){return !r.dnf&&r.pos<=3;}).length;
+    const dnfs=C.results.filter(function(r){return r.dnf;}).length;
+    const tier=(C.points>=48||(podiums>=2&&C.points>=32))?'A':((C.points>=22||podiums>=1)?'B':'C');
+    let head='',body='';
+    if(tier==='A'){
+      head='F3 合約 · 有車隊打電話嚟';
+      body='季終之後第三日，電話響。<br><br>'+
+        '「我哋睇過你成季。'+podiums+' 次頒獎台、'+C.points+' 分。下年 F3，我哋有一個位。」<br><br>'+
+        '你望住窗外。一年前你仲喺度求人俾你一架車。而家有人求你簽名。<br><br>'+
+        '<span class="small">'+C.name+' · '+STYLE[C.style].label+' · 聲望 '+(C.rep>0?'+':'')+C.rep+' · DNF '+dnfs+' 次</span>';
+    }else if(tier==='B'){
+      head='F3 測試機會 · 未係合約';
+      body='季終之後，你收到一封電郵：一封 F3 車隊嘅測試邀請，兩日，一部舊車。<br><br>'+
+        '「唔係合約。但如果你想嚟，我哋有位。」<br><br>'+
+        '你今季 '+C.points+' 分、'+podiums+' 次頒獎台。唔夠好，但足夠令有人記住你。<br><br>'+
+        '<span class="small">'+C.name+' · '+STYLE[C.style].label+' · 聲望 '+(C.rep>0?'+':'')+C.rep+'</span>';
+    }else{
+      head='冇人打嚟';
+      body='季終之後，電話冇響。<br><br>'+
+        '你成季 '+C.points+' 分、'+dnfs+' 次退賽。車隊叫你返嚟做模擬器測試 —— 即係話，下年仲係呢度。<br><br>'+
+        '你收好頭盔。你知道自己唔係唔夠快，你係唔夠穩定。<br><br>'+
+        '<span class="small">'+C.name+' · '+STYLE[C.style].label+' · 聲望 '+(C.rep>0?'+':'')+C.rep+'</span>';
+    }
+    $('seasonEnd').style.display='block';
+    $('seasonEnd').innerHTML='<div class="tierBox '+(tier==='A'?'a':(tier==='C'?'c':''))+'">'+
+      '<div class="eyebrow">'+(tier==='A'?'CONTRACT OFFER':(tier==='B'?'TEST OFFER':'NO OFFER'))+'</div>'+
+      '<h2>'+head+'</h2>'+
+      '<div class="story">'+body+'</div></div>';
+    $('newSeasonBtn').style.display='inline-block';
+    $('restartBtn').style.display='none';
+    $('backBtn').style.display='none';
+  }else{
+    $('seasonEnd').style.display='none';
+    $('newSeasonBtn').style.display='none';
+    $('restartBtn').style.display='inline-block';
+    $('backBtn').style.display='inline-block';
+  }
+  if(!wide) $('backBtn').style.minHeight='44px';
+}
+
+function endSeason(){
+  C.done=true; C.race=null; R=null;
+  save();
+  renderSeason(true);
+  show('scSeason');
+}
+
+/* ============ 事件 ============ */
+document.querySelectorAll('#styles .opt').forEach(function(o){
+  o.onclick=function(){
+    document.querySelectorAll('#styles .opt').forEach(function(x){x.classList.remove('sel');});
     o.classList.add('sel');
-    C.style=o.dataset.s;
   };
 });
-$('startBtn').onclick=startCareer;
-$('nextBtn').onclick=()=>{
-  if(C.round<C.races){ C.round++; startRace(); }
-  else {
-    $('resStory').innerHTML=`<b>季尾。</b><br><br>你完成咗 ${C.races} 場，總分 ${C.points}，聲望 ${C.rep>0?'+':''}${C.rep}。<br><br>
-      電話響咗。對面講：「我哋睇過你今季。下年，想唔想上 F3？」<br><br>
-      <span class="small">（生涯模式第二季 —— 尚未實作）</span>`;
-    $('nextBtn').textContent='重新開始';
-    $('nextBtn').onclick=()=>location.reload();
+$('startBtn').onclick=function(){
+  if(hasSave && !C.done && C.results.length>0){
+    // 開始新賽季：清除舊存檔
+    clearSave();
+    hasSave=false;
   }
+  startCareer();
 };
-$('seedLine').textContent='種子 · hk'+String(SEED).padStart(6,'0');
+$('continueBtn').onclick=function(){ resume(); };
+$('nextBtn').onclick=function(){
+  if(!R||!R.result) return;
+  if(C.round<C.races){ C.round++; C.race=null; R=null; save(); startRace(); }
+  else { endSeason(); }
+};
+$('tableBtn').onclick=function(){ renderSeason(false); show('scSeason'); };
+$('tableBtn2').onclick=function(){ renderSeason(false); show('scSeason'); };
+$('backBtn').onclick=function(){
+  if(C.done){ renderSeason(true); show('scSeason'); return; }
+  if(R&&R.result){ renderResult(R.result); show('scResult'); }
+  else if(R){ show('scRace'); renderBeat(); }
+  else { show('scCreate'); }
+};
+function resetCareer(){
+  clearSave(); hasSave=false;
+  C=newCareer(); R=null;
+  $('seedLine').textContent='種子 · hk'+String(Math.abs(C.seed)%1000000).padStart(6,'0');
+  $('nameIn').value='KAI';
+  $('continueBtn').style.display='none';
+  $('continueBtn').textContent='繼續生涯 →';
+  $('startBtn').textContent='簽約，開始季前測試 →';
+  document.querySelectorAll('#styles .opt').forEach(function(x){
+    x.classList.toggle('sel',x.dataset.s==='brake');
+  });
+  paintHud();
+  show('scCreate');
+}
+$('newSeasonBtn').onclick=resetCareer;
+$('restartBtn').onclick=resetCareer;
 
-document.querySelectorAll('.wave i').forEach((b,i)=>{
+document.querySelectorAll('.radio-inline-wave i').forEach(function(b,i){
   b.style.animationDelay=(i*0.13)+'s';
   b.style.height=(4+Math.random()*10)+'px';
 });
+
+/* ============ 背景賽道剪影 ============ */
+(function art(){
+  const pts=[[706,392],[520,394],[262,394],[168,380],[116,332],[102,270],[132,214],[198,194],
+    [252,176],[286,130],[332,90],[406,72],[472,78],[522,106],[554,150],[598,176],[652,174],[696,148],
+    [718,182],[728,240],[724,300],[716,352]];
+  const d=pts.map(function(p,i){return (i?'L':'M')+p[0]+' '+p[1];}).join(' ')+' Z';
+  $('art').innerHTML='<svg viewBox="0 0 834 504" preserveAspectRatio="xMidYMid meet">'+
+    '<path d="'+d+'" fill="none" stroke="#f2c14e" stroke-width="26" stroke-linejoin="round"/>'+
+    '<path d="'+d+'" fill="none" stroke="#05080f" stroke-width="16" stroke-linejoin="round"/></svg>';
+})();
+
+/* ============ 載入 / 續玩 ============ */
+function resume(){
+  if(!hasSave) return false;
+  if(C.done){ renderSeason(true); show('scSeason'); return true; }
+  if(R){
+    if(R.result){ renderResult(R.result); show('scResult'); return true; }
+    show('scRace');
+    renderBeat();
+    return true;
+  }
+  if(C.results.length&&C.results.length>=C.races){ endSeason(); return true; }
+  if(C.results.length){ C.round=C.results.length+1; startRace(); return true; }
+  return false;
+}
+
+function boot(){
+  const loaded=loadSave();
+  if(loaded){
+    $('seedLine').textContent='種子 · hk'+String(Math.abs(C.seed)%1000000).padStart(6,'0');
+    $('nameIn').value=C.name;
+    document.querySelectorAll('#styles .opt').forEach(function(x){
+      x.classList.toggle('sel',x.dataset.s===C.style);
+    });
+    $('continueBtn').style.display='block';
+    $('continueBtn').textContent='繼續生涯 · ROUND '+Math.min(C.round,C.races)+' / '+C.races+
+      (C.done?' · 季終':'')+' →';
+    $('startBtn').textContent='開新賽季（清除存檔）';
+    if(C.done||R||C.results.length){ resume(); }
+  }else{
+    C=newCareer();
+    $('seedLine').textContent='種子 · hk'+String(Math.abs(C.seed)%1000000).padStart(6,'0');
+  }
+  paintHud();
+}
 
 /* fit */
 function fit(){
@@ -745,12 +1683,40 @@ function fit(){
   document.documentElement.style.overflowY='hidden';
   st.style.width='1440px'; st.style.height='900px';
   const s=Math.min(window.innerWidth/1490,window.innerHeight/950,1.3);
-  st.style.transform=`scale(${s})`;
+  st.style.transform='scale('+s+')';
 }
-window.addEventListener('resize',fit); fit();
+let rz=null;
+window.addEventListener('resize',function(){
+  fit();
+  clearTimeout(rz);
+  rz=setTimeout(function(){
+    if(activeScreen==='scRace'&&R&&R.beats<R.cards.length){
+      const card=CARD[R.cards[R.beats]];
+      if(card) paintScene(card.cat,true);
+    }
+  },180);
+});
+fit();
+document.body.dataset.screen='scCreate';
 
 /* dev hook */
-window.__dev={ C, getR:()=>R, choose, state:()=>({round:C.round,pos:R&&R.pos,risk:R&&R.risk,points:C.points,beats:R&&R.beats}) };
+window.__dev={ get C(){return C;}, get R(){return R;}, choose:choose,
+  state:function(){return {round:C.round,pos:R&&R.pos,risk:R&&R.risk,points:C.points,beats:R&&R.beats,screen:activeScreen};},
+  clear:function(){clearSave();C=newCareer();},
+  preview:function(seed){
+    const bs=C.seed, br=C.round, bd=JSON.parse(JSON.stringify(C.decks));
+    C.seed=seed; initDecks();
+    const out=[];
+    for(let r=1;r<=8;r++){
+      C.round=r;
+      const rnd=mulberry(hash(C.seed+'|round'+r+'|cards'));
+      out.push(shuffle(CATS.slice(),rnd).map(function(cat){return drawCard(cat);}));
+    }
+    C.seed=bs; C.round=br; C.decks=bd;
+    return out;
+  } };
+
+boot();
 </script>
 </body>
 </html>
