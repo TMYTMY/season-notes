@@ -1,0 +1,765 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Race Timing — Session</title>
+<style>
+:root{
+  --bg:#080a0d; --panel:#12151a; --panel2:#171b21; --line:#232a33;
+  --tx:#d8dee6; --tx2:#86909c; --accent:#4ea0ff; --good:#37c08b; --warn:#e0b13a; --bad:#e0533f;
+}
+*{box-sizing:border-box}
+html,body{margin:0;height:100%;background:#05070a;overflow:hidden}
+body{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,"Liberation Mono",monospace;color:var(--tx)}
+#wrap{position:fixed;inset:0;display:flex;align-items:center;justify-content:center}
+#stage{width:1220px;height:712px;background:var(--bg);border:1px solid var(--line);border-radius:10px;
+  padding:9px 11px;display:flex;flex-direction:column;gap:7px;transform-origin:center center;
+  position:relative;overflow:hidden}
+
+header{display:flex;align-items:center;justify-content:space-between;height:32px;
+  border-bottom:1px solid var(--line);padding-bottom:5px;font-size:12.5px}
+header .l{color:var(--tx2);letter-spacing:.05em}
+header .m{display:flex;align-items:center;gap:10px;font-weight:600}
+header .r{display:flex;align-items:center;gap:8px;color:var(--tx2);font-size:11.5px}
+.flag{padding:2px 8px;border-radius:4px;font-size:10.5px;letter-spacing:.06em;font-weight:700}
+.flag.green{background:rgba(55,192,139,.13);color:var(--good);border:1px solid rgba(55,192,139,.32)}
+.flag.sc{background:rgba(224,177,58,.15);color:var(--warn);border:1px solid rgba(224,177,58,.42)}
+.pill{padding:2px 7px;border-radius:4px;font-size:10.5px;border:1px solid var(--line);color:var(--tx2)}
+.pill.on{color:var(--good);border-color:rgba(55,192,139,.4);background:rgba(55,192,139,.08)}
+.pill.warn{color:var(--warn);border-color:rgba(224,177,58,.4);background:rgba(224,177,58,.08)}
+
+main{display:grid;grid-template-columns:836px 1fr;gap:8px;height:506px}
+#scene{position:relative;background:#0a0f0c;border:1px solid var(--line);border-radius:9px;overflow:hidden}
+canvas{display:block;width:834px;height:504px}
+.side{display:flex;flex-direction:column;gap:7px;min-height:0}
+
+.panel{background:var(--panel);border:1px solid var(--line);border-radius:9px;padding:7px 9px}
+.panel h2{margin:0 0 5px;font-size:10px;letter-spacing:.14em;color:var(--tx2);font-weight:600}
+
+.rowh,.row{display:grid;grid-template-columns:20px 44px 1fr 34px 26px;gap:5px;align-items:center;font-size:11.5px}
+.rowh{color:var(--tx2);font-size:9.5px;letter-spacing:.08em;border-bottom:1px solid var(--line);
+  padding-bottom:4px;margin-bottom:2px}
+.row{height:22px;padding:0 2px;border-radius:4px}
+.row.me{background:rgba(78,160,255,.10);box-shadow:inset 2px 0 0 var(--accent)}
+.row.done{opacity:.55}
+.car{display:flex;align-items:center;gap:4px;font-weight:700}
+.chip{width:3px;height:12px;border-radius:2px}
+.gap{color:var(--tx2);font-variant-numeric:tabular-nums;font-size:10.5px}
+.ty{display:inline-block;width:16px;text-align:center;font-weight:700;border-radius:3px;font-size:10px;color:#0b0d10}
+.age{color:var(--tx2);font-size:10.5px;text-align:right;font-variant-numeric:tabular-nums}
+
+.carcard{background:var(--panel2);border:1px solid var(--line);border-radius:8px;padding:7px 9px;font-size:11.5px}
+.carcard .top{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:5px}
+.carcard .big{font-size:19px;font-weight:700}
+.kv{display:grid;grid-template-columns:66px 1fr;gap:1px 8px;line-height:1.65;font-size:11px}
+.kv b{color:var(--tx2);font-weight:400}
+.wbar{height:7px;background:#20262e;border-radius:4px;overflow:hidden;margin-top:5px}
+.wbar>i{display:block;height:100%;background:var(--good);transition:width .2s}
+.wbar>i.w{background:var(--warn)} .wbar>i.b{background:var(--bad)}
+.cmp{display:flex;gap:5px;margin-top:6px}
+.cmp span{flex:1;text-align:center;padding:3px 0;border-radius:4px;font-size:10.5px;font-weight:700;
+  border:1px solid var(--line);color:var(--tx2);background:#0f1318}
+.cmp span.sel{color:#0b0d10;border-color:transparent}
+
+.policy{margin-top:auto;font-size:10.5px;line-height:1.75;color:var(--tx2);
+  border-top:1px solid var(--line);padding-top:6px}
+.policy .line{display:flex;justify-content:space-between}
+.policy .line b{color:var(--tx);font-weight:600}
+
+.log{height:86px;background:var(--panel);border:1px solid var(--line);border-radius:9px;
+  padding:6px 9px;font-size:11px;overflow:hidden}
+.log .ln{color:var(--tx2);line-height:1.55;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.log .ln b{color:var(--tx);font-weight:600}
+.log .ln .t{color:#59626e}
+footer{height:14px;display:flex;justify-content:space-between;font-size:10px;color:#59626e}
+
+.banner{position:absolute;left:50%;top:48px;transform:translateX(-50%);background:#1a1f26;border:1px solid #2c333d;
+  border-radius:8px;padding:9px 13px;font-size:11.5px;line-height:1.65;max-width:660px;
+  box-shadow:0 10px 30px rgba(0,0,0,.55);z-index:20}
+.banner h3{margin:0 0 3px;font-size:11.5px;color:var(--accent);letter-spacing:.06em}
+.banner .e{color:var(--tx2)}
+.result{position:absolute;inset:44px 11px 40px;background:rgba(6,8,11,.97);border:1px solid var(--line);
+  border-radius:10px;padding:14px 18px;z-index:30;overflow:auto}
+.result h2{font-size:14px;margin:0 0 8px;letter-spacing:.08em}
+.result .rrow{display:grid;grid-template-columns:30px 50px 1fr 84px 56px;gap:7px;font-size:12px;
+  padding:2.5px 0;border-bottom:1px solid #191e25}
+.result .rrow.me{color:var(--accent);font-weight:700}
+.result .foot{margin-top:10px;font-size:11.5px;color:var(--tx2);line-height:1.75}
+</style>
+</head>
+<body>
+<div id="wrap">
+<div id="stage">
+  <header>
+    <div class="l">ROUND 07 · CIRCUIT VALGRANDE</div>
+    <div class="m"><span id="lap">LAP 1 / 30</span><span id="flag" class="flag green">GREEN</span></div>
+    <div class="r"><span id="clock">00:00</span><span id="speed" class="pill">16x</span>
+      <span id="pausePill" class="pill warn" style="display:none">PAUSED</span>
+      <span id="policyPill" class="pill">政策 OFF</span></div>
+  </header>
+
+  <main>
+    <div id="scene"><canvas id="cv"></canvas></div>
+    <div class="side">
+      <section class="panel" style="flex:0 0 auto">
+        <h2>LIVE TIMING</h2>
+        <div class="rowh"><span>P</span><span>CAR</span><span>GAP</span><span>TY</span><span>AGE</span></div>
+        <div id="rows"></div>
+      </section>
+      <section class="panel" style="flex:1 1 auto;display:flex;flex-direction:column">
+        <h2>STRATEGY · CAR <span id="selNum">77</span></h2>
+        <div id="card"></div>
+        <div class="policy">
+          <div class="line"><span>自動入站</span><b id="pAuto">OFF</b></div>
+          <div class="line"><span>門檻 wear ≥</span><b id="pWear">78%</b></div>
+          <div class="line"><span>最長胎齡</span><b id="pAge">10 圈</b></div>
+          <div class="line"><span>安全車自動入站</span><b id="pSC">ON</b></div>
+        </div>
+      </section>
+    </div>
+  </main>
+
+  <section class="log" id="log"></section>
+  <footer>
+    <span>SPACE 暫停 · 1/2 揀車 · S/M/H 下一套胎 · P 入站 · A 政策 · [/] 門檻 · ,/. 胎齡 · -/= 速度 · R 新賽 · ? 說明</span>
+    <span id="saveNote">localStorage 自動存檔</span>
+  </footer>
+
+  <div id="banner" class="banner" style="display:none"></div>
+  <div id="result" class="result" style="display:none"></div>
+</div>
+</div>
+
+<script>
+'use strict';
+
+/* ================= 設定 ================= */
+const LAPS = 30;
+const BASE_LAP = 92.0;
+const STEP = 0.2;
+const PIT_GREEN = 21.5;
+const PIT_SC = 9.5;
+const SAVE_KEY = 'race_track_save_v1';
+const SPEEDS = [1, 4, 16, 64];
+const POINTS = [25,18,15,12,10,8,6,4,2,1];
+
+const COMPOUNDS = {
+  S: {label:'SOFT',   offset:-0.75, deg:0.150, life: 9, color:'#e2685f'},
+  M: {label:'MEDIUM', offset: 0.00, deg:0.084, life:16, color:'#d9b64a'},
+  H: {label:'HARD',   offset: 0.55, deg:0.041, life:24, color:'#c9d1d9'}
+};
+
+const TEAMS = [
+  {name:'VELOCE CORSE',  pace:-0.38, color:'#e0533f', start:'M', cars:[{code:'BOS', n:11}]},
+  {name:'MERIDIAN GP',   pace:-0.30, color:'#4ea0ff', start:'S', cars:[{code:'HAL', n:23}]},
+  {name:'AURORA RACING', pace:-0.10, color:'#37c08b', start:'M', player:true,
+     cars:[{code:'KAI', n:77},{code:'REN', n:78}]},
+  {name:'KESTREL MS',    pace:-0.02, color:'#d9b64a', start:'S', cars:[{code:'ORT', n:31}]},
+  {name:'NORDFJORD',     pace: 0.12, color:'#9b7bff', start:'M', cars:[{code:'LIN', n:44}]},
+  {name:'TALON RACING',  pace: 0.26, color:'#e08fc0', start:'H', cars:[{code:'RUI', n:55}]},
+  {name:'HELIOS GP',     pace: 0.40, color:'#7fd1d9', start:'M', cars:[{code:'ABB', n:63}]},
+  {name:'SABLE GP',      pace: 0.52, color:'#b9c2cc', start:'S', cars:[{code:'KOV', n:72}]},
+  {name:'DRAKON',        pace: 0.68, color:'#c2a06a', start:'H', cars:[{code:'MAR', n:88}]},
+  {name:'PRISM RACING',  pace: 0.88, color:'#8fa0b8', start:'M', cars:[{code:'NOV', n:99}]}
+];
+
+/* ================= 賽道幾何 ================= */
+const CW = 834, CH = 504;
+
+// 主賽道控制點（閉環）
+const TRACK_PTS = [
+  [706,392],[520,394],[262,394],[168,380],[116,332],[102,270],
+  [132,214],[198,194],[252,176],[286,130],[332,90],[406,72],
+  [472,78],[522,106],[554,150],[598,176],[652,174],[696,148],
+  [718,182],[728,240],[724,300],[716,352]
+];
+
+// 維修通道（由主直道入口下沉，經車房，再由出口返回）
+const PIT_PTS = [
+  [700,398],[668,424],[618,434],[330,434],[236,426],[196,404],[176,382]
+];
+
+function catmull(pts, closed, seg){
+  const out = [], n = pts.length;
+  const get = i => closed ? pts[(i + n) % n] : pts[Math.max(0, Math.min(n-1, i))];
+  const last = closed ? n : n - 1;
+  for (let i = 0; i < last; i++){
+    const p0 = get(i-1), p1 = get(i), p2 = get(i+1), p3 = get(i+2);
+    for (let s = 0; s < seg; s++){
+      const t = s / seg, t2 = t*t, t3 = t2*t;
+      out.push({
+        x: 0.5*((2*p1[0]) + (-p0[0]+p2[0])*t + (2*p0[0]-5*p1[0]+4*p2[0]-p3[0])*t2 + (-p0[0]+3*p1[0]-3*p2[0]+p3[0])*t3),
+        y: 0.5*((2*p1[1]) + (-p0[1]+p2[1])*t + (2*p0[1]-5*p1[1]+4*p2[1]-p3[1])*t2 + (-p0[1]+3*p1[1]-3*p2[1]+p3[1])*t3)
+      });
+    }
+  }
+  return out;
+}
+
+function makePath(pts, closed, seg){
+  const p = catmull(pts, closed, seg || 18);
+  const cum = [0];
+  for (let i = 1; i < p.length; i++){
+    cum.push(cum[i-1] + Math.hypot(p[i].x - p[i-1].x, p[i].y - p[i-1].y));
+  }
+  const len = cum[cum.length-1];
+  return {pts:p, cum, len, closed:!!closed};
+}
+
+const TRACK = makePath(TRACK_PTS, true);
+const PIT = makePath(PIT_PTS, false);
+
+function posAt(path, f){
+  const d = Math.max(0, Math.min(1, f)) * path.len;
+  const cum = path.cum;
+  let lo = 0, hi = cum.length - 1;
+  while (lo < hi - 1){ const mid = (lo + hi) >> 1; if (cum[mid] <= d) lo = mid; else hi = mid; }
+  const a = path.pts[lo], b = path.pts[Math.min(path.pts.length-1, lo+1)];
+  const seg = Math.max(0.0001, cum[lo+1] - cum[lo]);
+  const t = Math.max(0, Math.min(1, (d - cum[lo]) / seg));
+  return {
+    x: a.x + (b.x - a.x) * t,
+    y: a.y + (b.y - a.y) * t,
+    ang: Math.atan2(b.y - a.y, b.x - a.x)
+  };
+}
+
+/* ================= 狀態 ================= */
+let S = null;
+
+function mulberry32(a){
+  return function(){
+    a |= 0; a = a + 0x6D2B79F5 | 0;
+    let t = Math.imul(a ^ a >>> 15, 1 | a);
+    t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t;
+    return ((t ^ t >>> 14) >>> 0) / 4294967296;
+  };
+}
+function noiseAt(seed, i, lap, salt){
+  let h = (seed ^ Math.imul(i+1, 374761393) ^ Math.imul(lap+1, 668265263) ^ Math.imul(salt, 2246822519)) >>> 0;
+  h ^= h >>> 15; h = Math.imul(h, 2246822519) >>> 0; h ^= h >>> 13;
+  return ((h & 0xffff) / 0xffff) - 0.5;
+}
+
+function newRace(seed){
+  const r = mulberry32(seed), cars = [];
+  let idx = 0;
+  for (const t of TEAMS){
+    for (let j = 0; j < t.cars.length; j++){
+      const d = t.cars[j];
+      const pace = t.pace + (j === 1 ? 0.14 : 0) + (r() - 0.5) * 0.12;
+      const sc = r();
+      const plan = sc < 0.55 ? ['H'] : (sc < 0.8 ? ['S','H'] : ['M','H']);
+      cars.push({
+        i: idx++, code: d.code, num: d.n, team: t.name, color: t.color,
+        pace: +pace.toFixed(3), isPlayer: !!t.player,
+        compound: t.start, age: 0, stops: 0,
+        laps: 0, lapStart: 0, lapTime: 0, done: false, finishTime: null,
+        plan, nextCompound: t.start === 'H' ? 'M' : 'H',
+        pitAgeFactor: 0.84 + r() * 0.16, fx: null
+      });
+    }
+  }
+  for (const c of cars) c.lapTime = calcLapTime(c, seed, false);
+
+  const wins = [];
+  if (r() < 0.6) wins.push({start: 4 + Math.floor(r() * 10), len: 3});
+  if (r() < 0.25) wins.push({start: 18 + Math.floor(r() * 8), len: 3});
+
+  return {
+    seed, clock: 0, cars, scWindows: wins.sort((a,b)=>a.start-b.start),
+    scActive: false, finished: false, finishCount: 0, resultRendered: false,
+    policy: {auto:false, wearThresh:78, maxAge:10, autoSC:true},
+    speed: 16, speedIdx: 2, selected: 0,
+    log: [], paused: false
+  };
+}
+
+/* ================= 物理 / 策略 ================= */
+function calcLapTime(c, seed, sc){
+  if (sc) return 118.5 + noiseAt(seed, c.i, c.laps, 7) * 1.2;
+  const k = COMPOUNDS[c.compound];
+  const over = Math.max(0, c.age - k.life);
+  const pen = k.deg * c.age + (over > 0 ? 0.55 * over * over : 0);
+  return BASE_LAP + c.pace + k.offset + pen + noiseAt(seed, c.i, c.laps, 3) * 0.28;
+}
+function wearPct(c){
+  return Math.max(0, Math.min(100, Math.round(c.age / COMPOUNDS[c.compound].life * 100)));
+}
+function distOf(c){
+  if (c.done) return LAPS + 1;
+  const p = Math.max(0, Math.min(1, (S.clock - c.lapStart) / c.lapTime));
+  return c.laps + p;
+}
+function log(msg){
+  S.log.push({t:S.clock, m:msg});
+  if (S.log.length > 80) S.log.shift();
+}
+
+function doPit(c, compound){
+  if (c.done || S.finished) return false;
+  const loss = (S.scActive ? PIT_SC : PIT_GREEN) + (noiseAt(S.seed, c.i, c.stops, 11) + 0.5) * 0.9;
+  c.lapStart += loss;
+  c.stops++;
+  const nc = compound || c.nextCompound;
+  c.nextCompound = nc === 'S' ? 'M' : (nc === 'M' ? 'H' : 'M');
+  c.compound = nc;
+  c.age = 0;
+  c.lapTime = calcLapTime(c, S.seed, S.scActive);
+  c.fx = {t: 0, dur: 1.1};            // 入 pit lane 動畫（真實秒）
+  log(`<b>${c.code}</b> 入站 → ${COMPOUNDS[nc].label}（+${loss.toFixed(1)}s${S.scActive?' · SC':''}）`);
+  return true;
+}
+
+function aiDecide(c){
+  const k = COMPOUNDS[c.compound];
+  const maxAge = Math.round(k.life * c.pitAgeFactor);
+  const due = c.age >= maxAge || wearPct(c) >= 96;
+  const opp = S.scActive && c.age >= 3 && c.stops < c.plan.length + 1;
+  if ((LAPS - c.laps) <= 2) return;
+  if ((due || opp) && c.stops < c.plan.length + 1) doPit(c, c.plan[c.stops] || 'M');
+}
+
+function autoDecide(c){
+  if (!S.policy.auto || c.done) return;
+  if ((LAPS - c.laps) <= 2) return;
+  const due = wearPct(c) >= S.policy.wearThresh || c.age >= S.policy.maxAge;
+  const sc = S.policy.autoSC && S.scActive && c.age >= 2;
+  if (due || sc) doPit(c, c.nextCompound);
+}
+
+function updateSC(){
+  const lead = S.cars.reduce((m,c)=>Math.max(m, c.laps), 0);
+  const on = S.scWindows.some(w => lead >= w.start && lead < w.start + w.len);
+  if (on && !S.scActive){
+    S.scActive = true; bunchUp();
+    log(`<b>SAFETY CAR</b> 出動，車群壓縮`);
+  } else if (!on && S.scActive){
+    S.scActive = false;
+    log('SAFETY CAR 返入 PIT — 綠旗重開');
+  }
+}
+function bunchUp(){
+  const order = S.cars.filter(c => !c.done).sort((a,b)=> distOf(b) - distOf(a));
+  if (!order.length) return;
+  const lead = order[0].lapStart;
+  order.forEach((c,i)=>{ c.lapStart = lead + i * 1.1; });
+}
+
+function step(dt){
+  if (S.finished) return;
+  S.clock += dt;
+  updateSC();
+
+  for (const c of S.cars){
+    if (c.done) continue;
+    let guard = 0;
+    while (S.clock >= c.lapStart + c.lapTime && guard++ < 12){
+      c.laps++; c.age++;
+      if (c.laps >= LAPS){
+        c.done = true;
+        c.finishTime = c.lapStart + c.lapTime;
+        c.finishOrder = ++S.finishCount;
+        break;
+      }
+      c.lapStart += c.lapTime;
+      c.lapTime = calcLapTime(c, S.seed, S.scActive);
+      if (c.isPlayer) autoDecide(c); else aiDecide(c);
+    }
+  }
+  if (S.cars.every(c => c.done)) finishRace();
+}
+
+function finishRace(){
+  S.finished = true;
+  log('<b>賽事結束</b>');
+  save();
+}
+
+function ordered(){
+  const done = S.cars.filter(c=>c.done).sort((a,b)=>a.finishTime - b.finishTime);
+  const run = S.cars.filter(c=>!c.done).sort((a,b)=>distOf(b) - distOf(a));
+  return done.concat(run);
+}
+
+/* ================= 畫 ================= */
+const cv = document.getElementById('cv');
+const ctx = cv.getContext('2d');
+const DPR = Math.min(2, window.devicePixelRatio || 1);
+cv.width = CW * DPR; cv.height = CH * DPR;
+ctx.scale(DPR, DPR);
+
+function pathStroke(path, width, color, dash){
+  ctx.beginPath();
+  const pts = path.pts;
+  ctx.moveTo(pts[0].x, pts[0].y);
+  for (let i = 1; i < pts.length; i++) ctx.lineTo(pts[i].x, pts[i].y);
+  if (path.closed) ctx.closePath();
+  ctx.lineWidth = width; ctx.strokeStyle = color;
+  ctx.lineJoin = 'round'; ctx.lineCap = 'round';
+  ctx.setLineDash(dash || []);
+  ctx.stroke();
+  ctx.setLineDash([]);
+}
+
+function drawScene(){
+  // 背景
+  const g = ctx.createRadialGradient(CW*0.5, CH*0.45, 60, CW*0.5, CH*0.45, CW*0.75);
+  g.addColorStop(0, '#0d1512'); g.addColorStop(1, '#070a09');
+  ctx.fillStyle = g; ctx.fillRect(0, 0, CW, CH);
+
+  // 跑邊
+  pathStroke(TRACK, 46, '#1a2320');
+  pathStroke(TRACK, 38, '#0e1116');
+  pathStroke(TRACK, 33, '#22282f');
+
+  // 中央虛線（速度感）
+  ctx.globalAlpha = 0.35;
+  pathStroke(TRACK, 1.2, '#39424c', [7, 13]);
+  ctx.globalAlpha = 1;
+
+  // 起終點線
+  const sf = posAt(TRACK, 0);
+  ctx.save(); ctx.translate(sf.x, sf.y); ctx.rotate(sf.ang);
+  for (let i = -4; i < 4; i++){
+    ctx.fillStyle = (i % 2) ? '#e6ebf2' : '#33393f';
+    ctx.fillRect(i * 4, -15, 4, 30);
+  }
+  ctx.restore();
+
+  // 維修通道 + 車房
+  pathStroke(PIT, 15, '#191d23');
+  pathStroke(PIT, 11, '#262d35');
+  for (let i = 0; i < 10; i++){
+    const x = 250 + i * 33, y = 440;
+    ctx.fillStyle = '#151a20'; ctx.fillRect(x, y, 26, 12);
+    ctx.fillStyle = TEAMS[i].color; ctx.fillRect(x, y, 26, 2.5);
+  }
+
+  // 安全車
+  if (S.scActive && !S.finished){
+    const lead = Math.max(...S.cars.map(c => distOf(c)));
+    const p = posAt(TRACK, ((lead - 0.035) % 1 + 1) % 1);
+    ctx.save(); ctx.translate(p.x, p.y); ctx.rotate(p.ang);
+    ctx.fillStyle = '#e8c33c'; ctx.beginPath();
+    ctx.roundRect(-7, -4, 14, 8, 2); ctx.fill();
+    ctx.restore();
+  }
+
+  // 車
+  for (const c of S.cars){
+    let p = null, inPit = false;
+    if (c.fx){
+      inPit = true;
+      p = posAt(PIT, c.fx.t / c.fx.dur);
+    } else {
+      p = posAt(TRACK, distOf(c) % 1);   // 圈內位置（唔係整場距離）
+    }
+    const off = ((c.i % 3) - 1) * 3.2;
+    const nx = Math.cos(p.ang + Math.PI/2) * off;
+    const ny = Math.sin(p.ang + Math.PI/2) * off;
+
+    ctx.save();
+    ctx.translate(p.x + nx, p.y + ny);
+    ctx.rotate(p.ang);
+
+    if (c.isPlayer){
+      ctx.shadowColor = 'rgba(78,160,255,.9)'; ctx.shadowBlur = 10;
+    }
+    ctx.fillStyle = c.color;
+    ctx.beginPath(); ctx.roundRect(-7, -3.6, 14, 7.2, 2); ctx.fill();
+    ctx.shadowBlur = 0;
+
+    if (c.isPlayer){
+      ctx.strokeStyle = '#eaf2ff'; ctx.lineWidth = 1.1; ctx.stroke();
+    }
+    ctx.restore();
+
+    // 標籤
+    ctx.font = '700 8.5px ui-monospace, monospace';
+    ctx.textAlign = 'center';
+    ctx.fillStyle = c.isPlayer ? '#eaf2ff' : 'rgba(220,230,240,.62)';
+    ctx.fillText(c.code, p.x + nx, p.y + ny - 9);
+
+    // 入站標記
+    if (inPit){
+      ctx.fillStyle = COMPOUNDS[c.compound].color;
+      ctx.beginPath(); ctx.arc(p.x + nx, p.y + ny + 9, 2.4, 0, Math.PI*2); ctx.fill();
+    }
+  }
+
+  // 左下角：地點旗
+  ctx.font = '600 10px ui-monospace, monospace';
+  ctx.textAlign = 'left';
+  ctx.fillStyle = 'rgba(134,144,156,.8)';
+  ctx.fillText('VALGRANDE · 30 LAPS · PIT LOSS 21.5s', 14, CH - 12);
+  if (S.paused && !S.finished){
+    ctx.fillStyle = 'rgba(224,177,58,.95)';
+    ctx.font = '700 12px ui-monospace, monospace';
+    ctx.fillText('PAUSED', 14, 22);
+  }
+}
+
+/* ================= DOM ================= */
+const el = {
+  lap:document.getElementById('lap'), flag:document.getElementById('flag'),
+  clock:document.getElementById('clock'), speed:document.getElementById('speed'),
+  policyPill:document.getElementById('policyPill'), pausePill:document.getElementById('pausePill'),
+  rows:document.getElementById('rows'), card:document.getElementById('card'),
+  selNum:document.getElementById('selNum'), pAuto:document.getElementById('pAuto'),
+  pWear:document.getElementById('pWear'), pAge:document.getElementById('pAge'),
+  pSC:document.getElementById('pSC'), log:document.getElementById('log'),
+  banner:document.getElementById('banner'), result:document.getElementById('result'),
+  saveNote:document.getElementById('saveNote')
+};
+
+const fmt = s => String(Math.floor(s/60)).padStart(2,'0') + ':' + String(Math.floor(s%60)).padStart(2,'0');
+
+function renderDOM(){
+  const order = ordered();
+  const leader = order[0];
+  el.lap.textContent = `LAP ${Math.min(LAPS, leader.laps + 1)} / ${LAPS}`;
+  el.flag.textContent = S.scActive ? 'SAFETY CAR' : 'GREEN';
+  el.flag.className = 'flag ' + (S.scActive ? 'sc' : 'green');
+  el.clock.textContent = fmt(S.clock);
+  el.speed.textContent = S.speed + 'x';
+  el.policyPill.textContent = S.policy.auto ? '政策 ON' : '政策 OFF';
+  el.policyPill.className = 'pill' + (S.policy.auto ? ' on' : '');
+  el.pausePill.style.display = (S.paused && !S.finished) ? '' : 'none';
+
+  let html = '';
+  order.forEach((c, i) => {
+    const ahead = i ? order[i-1] : null;
+    let gapTxt = 'LEADER';
+    if (i){
+      if (c.done && ahead.done) gapTxt = '+' + (c.finishTime - ahead.finishTime).toFixed(1);
+      else gapTxt = '+' + Math.max(0, (distOf(ahead) - distOf(c)) * 92).toFixed(1);
+    }
+    html += `<div class="row${c.isPlayer?' me':''}${c.done?' done':''}">`
+      + `<span>${i+1}</span>`
+      + `<span class="car"><i class="chip" style="background:${c.color}"></i>${c.code}</span>`
+      + `<span class="gap">${gapTxt}</span>`
+      + `<span><i class="ty" style="background:${COMPOUNDS[c.compound].color}">${c.compound}</i></span>`
+      + `<span class="age">${c.age}</span></div>`;
+  });
+  el.rows.innerHTML = html;
+
+  const car = S.cars[S.selected];
+  el.selNum.textContent = car.num;
+  const w = wearPct(car);
+  const cls = w >= 90 ? 'b' : (w >= 70 ? 'w' : '');
+  const toCliff = Math.max(0, COMPOUNDS[car.compound].life - car.age);
+  const cmp = ['S','M','H'].map(k => {
+    const sel = car.nextCompound === k;
+    return `<span style="${sel?`background:${COMPOUNDS[k].color};color:#0b0d10`:''}">${COMPOUNDS[k].label}</span>`;
+  }).join('');
+
+  el.card.innerHTML = `
+    <div class="carcard" style="margin-bottom:6px">
+      <div class="top">
+        <div><span class="big">#${car.num}</span> <span style="color:var(--tx2)">${car.code}</span></div>
+        <div style="color:var(--tx2);font-size:10.5px">${car.team}</div>
+      </div>
+      <div class="kv">
+        <b>位置</b><span>P${order.findIndex(x=>x.i===car.i)+1} / ${S.cars.length}</span>
+        <b>胎</b><span>${COMPOUNDS[car.compound].label} · ${car.age} 圈</span>
+        <b>離懸崖</b><span>${toCliff} 圈</span>
+        <b>進站</b><span>${car.stops} 次</span>
+      </div>
+      <div class="wbar"><i class="${cls}" style="width:${w}%"></i></div>
+      <div class="cmp">${cmp}</div>
+    </div>`;
+
+  el.pAuto.textContent = S.policy.auto ? 'ON' : 'OFF';
+  el.pWear.textContent = S.policy.wearThresh + '%';
+  el.pAge.textContent = S.policy.maxAge + ' 圈';
+  el.pSC.textContent = S.policy.autoSC ? 'ON' : 'OFF';
+
+  const lines = S.log.slice(-5).reverse().map(e =>
+    `<div class="ln"><span class="t">${fmt(e.t)}</span> ${e.m}</div>`).join('');
+  el.log.innerHTML = lines || '<div class="ln"><span class="t">00:00</span> 綠旗起步 · 按 ? 睇操作</div>';
+
+  if (S.finished && !S.resultRendered) renderResult();
+}
+
+function renderResult(){
+  S.resultRendered = true;
+  const order = ordered();
+  const rows = order.map((c,i) => {
+    const pts = POINTS[i] || 0;
+    return `<div class="rrow${c.isPlayer?' me':''}"><span>${i+1}</span><span>${c.code}</span>`
+      + `<span>${c.team}</span><span>${c.done?'+'+(c.finishTime-order[0].finishTime).toFixed(1)+'s':'DNF'}</span>`
+      + `<span>${pts?pts+' pts':'—'}</span></div>`;
+  }).join('');
+  const mine = S.cars.filter(c=>c.isPlayer).map(c => {
+    const pos = order.findIndex(x=>x.i===c.i)+1;
+    return `P${pos} #${c.num} ${c.code}（${POINTS[pos-1]||0} 分，${c.stops} 停）`;
+  }).join('　·　');
+  const total = S.cars.filter(c=>c.isPlayer).reduce((s,c)=>{
+    const pos = order.findIndex(x=>x.i===c.i)+1;
+    return s + (POINTS[pos-1]||0);
+  },0);
+
+  el.result.style.display = '';
+  el.result.innerHTML = `<h2>CLASSIFICATION · ${LAPS} LAPS</h2>${rows}
+    <div class="foot">你嘅車：${mine}<br>車隊得分：<b style="color:var(--accent)">${total} 分</b>　·　冠軍時間 ${fmt(order[0].finishTime)}<br>按 <b>R</b> 開新賽事</div>`;
+}
+
+/* ================= 輸入 ================= */
+const sel = () => S.cars[S.selected];
+
+function handleKey(e){
+  const k = e.key;
+  if (k === ' ' || k === 'Escape'){ e.preventDefault(); if(!S.finished) S.paused = !S.paused; hideBanner(); return; }
+  if (k === '?' || k === '/'){ e.preventDefault(); toggleHelp(); return; }
+  if (k === 'r' || k === 'R'){ restart(); return; }
+
+  if (k === '1' || k === '2'){
+    const players = S.cars.filter(c=>c.isPlayer);
+    const t = players[k === '1' ? 0 : 1];
+    if (t) S.selected = S.cars.indexOf(t);
+    return;
+  }
+  switch (k){
+    case 's': case 'S': sel().nextCompound = 'S'; break;
+    case 'm': case 'M': sel().nextCompound = 'M'; break;
+    case 'h': case 'H': sel().nextCompound = 'H'; break;
+    case 'p': case 'P': doPit(sel(), sel().nextCompound); break;
+    case 'a': case 'A': S.policy.auto = !S.policy.auto; break;
+    case '[': S.policy.wearThresh = Math.max(40, S.policy.wearThresh - 5); break;
+    case ']': S.policy.wearThresh = Math.min(100, S.policy.wearThresh + 5); break;
+    case ',': S.policy.maxAge = Math.max(3, S.policy.maxAge - 2); break;
+    case '.': S.policy.maxAge = Math.min(30, S.policy.maxAge + 2); break;
+    case '-': S.speedIdx = Math.max(0, S.speedIdx-1); S.speed = SPEEDS[S.speedIdx]; break;
+    case '=': case '+': S.speedIdx = Math.min(SPEEDS.length-1, S.speedIdx+1); S.speed = SPEEDS[S.speedIdx]; break;
+  }
+  hideBanner(); save();
+}
+
+function toggleHelp(){
+  if (el.banner.style.display !== 'none'){ hideBanner(); return; }
+  el.banner.style.display = '';
+  el.banner.innerHTML = `<h3>操作</h3>
+    <div><b>空白 / Esc</b> 暫停 · <b>R</b> 新賽</div>
+    <div><b>1 / 2</b> 揀你兩部車 · <b>S / M / H</b> 下一套胎 · <b>P</b> 即刻入站</div>
+    <div><b>A</b> 政策模式 · <b>[ ]</b> wear 門檻 · <b>, .</b> 最長胎齡 · <b>- / =</b> 速度</div>
+    <div class="e" style="margin-top:5px">車仔入 pit lane 有動畫；切走分頁＝暫停（政策 ON 時會追算）。</div>`;
+}
+function hideBanner(){ el.banner.style.display = 'none'; }
+
+function restart(){
+  S = newRace((Date.now() % 100000) | 0);
+  el.result.style.display = 'none';
+  hideBanner();
+  save();
+}
+
+/* ================= 迴圈 ================= */
+let last = performance.now(), acc = 0, domTick = 0;
+
+function frame(now){
+  const dt = Math.min(0.25, (now - last) / 1000);
+  last = now;
+
+  if (!S.paused && !S.finished){
+    acc += dt * S.speed;
+    let guard = 0;
+    while (acc >= STEP && guard++ < 8000){ step(STEP); acc -= STEP; }
+    if (guard >= 8000) acc = 0;
+  }
+
+  // pit lane 動畫用真實時間推進，唔受速度影響
+  for (const c of S.cars){
+    if (c.fx){ c.fx.t += dt; if (c.fx.t >= c.fx.dur) c.fx = null; }
+  }
+
+  drawScene();
+  if (++domTick % 4 === 0) renderDOM();
+  requestAnimationFrame(frame);
+}
+
+/* 切走 / 返嚟 */
+let hiddenAt = 0, lapAtHide = 0;
+
+document.addEventListener('visibilitychange', () => {
+  if (document.hidden){
+    hiddenAt = performance.now();
+    lapAtHide = S.cars.reduce((m,c)=>Math.max(m,c.laps),0);
+    if (!S.policy.auto && !S.finished) S.paused = true;
+    save();
+  } else {
+    const away = (performance.now() - hiddenAt) / 1000;
+    if (S.policy.auto && away > 5 && !S.finished){
+      let n = 0, max = Math.min(300000, Math.floor(away * S.speed / STEP));
+      while (n++ < max && !S.finished) step(STEP);
+      const lapNow = S.cars.reduce((m,c)=>Math.max(m,c.laps),0);
+      el.banner.style.display = '';
+      el.banner.innerHTML = `<h3>你離開期間 · ${Math.max(1, Math.round(away/60))} 分鐘</h3>`
+        + `<div>推進 <b>${Math.max(0, lapNow - lapAtHide)}</b> 圈，${S.finished ? '賽事已結束' : '賽事進行中'}。</div>`
+        + S.log.slice(-4).map(e=>`<div class="e">${fmt(e.t)} · ${e.m}</div>`).join('');
+      setTimeout(hideBanner, 25000);
+    }
+    acc = 0; last = performance.now(); save();
+  }
+});
+window.addEventListener('blur', () => { if (!S.policy.auto && !S.finished) S.paused = true; });
+window.addEventListener('pagehide', save);
+
+/* ================= 存檔 ================= */
+function save(){
+  try {
+    const o = {...S, paused:true};
+    delete o.fx;
+    o.cars = S.cars.map(c => { const d = {...c}; delete d.fx; return d; });
+    localStorage.setItem(SAVE_KEY, JSON.stringify(o));
+  } catch(e){}
+}
+function load(){
+  try {
+    const raw = localStorage.getItem(SAVE_KEY);
+    if (!raw) return null;
+    const o = JSON.parse(raw);
+    if (!o || !Array.isArray(o.cars) || o.cars.length !== 11) return null;
+    o.paused = true;
+    return o;
+  } catch(e){ return null; }
+}
+
+/* ================= 啟動 ================= */
+(function boot(){
+  const restored = load();
+  S = restored || newRace((Date.now() % 100000) | 0);
+  S.selected = S.cars.findIndex(c => c.isPlayer);
+  if (S.selected < 0) S.selected = 0;
+
+  document.addEventListener('keydown', handleKey);
+  const fit = () => {
+    const sc = Math.min(window.innerWidth / 1244, window.innerHeight / 736, 1.3);
+    document.getElementById('stage').style.transform = `scale(${sc})`;
+  };
+  window.addEventListener('resize', fit); fit();
+
+  el.saveNote.textContent = restored ? '已載入上次進度（暫停中）' : 'localStorage 自動存檔';
+
+  window.__dev = {
+    run(sec){ let n = 0; while (n < sec / STEP && !S.finished){ step(STEP); n++; } drawScene(); renderDOM(); return summary(); },
+    summary, state: () => S,
+    pit: (i, c) => doPit(S.cars[i], c),
+    setPolicy: o => Object.assign(S.policy, o)
+  };
+
+  drawScene(); renderDOM();
+  requestAnimationFrame(frame);
+})();
+
+function summary(){
+  return {
+    clock:+S.clock.toFixed(1), finished:S.finished, sc:S.scActive,
+    leaderLap:S.cars.reduce((m,c)=>Math.max(m,c.laps),0),
+    order:ordered().map(c=>({code:c.code,laps:c.laps,stops:c.stops,tyre:c.compound,age:c.age,done:c.done}))
+  };
+}
+</script>
+</body>
+</html>

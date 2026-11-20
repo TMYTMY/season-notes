@@ -1,0 +1,769 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="robots" content="noindex,nofollow">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='6' fill='%230b0d10'/%3E%3Crect x='6' y='14' width='20' height='4' rx='2' fill='%23c4a574'/%3E%3C/svg%3E">
+<title>Race Timing — Session</title>
+<style>
+:root{
+  --bg:#0b0d10; --panel:#14171c; --panel2:#191d24; --line:#242a33;
+  --tx:#d8dee6; --tx2:#8a93a0; --accent:#4ea0ff; --good:#37c08b; --warn:#e0b13a; --bad:#e0533f;
+}
+*{box-sizing:border-box}
+html,body{margin:0;height:100%;background:#05070a;overflow:hidden}
+body{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,"Liberation Mono",monospace;
+  color:var(--tx);-webkit-font-smoothing:antialiased}
+#wrap{position:fixed;inset:0;display:flex;align-items:center;justify-content:center}
+#stage{width:1200px;height:700px;background:var(--bg);border:1px solid var(--line);border-radius:10px;
+  padding:10px 12px;display:flex;flex-direction:column;gap:7px;transform-origin:center center;
+  position:relative;overflow:hidden}
+
+/* header */
+header{display:flex;align-items:center;justify-content:space-between;height:34px;
+  border-bottom:1px solid var(--line);padding-bottom:6px;font-size:13px}
+header .l{display:flex;align-items:center;gap:8px;color:var(--tx2);letter-spacing:.04em}
+header .m{display:flex;align-items:center;gap:10px;font-weight:600}
+header .r{display:flex;align-items:center;gap:8px;font-size:12px;color:var(--tx2)}
+.flag{padding:2px 8px;border-radius:4px;font-size:11px;letter-spacing:.06em;font-weight:700}
+.flag.green{background:rgba(55,192,139,.14);color:var(--good);border:1px solid rgba(55,192,139,.35)}
+.flag.sc{background:rgba(224,177,58,.14);color:var(--warn);border:1px solid rgba(224,177,58,.4)}
+.pill{padding:2px 8px;border-radius:4px;font-size:11px;border:1px solid var(--line)}
+.pill.on{color:var(--good);border-color:rgba(55,192,139,.4);background:rgba(55,192,139,.1)}
+.pill.off{color:var(--tx2)}
+.pill.paused{color:var(--warn);border-color:rgba(224,177,58,.4);background:rgba(224,177,58,.1)}
+
+/* main */
+main{display:grid;grid-template-columns:1fr 348px;gap:8px;height:352px}
+.panel{background:var(--panel);border:1px solid var(--line);border-radius:8px;padding:8px 10px;
+  display:flex;flex-direction:column;min-height:0}
+.panel h2{margin:0 0 6px;font-size:11px;letter-spacing:.14em;color:var(--tx2);font-weight:600}
+
+/* standings */
+.rowh,.row{display:grid;grid-template-columns:24px 46px 1fr 56px 34px 74px;gap:6px;align-items:center;
+  font-size:12px;padding:3px 2px;border-radius:4px}
+.rowh{color:var(--tx2);font-size:10px;letter-spacing:.1em;border-bottom:1px solid var(--line);padding-bottom:5px}
+.row{height:26px}
+.row.me{background:rgba(78,160,255,.10);box-shadow:inset 2px 0 0 var(--accent)}
+.row.done{opacity:.62}
+.car{display:flex;align-items:center;gap:5px;font-weight:700;letter-spacing:.04em}
+.chip{width:3px;height:14px;border-radius:2px;display:inline-block}
+.gap{color:var(--tx2);font-variant-numeric:tabular-nums}
+.ty{display:inline-block;width:18px;text-align:center;font-weight:700;border-radius:3px;
+  font-size:11px;color:#0b0d10}
+.age{color:var(--tx2);font-variant-numeric:tabular-nums;text-align:right}
+.wbar{height:6px;background:#22272f;border-radius:3px;overflow:hidden}
+.wbar>i{display:block;height:100%;background:var(--good)}
+.wbar>i.w{background:var(--warn)}
+.wbar>i.b{background:var(--bad)}
+
+/* strategy */
+.carcard{background:var(--panel2);border:1px solid var(--line);border-radius:7px;padding:8px 10px;margin-bottom:7px}
+.carcard .top{display:flex;align-items:baseline;justify-content:space-between;margin-bottom:6px}
+.carcard .big{font-size:20px;font-weight:700;letter-spacing:.04em}
+.kv{display:grid;grid-template-columns:76px 1fr;gap:2px 8px;font-size:12px;line-height:1.7}
+.kv b{color:var(--tx2);font-weight:400}
+.cmp{display:flex;gap:5px;margin-top:7px}
+.cmp span{flex:1;text-align:center;padding:4px 0;border-radius:5px;font-size:11px;font-weight:700;
+  border:1px solid var(--line);color:var(--tx2);background:#101318}
+.cmp span.sel{color:#0b0d10;border-color:transparent}
+.policy{margin-top:auto;border-top:1px solid var(--line);padding-top:7px;font-size:11.5px;line-height:1.9}
+.policy .line{display:flex;justify-content:space-between;color:var(--tx2)}
+.policy .line b{color:var(--tx);font-weight:600}
+.hint{color:var(--tx2);font-size:10.5px;line-height:1.6;margin-top:4px}
+
+/* track */
+.track{background:var(--panel);border:1px solid var(--line);border-radius:8px;height:96px;
+  padding:8px 12px 10px;position:relative}
+.track .lbl{font-size:10px;letter-spacing:.14em;color:var(--tx2);margin-bottom:4px}
+.strip{position:relative;height:44px;background:#0f1216;border-radius:6px;border:1px solid var(--line)}
+.tick{position:absolute;top:0;bottom:0;width:1px;background:#1e242c}
+.dot{position:absolute;top:50%;width:9px;height:9px;border-radius:50%;transform:translate(-50%,-50%);
+  transition:left .18s linear;box-shadow:0 0 0 2px #0f1216}
+.dot.me{width:12px;height:12px;box-shadow:0 0 0 2px #0f1216,0 0 0 3px rgba(78,160,255,.7)}
+.dot small{position:absolute;top:-13px;left:50%;transform:translateX(-50%);font-size:9px;
+  color:var(--tx2);white-space:nowrap}
+
+/* log */
+.log{background:var(--panel);border:1px solid var(--line);border-radius:8px;height:126px;
+  padding:7px 10px;font-size:11.5px;overflow:hidden}
+.log .ln{color:var(--tx2);line-height:1.62;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.log .ln b{color:var(--tx);font-weight:600}
+.log .ln .t{color:#5c6672}
+
+footer{height:16px;display:flex;justify-content:space-between;font-size:10.5px;color:#5c6672}
+
+/* overlays */
+.banner{position:absolute;left:50%;top:56px;transform:translateX(-50%);background:#1b2027;
+  border:1px solid #2d3540;border-radius:8px;padding:10px 14px;font-size:12px;line-height:1.7;
+  max-width:640px;box-shadow:0 8px 28px rgba(0,0,0,.5);z-index:20}
+.banner h3{margin:0 0 4px;font-size:12px;color:var(--accent);letter-spacing:.06em}
+.banner .e{color:var(--tx2)}
+.result{position:absolute;inset:52px 12px 46px;background:rgba(8,10,13,.96);border:1px solid var(--line);
+  border-radius:10px;padding:16px 20px;z-index:30;overflow:auto}
+.result h2{font-size:15px;margin:0 0 10px;letter-spacing:.08em}
+.result .rrow{display:grid;grid-template-columns:34px 54px 1fr 90px 60px;gap:8px;font-size:12.5px;
+  padding:3px 0;border-bottom:1px solid #1a1f26}
+.result .rrow.me{color:var(--accent);font-weight:700}
+.result .foot{margin-top:12px;font-size:12px;color:var(--tx2);line-height:1.8}
+</style>
+</head>
+<body>
+<div id="wrap">
+<div id="stage">
+  <header>
+    <div class="l"><span style="color:var(--accent)">◼</span> ROUND 07 · CIRCUIT VALGRANDE · 57 LAPS</div>
+    <div class="m"><span id="lap">LAP 1 / 57</span><span id="flag" class="flag green">GREEN</span></div>
+    <div class="r"><span id="clock">00:00</span><span id="speed" class="pill">1x</span><span id="policyPill" class="pill off">政策 OFF</span><span id="pausePill" class="pill off" style="display:none">PAUSED</span></div>
+  </header>
+
+  <main>
+    <section class="panel">
+      <h2>STANDINGS · LIVE TIMING</h2>
+      <div class="rowh"><span>P</span><span>CAR</span><span>GAP AHEAD</span><span>TYRE</span><span>AGE</span><span>WEAR</span></div>
+      <div id="rows"></div>
+    </section>
+
+    <section class="panel">
+      <h2>STRATEGY · CAR <span id="selNum">77</span></h2>
+      <div id="card"></div>
+      <div class="policy">
+        <div class="line"><span>自動入站（政策模式）</span><b id="pAuto">OFF</b></div>
+        <div class="line"><span>入站門檻 wear ≥</span><b id="pWear">78%</b></div>
+        <div class="line"><span>最長胎齡</span><b id="pAge">22 圈</b></div>
+        <div class="line"><span>安全車自動入站</span><b id="pSC">ON</b></div>
+        <div class="hint" id="pNote">政策 OFF：切走分頁 = 自動暫停，唔會蝕圈。</div>
+      </div>
+    </section>
+  </main>
+
+  <section class="track">
+    <div class="lbl">RACE PROGRESS · 距離</div>
+    <div class="strip" id="strip"><div id="dots"></div></div>
+  </section>
+
+  <section class="log" id="log"></section>
+
+  <footer>
+    <span>SPACE 暫停 · 1/2 揀車 · S/M/H 下一套胎 · P 入站 · A 政策 · [/] 門檻 · ,/. 胎齡 · -/= 速度 · R 新賽 · ? 說明</span>
+    <span id="saveNote">localStorage 自動存檔</span>
+  </footer>
+
+  <div id="banner" class="banner" style="display:none"></div>
+  <div id="result" class="result" style="display:none"></div>
+</div>
+</div>
+
+<script>
+'use strict';
+
+/* ============ 常數 ============ */
+const LAPS = 57;
+const BASE_LAP = 92.0;
+const STEP = 0.25;            // 模擬步長（秒）
+const PIT_GREEN = 21.5;       // 綠旗進站損失
+const PIT_SC = 9.5;           // 安全車期間進站損失
+const SAVE_KEY = 'race_timing_save_v1';
+const SPEEDS = [1, 4, 16, 64];
+const POINTS = [25,18,15,12,10,8,6,4,2,1];
+
+const COMPOUNDS = {
+  S: {label:'SOFT',   offset:-0.75, deg:0.075, life:18, color:'#e2685f'},
+  M: {label:'MEDIUM', offset: 0.00, deg:0.045, life:30, color:'#d9b64a'},
+  H: {label:'HARD',   offset: 0.55, deg:0.022, life:45, color:'#c9d1d9'}
+};
+
+const TEAMS = [
+  {name:'VELOCE CORSE',  pace:-0.38, color:'#e0533f', start:'M', cars:[{code:'BOS', n:11}]},
+  {name:'MERIDIAN GP',   pace:-0.30, color:'#4ea0ff', start:'S', cars:[{code:'HAL', n:23}]},
+  {name:'AURORA RACING', pace:-0.10, color:'#37c08b', start:'M', player:true,
+                       cars:[{code:'KAI', n:77},{code:'REN', n:78}]},
+  {name:'KESTREL MS',    pace:-0.02, color:'#d9b64a', start:'S', cars:[{code:'ORT', n:31}]},
+  {name:'NORDFJORD',     pace: 0.12, color:'#9b7bff', start:'M', cars:[{code:'LIN', n:44}]},
+  {name:'TALON RACING',  pace: 0.26, color:'#e08fc0', start:'H', cars:[{code:'RUI', n:55}]},
+  {name:'HELIOS GP',     pace: 0.40, color:'#7fd1d9', start:'M', cars:[{code:'ABB', n:63}]},
+  {name:'SABLE GP',      pace: 0.52, color:'#b9c2cc', start:'S', cars:[{code:'KOV', n:72}]},
+  {name:'DRAKON',        pace: 0.68, color:'#c2a06a', start:'H', cars:[{code:'MAR', n:88}]},
+  {name:'PRISM RACING',  pace: 0.88, color:'#8fa0b8', start:'M', cars:[{code:'NOV', n:99}]}
+];
+
+/* ============ 狀態 ============ */
+let S = null;
+
+function mulberry32(a){
+  return function(){
+    a |= 0; a = a + 0x6D2B79F5 | 0;
+    let t = Math.imul(a ^ a >>> 15, 1 | a);
+    t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t;
+    return ((t ^ t >>> 14) >>> 0) / 4294967296;
+  };
+}
+
+// 無狀態雜訊：同一 seed + 車 + 圈 = 同一結果（快進都用得）
+function noiseAt(seed, i, lap, salt){
+  let h = (seed ^ Math.imul(i + 1, 374761393) ^ Math.imul(lap + 1, 668265263) ^ Math.imul(salt, 2246822519)) >>> 0;
+  h ^= h >>> 15; h = Math.imul(h, 2246822519) >>> 0; h ^= h >>> 13;
+  return ((h & 0xffff) / 0xffff) - 0.5;
+}
+
+function newRace(seed){
+  const r = mulberry32(seed);
+  const cars = [];
+  let idx = 0, finishCount = 0;
+
+  for (const t of TEAMS){
+    for (let j = 0; j < t.cars.length; j++){
+      const d = t.cars[j];
+      const pace = t.pace + (j === 1 ? 0.14 : 0) + (r() - 0.5) * 0.12;
+      const scroll = r();
+      const plan = scroll < 0.55 ? ['H'] : (scroll < 0.80 ? ['S','H'] : ['M','H']);
+      cars.push({
+        i: idx++, code: d.code, num: d.n, team: t.name, color: t.color,
+        pace: +pace.toFixed(3), isPlayer: !!t.player,
+        compound: t.start, age: 0, stops: 0,
+        laps: 0, lapStart: 0, lapTime: 0,
+        done: false, finishTime: null,
+        plan, nextCompound: t.start === 'H' ? 'M' : 'H',
+        pitAgeFactor: 0.84 + r() * 0.16
+      });
+    }
+  }
+  for (const c of cars) c.lapTime = calcLapTime(c, seed, false);
+
+  // 安全車劇本（由 seed 決定，唔對外顯示）
+  const windows = [];
+  if (r() < 0.75) windows.push({start: 10 + Math.floor(r() * 24), len: 3});
+  if (r() < 0.32) windows.push({start: 38 + Math.floor(r() * 12), len: 3});
+
+  return {
+    seed, clock: 0, cars, scWindows: windows.sort((a,b)=>a.start-b.start),
+    scActive: false, finished: false, finishCount: 0,
+    policy: {auto: false, wearThresh: 78, maxAge: 22, autoSC: true},
+    speed: 1, speedIdx: 0, selected: (() => { const i = cars.findIndex(c => c.isPlayer); return i < 0 ? 0 : i; })(),
+    log: [], awayReport: null, paused: false
+  };
+}
+
+/* ============ 車速模型 ============ */
+function calcLapTime(c, seed, sc){
+  if (sc) return 118.5 + noiseAt(seed, c.i, c.laps, 7) * 1.2;
+  const k = COMPOUNDS[c.compound];
+  const over = Math.max(0, c.age - k.life);
+  const pen = k.deg * c.age + (over > 0 ? 0.55 * over * over : 0);
+  return BASE_LAP + c.pace + k.offset + pen + noiseAt(seed, c.i, c.laps, 3) * 0.28;
+}
+
+function wearPct(c){
+  const life = COMPOUNDS[c.compound].life;
+  return Math.max(0, Math.min(100, Math.round(c.age / life * 100)));
+}
+
+function distOf(c){
+  if (c.done) return LAPS + 1;
+  const p = Math.max(0, Math.min(1, (S.clock - c.lapStart) / c.lapTime));
+  return c.laps + p;
+}
+
+function log(msg){
+  S.log.push({t: S.clock, m: msg});
+  if (S.log.length > 80) S.log.shift();
+}
+
+/* ============ 進站 ============ */
+function doPit(c, compound){
+  if (c.done || S.finished) return false;
+  const loss = (S.scActive ? PIT_SC : PIT_GREEN) + (noiseAt(S.seed, c.i, c.stops, 11) + 0.5) * 0.9;
+  c.lapStart += loss;
+  c.stops++;
+  const nc = compound || c.nextCompound;
+  if (nc === 'S') c.nextCompound = 'M';
+  else if (nc === 'M') c.nextCompound = 'H';
+  else c.nextCompound = 'M';
+  c.compound = nc;
+  c.age = 0;
+  c.lapTime = calcLapTime(c, S.seed, S.scActive);
+  log(`<b>${c.code}</b> 入站 → ${COMPOUNDS[nc].label}（+${loss.toFixed(1)}s${S.scActive ? ' · SC' : ''}）`);
+  return true;
+}
+
+/* ============ 策略決策 ============ */
+function aiDecide(c){
+  const k = COMPOUNDS[c.compound];
+  const maxAge = Math.round(k.life * c.pitAgeFactor);
+  const opportunity = S.scActive && c.age >= 6 && c.stops < c.plan.length + 1;
+  const due = c.age >= maxAge || wearPct(c) >= 96;
+  const endgame = (LAPS - c.laps) <= 3;
+  if (!endgame && (due || opportunity) && c.stops < c.plan.length + 1){
+    doPit(c, c.plan[c.stops] || 'M');
+  }
+}
+
+function autoDecide(c){
+  if (!S.policy.auto || c.done) return;
+  if ((LAPS - c.laps) <= 2) return;
+  const due = wearPct(c) >= S.policy.wearThresh || c.age >= S.policy.maxAge;
+  const scPit = S.policy.autoSC && S.scActive && c.age >= 5;
+  if (due || scPit) doPit(c, c.nextCompound);
+}
+
+/* ============ 安全車 ============ */
+function updateSC(){
+  const leaderLap = S.cars.reduce((m,c)=> Math.max(m, c.laps), 0);
+  const active = S.scWindows.some(w => leaderLap >= w.start && leaderLap < w.start + w.len);
+  if (active && !S.scActive){
+    S.scActive = true;
+    bunchUp();
+    log(`<b>LAP ${leaderLap + 1} — SAFETY CAR</b> 出動，車群壓縮`);
+  } else if (!active && S.scActive){
+    S.scActive = false;
+    log('SAFETY CAR 返入 PIT — 綠旗重開');
+  }
+}
+
+// 車群壓縮：以距離排序，重新綁定各車嘅圈起點（約 1.1s 車距）
+function bunchUp(){
+  const order = S.cars.filter(c => !c.done).sort((a,b)=> distOf(b) - distOf(a));
+  if (!order.length) return;
+  const lead = order[0].lapStart;
+  order.forEach((c,i)=>{ c.lapStart = lead + i * 1.1; });
+}
+
+/* ============ 主步進 ============ */
+function step(dt){
+  if (S.finished) return;
+  S.clock += dt;
+  updateSC();
+
+  for (const c of S.cars){
+    if (c.done) continue;
+    let guard = 0;
+    while (S.clock >= c.lapStart + c.lapTime && guard++ < 12){
+      c.laps++;
+      c.age++;
+      if (c.laps >= LAPS){
+        c.done = true;
+        c.finishTime = c.lapStart + c.lapTime;
+        c.finishOrder = ++S.finishCount;
+        continue;
+      }
+      c.lapStart += c.lapTime;
+      c.lapTime = calcLapTime(c, S.seed, S.scActive);
+      if (c.isPlayer) autoDecide(c); else aiDecide(c);
+    }
+  }
+
+  if (S.cars.every(c => c.done)) finishRace();
+}
+
+function finishRace(){
+  S.finished = true;
+  log('<b>賽事結束</b>');
+  save();
+}
+
+/* ============ 排序 / 差距 ============ */
+function ordered(){
+  const done = S.cars.filter(c => c.done).sort((a,b)=> a.finishTime - b.finishTime);
+  const run = S.cars.filter(c => !c.done).sort((a,b)=> distOf(b) - distOf(a));
+  return done.concat(run);
+}
+
+/* ============ 畫面 ============ */
+const el = {
+  lap: document.getElementById('lap'),
+  flag: document.getElementById('flag'),
+  clock: document.getElementById('clock'),
+  speed: document.getElementById('speed'),
+  policyPill: document.getElementById('policyPill'),
+  pausePill: document.getElementById('pausePill'),
+  rows: document.getElementById('rows'),
+  card: document.getElementById('card'),
+  selNum: document.getElementById('selNum'),
+  pAuto: document.getElementById('pAuto'),
+  pWear: document.getElementById('pWear'),
+  pAge: document.getElementById('pAge'),
+  pSC: document.getElementById('pSC'),
+  pNote: document.getElementById('pNote'),
+  dots: document.getElementById('dots'),
+  strip: document.getElementById('strip'),
+  log: document.getElementById('log'),
+  banner: document.getElementById('banner'),
+  result: document.getElementById('result'),
+  saveNote: document.getElementById('saveNote')
+};
+
+function fmtTime(s){
+  const m = Math.floor(s / 60), sec = Math.floor(s % 60);
+  return String(m).padStart(2,'0') + ':' + String(sec).padStart(2,'0');
+}
+function fmtGap(s){
+  if (!isFinite(s)) return '—';
+  if (s <= 0.001) return 'LEADER';
+  return '+' + s.toFixed(1) + 's';
+}
+
+// 每 1 圈一個刻度
+(function buildTicks(){
+  const frag = document.createDocumentFragment();
+  for (let l = 0; l <= LAPS; l += 5){
+    const d = document.createElement('div');
+    d.className = 'tick';
+    d.style.left = (l / LAPS * 100) + '%';
+    frag.appendChild(d);
+  }
+  el.strip.appendChild(frag);
+})();
+
+const dotEls = {};
+function buildDots(){
+  el.dots.innerHTML = '';
+  for (const c of S.cars){
+    const d = document.createElement('div');
+    d.className = 'dot' + (c.isPlayer ? ' me' : '');
+    d.style.background = c.color;
+    const s = document.createElement('small');
+    s.textContent = c.code;
+    d.appendChild(s);
+    el.dots.appendChild(d);
+    dotEls[c.i] = d;
+  }
+}
+
+function render(){
+  const order = ordered();
+  const leader = order[0];
+
+  el.lap.textContent = `LAP ${Math.min(LAPS, leader.laps + 1)} / ${LAPS}`;
+  el.flag.textContent = S.scActive ? 'SAFETY CAR' : 'GREEN';
+  el.flag.className = 'flag ' + (S.scActive ? 'sc' : 'green');
+  el.clock.textContent = fmtTime(S.clock);
+  el.speed.textContent = S.speed + 'x';
+  el.policyPill.textContent = S.policy.auto ? '政策 ON' : '政策 OFF';
+  el.policyPill.className = 'pill ' + (S.policy.auto ? 'on' : 'off');
+  el.pausePill.style.display = (S.paused && !S.finished) ? '' : 'none';
+  el.pausePill.className = 'pill paused';
+
+  // standings
+  let html = '';
+  order.forEach((c, i) => {
+    const ahead = i === 0 ? null : order[i-1];
+    let gapTxt = '';
+    if (i === 0) gapTxt = 'LEADER';
+    else if (c.done && ahead.done) gapTxt = '+' + (c.finishTime - ahead.finishTime).toFixed(1) + 's';
+    else {
+      const dGap = distOf(ahead) - distOf(c);
+      gapTxt = '+' + Math.max(0, dGap * 92).toFixed(1) + 's';
+    }
+    const w = wearPct(c);
+    const cls = w >= 90 ? 'b' : (w >= 70 ? 'w' : '');
+    html += `<div class="row${c.isPlayer ? ' me' : ''}${c.done ? ' done' : ''}">`
+      + `<span>${i+1}</span>`
+      + `<span class="car"><i class="chip" style="background:${c.color}"></i>${c.code}</span>`
+      + `<span class="gap">${gapTxt}</span>`
+      + `<span><i class="ty" style="background:${COMPOUNDS[c.compound].color}">${c.compound}</i></span>`
+      + `<span class="age">${c.age}</span>`
+      + `<span class="wbar"><i class="${cls}" style="width:${w}%"></i></span>`
+      + `</div>`;
+  });
+  el.rows.innerHTML = html;
+
+  // strategy card
+  const car = S.cars[S.selected];
+  el.selNum.textContent = car.num;
+  const w = wearPct(car);
+  const toCliff = Math.max(0, COMPOUNDS[car.compound].life - car.age);
+  const cmp = ['S','M','H'].map(k => {
+    const sel = car.nextCompound === k;
+    const style = sel ? `background:${COMPOUNDS[k].color};color:#0b0d10` : '';
+    return `<span style="${style}">${COMPOUNDS[k].label}</span>`;
+  }).join('');
+  el.card.innerHTML = `
+    <div class="carcard">
+      <div class="top">
+        <div><span class="big">#${car.num}</span> <span style="color:var(--tx2)">${car.code}</span></div>
+        <div style="color:var(--tx2);font-size:11.5px">${car.team}</div>
+      </div>
+      <div class="kv">
+        <b>位置</b><span>P${ordered().findIndex(x => x.i === car.i) + 1} / ${S.cars.length}</span>
+        <b>當前胎</b><span>${COMPOUNDS[car.compound].label} · ${car.age} 圈（wear ${w}%）</span>
+        <b>離懸崖</b><span>${toCliff} 圈</span>
+        <b>進站次數</b><span>${car.stops}</span>
+        <b>下一套</b><span>${COMPOUNDS[car.nextCompound].label}</span>
+      </div>
+      <div class="cmp">${cmp}</div>
+    </div>`;
+
+  el.pAuto.textContent = S.policy.auto ? 'ON' : 'OFF';
+  el.pWear.textContent = S.policy.wearThresh + '%';
+  el.pAge.textContent = S.policy.maxAge + ' 圈';
+  el.pSC.textContent = S.policy.autoSC ? 'ON' : 'OFF';
+  el.pNote.textContent = S.policy.auto
+    ? '政策 ON：切走分頁會追算時間，返嚟睇「你離開期間」。'
+    : '政策 OFF：切走分頁 = 自動暫停，唔會蝕圈。';
+
+  // dots
+  for (const c of S.cars){
+    const d = dotEls[c.i];
+    if (!d) continue;
+    const p = Math.max(0, Math.min(1, distOf(c) / LAPS));
+    d.style.left = (p * 100) + '%';
+    d.style.opacity = c.done ? 0.55 : 1;
+  }
+
+  // log（新到舊）
+  const lines = S.log.slice(-6).reverse().map(e =>
+    `<div class="ln"><span class="t">${fmtTime(e.t)}</span> ${e.m}</div>`).join('');
+  el.log.innerHTML = lines || '<div class="ln"><span class="t">00:00</span> 綠旗起步。按 ? 睇操作。</div>';
+
+  if (S.finished) renderResult();
+}
+
+function renderResult(){
+  const order = ordered();
+  const rows = order.map((c, i) => {
+    const pts = POINTS[i] || 0;
+    return `<div class="rrow${c.isPlayer ? ' me' : ''}"><span>${i+1}</span><span>${c.code}</span>`
+      + `<span>${c.team}</span><span>${c.done ? '+' + (c.finishTime - order[0].finishTime).toFixed(1) + 's' : 'DNF'}</span>`
+      + `<span>${pts ? pts + ' pts' : '—'}</span></div>`;
+  }).join('');
+
+  const mine = S.cars.filter(c => c.isPlayer).map(c => {
+    const pos = order.findIndex(x => x.i === c.i) + 1;
+    return `P${pos} #${c.num} ${c.code}（${POINTS[pos-1] || 0} 分，${c.stops} 次進站）`;
+  }).join('　·　');
+
+  const total = S.cars.filter(c => c.isPlayer).reduce((s, c) => {
+    const pos = order.findIndex(x => x.i === c.i) + 1;
+    return s + (POINTS[pos-1] || 0);
+  }, 0);
+
+  el.result.style.display = '';
+  el.result.innerHTML = `<h2>CLASSIFICATION · 57 LAPS</h2>${rows}
+    <div class="foot">你嘅車：${mine}<br>車隊得分：<b style="color:var(--accent)">${total} 分</b>　·　比賽時間 ${fmtTime(order[0].finishTime)}<br>
+    按 <b>R</b> 開新賽事（新 seed ＝ 新安全車劇本）。</div>`;
+}
+
+/* ============ 輸入 ============ */
+function sel(){
+  const c = S.cars[S.selected];
+  if (c && c.isPlayer) return c;
+  const i = S.cars.findIndex(x => x.isPlayer);   // 安全網：永遠指回玩家車
+  S.selected = i < 0 ? 0 : i;
+  return S.cars[S.selected];
+}
+
+function handleKey(e){
+  const k = e.key;
+  if (k === ' ' || k === 'Escape'){ e.preventDefault(); togglePause(); return; }
+  if (k === '?' || k === '/'){ e.preventDefault(); toggleHelp(); return; }
+  if (S.finished && (k === 'r' || k === 'R')){ restart(); return; }
+  if (k === 'r' || k === 'R'){ restart(); return; }
+
+  if (k === '1' || k === '2'){
+    // 只在玩家自己的車之間切換（TEAMS 裡玩家車不在索引 0/1）
+    const players = S.cars.filter(c => c.isPlayer).map(c => c.i);
+    const want = players[k === '1' ? 0 : 1];
+    if (want !== undefined) S.selected = want;
+    return;
+  }
+  if (!sel()) return;
+  switch (k){
+    case 's': case 'S': sel().nextCompound = 'S'; break;
+    case 'm': case 'M': sel().nextCompound = 'M'; break;
+    case 'h': case 'H': sel().nextCompound = 'H'; break;
+    case 'p': case 'P': {
+      if (S.paused) S.paused = false;
+      doPit(sel(), sel().nextCompound);
+      break;
+    }
+    case 'a': case 'A': S.policy.auto = !S.policy.auto; break;
+    case '[': S.policy.wearThresh = Math.max(40, S.policy.wearThresh - 5); break;
+    case ']': S.policy.wearThresh = Math.min(100, S.policy.wearThresh + 5); break;
+    case ',': S.policy.maxAge = Math.max(5, S.policy.maxAge - 2); break;
+    case '.': S.policy.maxAge = Math.min(50, S.policy.maxAge + 2); break;
+    case '-': S.speedIdx = Math.max(0, S.speedIdx - 1); S.speed = SPEEDS[S.speedIdx]; break;
+    case '=': case '+': S.speedIdx = Math.min(SPEEDS.length-1, S.speedIdx + 1); S.speed = SPEEDS[S.speedIdx]; break;
+  }
+  S.awayReport = null;
+  hideBanner();
+  save();
+}
+
+function togglePause(){
+  if (S.finished) return;
+  S.paused = !S.paused;
+  hideBanner();
+}
+
+function toggleHelp(){
+  if (el.banner.style.display !== 'none'){ hideBanner(); return; }
+  showBanner('操作', `
+    <div><b>空白 / Esc</b> 暫停 · <b>R</b> 新賽</div>
+    <div><b>1 / 2</b> 揀車 · <b>S / M / H</b> 下一套胎 · <b>P</b> 即刻入站</div>
+    <div><b>A</b> 政策模式（自動入站）· <b>[ ]</b> wear 門檻 · <b>, .</b> 最長胎齡</div>
+    <div><b>- / =</b> 速度 1x / 4x / 16x / 64x</div>
+    <div class="e" style="margin-top:6px">政策 OFF 時切走分頁＝暫停；政策 ON 時切走＝追算（返嚟有「你離開期間」報告）。</div>`);
+}
+
+function showBanner(title, html){
+  el.banner.innerHTML = `<h3>${title}</h3>${html}`;
+  el.banner.style.display = '';
+}
+function hideBanner(){ el.banner.style.display = 'none'; }
+
+function restart(){
+  const seed = (Date.now() % 100000) | 0;
+  S = newRace(seed);
+  buildDots();
+  el.result.style.display = 'none';
+  hideBanner();
+  pausedFlag(false);
+  save();
+}
+
+/* ============ 迴圈 / 暫停 / 追算 ============ */
+let pausedFlag = (v) => { S.paused = v; };
+
+let lastFrame = performance.now();
+let acc = 0;
+let renderTick = 0;
+
+function frame(now){
+  const dtReal = Math.min(0.25, (now - lastFrame) / 1000);
+  lastFrame = now;
+
+  if (!S.paused && !S.finished){
+    acc += dtReal * S.speed;
+    let guard = 0;
+    while (acc >= STEP && guard++ < 6000){
+      step(STEP);
+      acc -= STEP;
+    }
+    if (guard >= 6000) acc = 0;
+  }
+
+  if (++renderTick % 2 === 0) render();
+  requestAnimationFrame(frame);
+}
+
+/* 切走 / 切返 */
+let hiddenAt = 0;
+let lapAtHide = 0;
+
+document.addEventListener('visibilitychange', () => {
+  if (document.hidden) onLeave();
+  else onReturn();
+});
+window.addEventListener('blur', () => {
+  if (!S.policy.auto) { /* 政策 OFF 立即暫停 */ }
+});
+window.addEventListener('blur', onLeaveBlur);
+function onLeaveBlur(){
+  if (document.hidden) return;
+  if (!S.policy.auto && !S.finished) S.paused = true;
+}
+
+function onLeave(){
+  hiddenAt = performance.now();
+  lapAtHide = S.cars.reduce((m,c)=>Math.max(m,c.laps), 0);
+  if (!S.policy.auto && !S.finished) S.paused = true;
+  save();
+}
+
+function onReturn(){
+  const awayS = (performance.now() - hiddenAt) / 1000;
+  const simS = Math.min(awayS * S.speed, LAPS * 110 * 4);
+  if (S.policy.auto && awayS > 5 && !S.finished){
+    let n = 0, mine = 0;
+    const maxSteps = Math.min(300000, Math.floor(simS / STEP));
+    while (n < maxSteps && !S.finished){
+      step(STEP); n++;
+    }
+    const lapNow = S.cars.reduce((m,c)=>Math.max(m,c.laps), 0);
+    mine = lapNow - lapAtHide;
+    S.awayReport = {
+      mins: Math.max(1, Math.round(awayS / 60)),
+      laps: Math.max(0, mine),
+      events: S.log.slice(-8)
+    };
+    render();
+    if (S.awayReport){
+      showBanner(`你離開期間 · ${S.awayReport.mins} 分鐘`,
+        `<div>推進 <b>${S.awayReport.laps}</b> 圈，賽事 ${S.finished ? '已結束' : '進行中'}。</div>`
+        + S.awayReport.events.slice(-4).map(e=>`<div class="e">${fmtTime(e.t)} · ${e.m}</div>`).join(''));
+      setTimeout(()=>{ if (S.awayReport) hideBanner(); }, 25000);
+    }
+  }
+  acc = 0;
+  lastFrame = performance.now();
+  save();
+}
+
+/* ============ 存檔 ============ */
+function save(){
+  try {
+    const { paused, awayReport, ...keep } = S;
+    localStorage.setItem(SAVE_KEY, JSON.stringify({ ...keep, paused: false }));
+  } catch (e) { /* file:// 或私隱模式可能唔准 */ }
+}
+
+function load(){
+  try {
+    const raw = localStorage.getItem(SAVE_KEY);
+    if (!raw) return null;
+    const o = JSON.parse(raw);
+    const expected = TEAMS.reduce((n, t) => n + t.cars.length, 0);
+    if (!o || !Array.isArray(o.cars) || o.cars.length !== expected) return null;
+    o.paused = true;
+    o.awayReport = null;
+    return o;
+  } catch (e){ return null; }
+}
+
+/* 關 tab / 手機切 app 前再存一次 */
+window.addEventListener('pagehide', () => { try { save(); } catch (e) {} });
+
+/* ============ 啟動 ============ */
+function boot(){
+  const restored = load();
+  S = restored || newRace((Date.now() % 100000) | 0);
+  buildDots();
+
+  document.addEventListener('keydown', handleKey);
+
+  function fit(){
+    const s = Math.min(window.innerWidth / 1224, window.innerHeight / 724, 1.35);
+    document.getElementById('stage').style.transform = `scale(${s})`;
+  }
+  window.addEventListener('resize', fit);
+  fit();
+
+  // 測試用（唔影響遊戲）
+  window.__dev = {
+    run(sec){ let n = 0; while (n < sec / STEP && !S.finished){ step(STEP); n++; } render(); return summary(); },
+    summary,
+    state: () => S,
+    pit: (i, c) => doPit(S.cars[i], c),
+    setPolicy: (o) => Object.assign(S.policy, o)
+  };
+
+  el.saveNote.textContent = restored ? '已載入上次進度（暫停中）' : 'localStorage 自動存檔';
+  render();
+  requestAnimationFrame(frame);
+}
+
+function summary(){
+  return {
+    clock: +S.clock.toFixed(1),
+    finished: S.finished,
+    sc: S.scActive,
+    leaderLap: S.cars.reduce((m,c)=>Math.max(m,c.laps),0),
+    order: ordered().map(c => ({code:c.code, laps:c.laps, stops:c.stops, tyre:c.compound, age:c.age, done:c.done}))
+  };
+}
+
+boot();
+</script>
+</body>
+</html>

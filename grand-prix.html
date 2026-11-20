@@ -1,0 +1,910 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Race Timing — Session</title>
+<style>
+:root{
+  --ink:#0d1322; --ink2:#0a0f1b; --card:#121a2c; --card2:#0e1524;
+  --line:#1e2a40; --line2:#27354e;
+  --cream:#f2efe6; --tx:#e8ecf4; --slate:#b9c0cc; --muted:#7d8798;
+  --gold:#f2c14e; --gold2:#d8a63a; --red:#d9533f; --green:#3fbf8b;
+  --serif:Georgia,"Times New Roman","Noto Serif TC","Songti TC",serif;
+  --sans:"Noto Sans TC",-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang TC","Microsoft JhengHei",sans-serif;
+  --mono:ui-monospace,"SF Mono",Menlo,Consolas,monospace;
+}
+*{box-sizing:border-box}
+html,body{margin:0;height:100%;background:#060910;overflow:hidden;color:var(--tx);font-family:var(--sans)}
+#app{position:fixed;inset:0;display:flex;align-items:center;justify-content:center}
+#stage{width:1440px;height:900px;transform-origin:center center;position:relative;
+  background:
+    radial-gradient(1200px 700px at 20% -10%, rgba(242,193,78,.055), transparent 60%),
+    radial-gradient(900px 600px at 90% 110%, rgba(78,160,255,.06), transparent 60%),
+    linear-gradient(180deg,#0d1322 0%,#0a0f1b 100%);
+  border:1px solid #162034; border-radius:16px; padding:18px 22px;
+  display:flex; flex-direction:column; overflow:hidden}
+
+/* ---------- 通用 ---------- */
+.eyebrow{font-size:10.5px;letter-spacing:.22em;color:var(--gold);text-transform:uppercase;font-weight:700}
+.rule{display:flex;align-items:center;gap:14px}
+.rule:before,.rule:after{content:"";height:1px;flex:1;background:linear-gradient(90deg,transparent,var(--line2),transparent)}
+h1.serif{font-family:var(--serif);font-weight:400;letter-spacing:-.01em;margin:0}
+.card{background:linear-gradient(180deg,var(--card) 0%,var(--card2) 100%);
+  border:1px solid var(--line);border-radius:14px;padding:14px 16px;position:relative}
+.card.hi{border-color:rgba(242,193,78,.34);box-shadow:0 0 0 1px rgba(242,193,78,.06),0 18px 40px -30px rgba(242,193,78,.5)}
+.mono{font-family:var(--mono);font-variant-numeric:tabular-nums}
+.small{font-size:11.5px;color:var(--muted)}
+.btn{font-family:var(--sans);font-size:12.5px;font-weight:700;letter-spacing:.02em;
+  border-radius:9px;border:1px solid var(--line2);background:#16203400;color:var(--slate);
+  padding:8px 12px;cursor:pointer;transition:.15s;white-space:nowrap}
+.btn:hover{border-color:#3a4c69;color:var(--cream);background:rgba(255,255,255,.03)}
+.btn.gold{background:linear-gradient(180deg,#f6cb63,#e8b23c);color:#2a1c05;border-color:#c9992f;
+  box-shadow:0 10px 24px -12px rgba(242,193,78,.8)}
+.btn.gold:hover{filter:brightness(1.06);color:#2a1c05}
+.btn.on{border-color:rgba(63,191,139,.5);color:var(--green);background:rgba(63,191,139,.08)}
+.btn.sel{background:var(--cream);color:#141a26;border-color:var(--cream)}
+
+/* ---------- LOBBY ---------- */
+#lobby{position:absolute;inset:0;padding:26px 40px 22px;display:flex;flex-direction:column;z-index:40}
+.lobbyArt{position:absolute;right:-90px;bottom:-120px;width:760px;height:560px;opacity:.075;pointer-events:none}
+.lobbyArt svg{width:100%;height:100%}
+#lobby .brand,#lobby .lobbyMain,#lobby .lobbyFoot{position:relative;z-index:1}
+.brand{display:flex;align-items:center;gap:10px;font-weight:800;letter-spacing:.16em;font-size:13px}
+.brand i{width:11px;height:11px;background:var(--gold);display:inline-block;border-radius:2px;
+  box-shadow:0 0 14px rgba(242,193,78,.7)}
+.brand span{color:var(--muted);font-weight:500;letter-spacing:.1em;font-size:11px}
+.lobbyMain{flex:1;display:grid;grid-template-columns:1fr 400px;gap:44px;align-items:center;padding:0 40px}
+.lobbyLeft h1{font-size:56px;line-height:1.12;margin:14px 0 0;color:var(--cream)}
+.lobbyLeft h1 em{font-style:normal;color:var(--gold)}
+.lobbyLeft p{font-size:14.5px;line-height:2;color:var(--slate);max-width:560px;margin:22px 0 0}
+.stats{display:flex;gap:34px;margin-top:34px}
+.stats div b{display:block;font-family:var(--mono);font-size:22px;color:var(--cream);font-weight:600}
+.stats div span{font-size:11px;letter-spacing:.14em;color:var(--muted);text-transform:uppercase}
+.startCard{padding:22px}
+.startCard .big{font-family:var(--serif);font-size:27px;color:var(--cream);margin:6px 0 2px}
+.startCard .team{display:flex;align-items:center;gap:10px;margin:16px 0 4px;font-size:12.5px;color:var(--slate)}
+.pillRow{display:flex;gap:6px;flex-wrap:wrap;margin-top:12px}
+.tag{font-size:10.5px;letter-spacing:.1em;padding:4px 9px;border-radius:20px;border:1px solid var(--line2);color:var(--slate)}
+.tag.gold{border-color:rgba(242,193,78,.45);color:var(--gold)}
+.seedLine{margin-top:16px;font-family:var(--mono);font-size:11px;color:var(--muted)}
+.lobbyFoot{display:flex;justify-content:space-between;align-items:center;font-size:10.5px;color:#5a6476;
+  letter-spacing:.08em;border-top:1px solid var(--line);padding-top:12px}
+
+/* ---------- RACE ---------- */
+#race{position:absolute;inset:0;padding:16px 20px;display:flex;flex-direction:column;gap:10px;z-index:10}
+.topbar{display:flex;align-items:center;justify-content:space-between;height:40px}
+.topbar .mid{display:flex;align-items:center;gap:14px;font-family:var(--mono);font-size:13px;letter-spacing:.06em}
+.flag{padding:3px 10px;border-radius:20px;font-size:10px;letter-spacing:.14em;font-weight:700}
+.flag.green{color:var(--green);border:1px solid rgba(63,191,139,.4);background:rgba(63,191,139,.08)}
+.flag.sc{color:#2a1c05;background:var(--gold);border:1px solid var(--gold)}
+.hero{display:flex;align-items:flex-end;justify-content:space-between;padding:2px 4px 6px}
+.hero h2{font-family:var(--serif);font-size:31px;font-weight:400;margin:0;color:var(--cream);line-height:1.1}
+.hero h2 b{font-family:var(--mono);font-size:30px;color:var(--gold);font-weight:600}
+.hero p{margin:7px 0 0;font-size:13px;color:var(--slate)}
+.hero .right{text-align:right;font-family:var(--mono);font-size:11px;color:var(--muted);line-height:1.9}
+
+.mainRow{flex:1;display:grid;grid-template-columns:1fr 404px;gap:12px;min-height:0}
+#sceneWrap{padding:0;overflow:hidden;position:relative}
+canvas{display:block;width:100%;height:100%}
+.sceneTag{position:absolute;left:16px;top:14px;font-size:10px;letter-spacing:.2em;color:rgba(242,193,78,.8)}
+.sceneFoot{position:absolute;left:16px;bottom:12px;font-family:var(--mono);font-size:10px;color:#5f6b7e;letter-spacing:.08em}
+
+.side{display:flex;flex-direction:column;gap:10px;min-height:0}
+.side .card{padding:12px 14px}
+.driverLine{display:flex;align-items:baseline;justify-content:space-between;margin-top:2px}
+.driverLine .num{font-family:var(--mono);font-size:30px;font-weight:600;color:var(--cream);line-height:1}
+.driverLine .code{font-size:11px;letter-spacing:.16em;color:var(--muted);margin-left:8px}
+.kv{display:grid;grid-template-columns:64px 1fr;gap:2px 10px;font-size:11.5px;line-height:1.75;margin-top:8px}
+.kv b{color:var(--muted);font-weight:400}
+.wbar{height:5px;border-radius:3px;background:#1b2438;overflow:hidden;margin-top:9px}
+.wbar>i{display:block;height:100%;background:var(--green);transition:width .25s}
+.wbar>i.w{background:var(--gold)} .wbar>i.b{background:var(--red)}
+.btns{display:flex;gap:6px;margin-top:11px;align-items:center}
+.btns .grow{flex:1}
+.chips{display:flex;gap:5px}
+.chipTy{width:34px;text-align:center;padding:6px 0;border-radius:8px;font-size:10.5px;font-weight:800;
+  border:1px solid var(--line2);color:var(--slate);cursor:pointer;letter-spacing:.04em;background:transparent}
+.chipTy:hover{border-color:#3a4c69}
+
+.feed{flex:1;min-height:0;overflow:hidden}
+.feed .ln{font-family:var(--serif);font-size:12.5px;line-height:1.85;color:var(--slate);
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.feed .ln b{color:var(--cream);font-weight:600;font-family:var(--sans);font-size:11.5px;letter-spacing:.04em}
+.feed .ln .t{font-family:var(--mono);font-size:10px;color:var(--gold2);margin-right:8px}
+
+.ticker{display:grid;grid-auto-flow:column;grid-auto-columns:1fr;gap:7px;height:66px}
+.tk{border:1px solid var(--line);border-radius:10px;padding:8px 10px;display:flex;flex-direction:column;
+  justify-content:center;gap:3px;background:rgba(18,26,44,.7);position:relative;overflow:hidden}
+.tk.me{border-color:rgba(242,193,78,.45);background:rgba(242,193,78,.07)}
+.tk .r1{display:flex;align-items:center;gap:6px;font-family:var(--mono);font-size:12.5px;font-weight:600;letter-spacing:.02em}
+.tk .r2{display:flex;justify-content:space-between;font-family:var(--mono);font-size:10.5px;color:var(--muted)}
+.tk i.chip{width:3px;height:11px;border-radius:2px;display:inline-block}
+
+/* ---------- 結果 ---------- */
+#result{position:absolute;inset:0;background:rgba(6,9,16,.965);z-index:50;display:none;
+  padding:36px 54px;overflow:auto}
+#result h2{font-family:var(--serif);font-weight:400;font-size:34px;color:var(--cream);margin:0}
+.rrow{display:grid;grid-template-columns:44px 64px 1fr 110px 80px;gap:12px;font-size:13px;
+  padding:7px 4px;border-bottom:1px solid #162034;color:var(--slate);font-family:var(--mono)}
+.rrow.me{color:var(--gold)}
+.rrow.head{color:var(--muted);font-size:10px;letter-spacing:.18em;border-bottom-color:var(--line2)}
+.resultFoot{margin-top:22px;font-size:13px;line-height:2;color:var(--slate);font-family:var(--sans)}
+
+.banner{position:absolute;left:50%;top:64px;transform:translateX(-50%);background:#121a2c;
+  border:1px solid rgba(242,193,78,.35);border-radius:12px;padding:14px 18px;font-size:12px;
+  line-height:1.8;max-width:680px;z-index:45;box-shadow:0 24px 60px -30px #000}
+.banner h3{margin:0 0 6px;font-family:var(--serif);font-size:16px;color:var(--gold);font-weight:400}
+</style>
+</head>
+<body>
+<div id="app">
+<div id="stage">
+
+  <!-- ============ LOBBY ============ -->
+  <section id="lobby">
+    <div class="lobbyArt" id="lobbyArt"></div>
+    <div class="brand"><i></i> GRAND PRIX <span>車隊策略模擬</span></div>
+
+    <div class="lobbyMain">
+      <div class="lobbyLeft">
+        <div class="eyebrow">ROUND 07 · CIRCUIT VALGRANDE · 30 LAPS</div>
+        <h1 class="serif">由無名車隊，<br>到<em>世界冠軍</em>。</h1>
+        <p>你唔會落場揸車。你坐喺 pit wall：揀胎、揀幾時入站、搏唔搏安全車。<br>
+           每個決定即刻變成秒數 —— 而秒數決定你係 P1，定係 P9。</p>
+        <div class="stats">
+          <div><b>10</b><span>車隊</span></div>
+          <div><b>30</b><span>圈</span></div>
+          <div><b>3</b><span>種胎</span></div>
+          <div><b>1</b><span>條賽道</span></div>
+        </div>
+      </div>
+
+      <div class="card hi startCard">
+        <div class="eyebrow">你嘅車隊</div>
+        <div class="big">Aurora Racing</div>
+        <div class="small">車隊積分榜第 6 · 今季最好成績 P4</div>
+        <div class="team"><span class="mono" style="color:var(--gold);font-size:18px;font-weight:600">#77</span>
+          KAI · <span class="small">#78 REN</span></div>
+        <div class="pillRow">
+          <span class="tag gold">排位 P5 起步</span>
+          <span class="tag">新胎 MEDIUM</span>
+          <span class="tag">氣溫 31°C</span>
+        </div>
+        <button class="btn gold" id="startBtn" style="width:100%;margin-top:18px;padding:14px;font-size:14px">
+          開始比賽 →
+        </button>
+        <div class="seedLine">種子 · <span id="seedTxt">——</span>（同一 seed、同一決定＝同一場比賽）</div>
+      </div>
+    </div>
+
+    <div class="lobbyFoot">
+      <span>SPACE 暫停 · 1/2 揀車 · S/M/H 換胎 · P 入站 · A 政策 · R 新賽</span>
+      <span>車隊、車手、賽道全部虛構</span>
+    </div>
+  </section>
+
+  <!-- ============ RACE ============ -->
+  <section id="race" style="display:none">
+    <div class="topbar">
+      <div class="brand" style="font-size:11.5px"><i></i> GRAND PRIX <span>ROUND 07 · VALGRANDE</span></div>
+      <div class="mid">
+        <span id="lapTxt">LAP 1 / 30</span>
+        <span id="flagTxt" class="flag green">GREEN</span>
+        <span id="clockTxt" style="color:var(--muted)">00:00</span>
+      </div>
+      <div style="display:flex;gap:6px;align-items:center">
+        <button class="btn" id="pauseBtn">暫停</button>
+        <button class="btn" id="speedBtn">16x</button>
+        <button class="btn" id="restartBtn">新賽</button>
+      </div>
+    </div>
+
+    <div class="hero">
+      <div>
+        <div class="eyebrow" id="heroEyebrow">CIRCUIT VALGRANDE · 乾地</div>
+        <h2 class="serif" id="heroH">第 <b>1</b> 圈</h2>
+        <p id="heroP">由第 5 位起步。</p>
+      </div>
+      <div class="right">
+        <div>PIT LOSS <span style="color:var(--cream)">21.5s</span></div>
+        <div>SOFT / MED / HARD</div>
+      </div>
+    </div>
+
+    <div class="mainRow">
+      <div class="card" id="sceneWrap">
+        <canvas id="cv"></canvas>
+        <div class="sceneTag" id="sceneTag">TACTICAL VIEW · LIVE</div>
+        <div class="sceneFoot">VALGRANDE · 30 LAPS</div>
+      </div>
+
+      <div class="side">
+        <div class="card hi">
+          <div class="eyebrow">你嘅車</div>
+          <div class="driverLine">
+            <div><span class="num" id="carNum">77</span><span class="code" id="carCode">KAI</span></div>
+            <div class="mono" id="carPos" style="font-size:20px;color:var(--gold)">P5</div>
+          </div>
+          <div class="kv">
+            <b>輪胎</b><span id="carTyre">MEDIUM · 0 圈</span>
+            <b>離懸崖</b><span id="carCliff">16 圈</span>
+            <b>進站</b><span id="carStops">0 次</span>
+          </div>
+          <div class="wbar"><i id="carWear" style="width:0%"></i></div>
+          <div class="btns" style="margin-top:12px">
+            <div class="chips">
+              <button class="chipTy" data-ty="S">S</button>
+              <button class="chipTy" data-ty="M">M</button>
+              <button class="chipTy" data-ty="H">H</button>
+            </div>
+            <button class="btn gold grow" id="pitBtn">入站</button>
+          </div>
+        </div>
+
+        <div class="card" style="padding:10px 14px">
+          <div style="display:flex;justify-content:space-between;align-items:center">
+            <div class="small">政策模式 · 自動入站</div>
+            <button class="btn" id="policyBtn" style="padding:5px 10px">OFF</button>
+          </div>
+          <div class="kv" style="grid-template-columns:78px 1fr;margin-top:6px">
+            <b>門檻 wear</b><span class="mono" id="pwTxt">78%</span>
+            <b>最長胎齡</b><span class="mono" id="paTxt">10 圈</span>
+          </div>
+        </div>
+
+        <div class="card feed" id="feed"></div>
+      </div>
+    </div>
+
+    <div class="ticker" id="ticker"></div>
+  </section>
+
+  <div id="result"></div>
+  <div class="banner" id="banner" style="display:none"></div>
+</div>
+</div>
+
+<script>
+'use strict';
+/* ============================================================
+   常數
+   ============================================================ */
+const LAPS = 30, BASE_LAP = 92.0, STEP = 0.2;
+const PIT_GREEN = 21.5, PIT_SC = 9.5;
+const SAVE_KEY = 'race_gp_save_v1';
+const SPEEDS = [1, 4, 16, 64];
+const POINTS = [25,18,15,12,10,8,6,4,2,1];
+
+const COMPOUNDS = {
+  S:{label:'SOFT',   offset:-0.75, deg:0.150, life: 9, color:'#d9533f'},
+  M:{label:'MEDIUM', offset: 0.00, deg:0.084, life:16, color:'#e8c25a'},
+  H:{label:'HARD',   offset: 0.55, deg:0.041, life:24, color:'#cfd6e0'}
+};
+
+const TEAMS = [
+  {name:'VELOCE CORSE',  pace:-0.60, color:'#d9533f', start:'M', cars:[{code:'BOS',n:11}]},
+  {name:'MERIDIAN GP',   pace:-0.48, color:'#4ea0ff', start:'S', cars:[{code:'HAL',n:23}]},
+  {name:'AURORA RACING', pace:-0.16, color:'#3fbf8b', start:'M', player:true,
+     cars:[{code:'KAI',n:77},{code:'REN',n:78}]},
+  {name:'KESTREL MS',    pace:-0.03, color:'#e8c25a', start:'S', cars:[{code:'ORT',n:31}]},
+  {name:'NORDFJORD',     pace: 0.19, color:'#9b7bff', start:'M', cars:[{code:'LIN',n:44}]},
+  {name:'TALON RACING',  pace: 0.42, color:'#e08fc0', start:'H', cars:[{code:'RUI',n:55}]},
+  {name:'HELIOS GP',     pace: 0.64, color:'#7fd1d9', start:'M', cars:[{code:'ABB',n:63}]},
+  {name:'SABLE GP',      pace: 0.83, color:'#b9c2cc', start:'S', cars:[{code:'KOV',n:72}]},
+  {name:'DRAKON',        pace: 1.09, color:'#c2a06a', start:'H', cars:[{code:'MAR',n:88}]},
+  {name:'PRISM RACING',  pace: 1.41, color:'#8fa0b8', start:'M', cars:[{code:'NOV',n:99}]}
+];
+
+/* ============================================================
+   賽道幾何（虛擬 834×504，畫布再縮放）
+   ============================================================ */
+const VW = 834, VH = 504;
+const TRACK_PTS = [
+  [706,392],[520,394],[262,394],[168,380],[116,332],[102,270],
+  [132,214],[198,194],[252,176],[286,130],[332,90],[406,72],
+  [472,78],[522,106],[554,150],[598,176],[652,174],[696,148],
+  [718,182],[728,240],[724,300],[716,352]
+];
+const PIT_PTS = [[700,398],[668,424],[618,434],[330,434],[236,426],[196,404],[176,382]];
+
+function catmull(pts, closed, seg){
+  const out=[], n=pts.length;
+  const get=i=>closed?pts[(i+n)%n]:pts[Math.max(0,Math.min(n-1,i))];
+  const last=closed?n:n-1;
+  for(let i=0;i<last;i++){
+    const p0=get(i-1),p1=get(i),p2=get(i+1),p3=get(i+2);
+    for(let s=0;s<seg;s++){
+      const t=s/seg,t2=t*t,t3=t2*t;
+      out.push({
+        x:0.5*((2*p1[0])+(-p0[0]+p2[0])*t+(2*p0[0]-5*p1[0]+4*p2[0]-p3[0])*t2+(-p0[0]+3*p1[0]-3*p2[0]+p3[0])*t3),
+        y:0.5*((2*p1[1])+(-p0[1]+p2[1])*t+(2*p0[1]-5*p1[1]+4*p2[1]-p3[1])*t2+(-p0[1]+3*p1[1]-3*p2[1]+p3[1])*t3)
+      });
+    }
+  }
+  return out;
+}
+function makePath(pts, closed, seg){
+  const p=catmull(pts,closed,seg||20);
+  const cum=[0];
+  for(let i=1;i<p.length;i++) cum.push(cum[i-1]+Math.hypot(p[i].x-p[i-1].x,p[i].y-p[i-1].y));
+  return {pts:p,cum,len:cum[cum.length-1],closed:!!closed};
+}
+const TRACK=makePath(TRACK_PTS,true);
+const PIT=makePath(PIT_PTS,false);
+
+function posAt(path,f){
+  const d=Math.max(0,Math.min(1,f))*path.len, cum=path.cum;
+  let lo=0,hi=cum.length-1;
+  while(lo<hi-1){const m=(lo+hi)>>1; if(cum[m]<=d) lo=m; else hi=m;}
+  const a=path.pts[lo], b=path.pts[Math.min(path.pts.length-1,lo+1)];
+  const seg=Math.max(.0001,cum[lo+1]-cum[lo]);
+  const t=Math.max(0,Math.min(1,(d-cum[lo])/seg));
+  return {x:a.x+(b.x-a.x)*t, y:a.y+(b.y-a.y)*t, ang:Math.atan2(b.y-a.y,b.x-a.x)};
+}
+
+/* ============================================================
+   模擬
+   ============================================================ */
+let S=null;
+
+function mulberry32(a){return function(){a|=0;a=a+0x6D2B79F5|0;let t=Math.imul(a^a>>>15,1|a);
+  t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296;};}
+function noiseAt(seed,i,lap,salt){
+  let h=(seed^Math.imul(i+1,374761393)^Math.imul(lap+1,668265263)^Math.imul(salt,2246822519))>>>0;
+  h^=h>>>15;h=Math.imul(h,2246822519)>>>0;h^=h>>>13;
+  return((h&0xffff)/0xffff)-0.5;
+}
+function newRace(seed){
+  const r=mulberry32(seed), cars=[]; let idx=0;
+  for(const t of TEAMS) for(let j=0;j<t.cars.length;j++){
+    const d=t.cars[j];
+    const pace=t.pace+(j===1?0.14:0)+(r()-0.5)*0.12;
+    const sc=r(); const plan= sc<0.55?['H']:(sc<0.8?['S','H']:['M','H']);
+    cars.push({i:idx++,code:d.code,num:d.n,team:t.name,color:t.color,
+      pace:+pace.toFixed(3),isPlayer:!!t.player,
+      compound:t.start,age:0,stops:0,laps:0,lapStart:0,lapTime:0,
+      done:false,finishTime:null,plan,nextCompound:t.start==='H'?'M':'H',
+      pitAgeFactor:0.84+r()*0.16,fx:null});
+  }
+  for(const c of cars) c.lapTime=calcLapTime(c,seed,false);
+  const wins=[];
+  if(r()<0.6) wins.push({start:4+Math.floor(r()*10),len:3});
+  if(r()<0.25) wins.push({start:18+Math.floor(r()*8),len:3});
+  return {seed,started:false,clock:0,cars,scWindows:wins.sort((a,b)=>a.start-b.start),
+    scActive:false,finished:false,finishCount:0,resultRendered:false,
+    policy:{auto:false,wearThresh:78,maxAge:10,autoSC:true},
+    speed:16,speedIdx:2,selected:0,log:[],paused:false};
+}
+function calcLapTime(c,seed,sc){
+  if(sc) return 118.5+noiseAt(seed,c.i,c.laps,7)*1.2;
+  const k=COMPOUNDS[c.compound], over=Math.max(0,c.age-k.life);
+  return BASE_LAP+c.pace+k.offset+k.deg*c.age+(over>0?0.55*over*over:0)+noiseAt(seed,c.i,c.laps,3)*0.28;
+}
+const wearPct=c=>Math.max(0,Math.min(100,Math.round(c.age/COMPOUNDS[c.compound].life*100)));
+function distOf(c){
+  if(c.done) return LAPS+1;
+  const p=Math.max(0,Math.min(1,(S.clock-c.lapStart)/c.lapTime));
+  return c.laps+p;
+}
+function addLog(msg){S.log.push({t:S.clock,m:msg}); if(S.log.length>90) S.log.shift();}
+
+function doPit(c,compound){
+  if(c.done||S.finished) return false;
+  const loss=(S.scActive?PIT_SC:PIT_GREEN)+(noiseAt(S.seed,c.i,c.stops,11)+0.5)*0.9;
+  c.lapStart+=loss; c.stops++;
+  const nc=compound||c.nextCompound;
+  c.nextCompound = nc==='S'?'M':(nc==='M'?'H':'M');
+  c.compound=nc; c.age=0;
+  c.lapTime=calcLapTime(c,S.seed,S.scActive);
+  c.fx={t:0,dur:1.2};
+  addLog(`<b>${c.code}</b> 入站，換上 ${COMPOUNDS[nc].label}${S.scActive?'（安全車期間）':''} —— 損失 ${loss.toFixed(1)} 秒`);
+  return true;
+}
+function aiDecide(c){
+  const k=COMPOUNDS[c.compound], maxAge=Math.round(k.life*c.pitAgeFactor);
+  const due=c.age>=maxAge||wearPct(c)>=96;
+  const opp=S.scActive&&c.age>=3&&c.stops<c.plan.length+1;
+  if((LAPS-c.laps)<=2) return;
+  if((due||opp)&&c.stops<c.plan.length+1) doPit(c,c.plan[c.stops]||'M');
+}
+function autoDecide(c){
+  if(!S.policy.auto||c.done) return;
+  if((LAPS-c.laps)<=2) return;
+  const due=wearPct(c)>=S.policy.wearThresh||c.age>=S.policy.maxAge;
+  if(due||(S.policy.autoSC&&S.scActive&&c.age>=2)) doPit(c,c.nextCompound);
+}
+function updateSC(){
+  const lead=S.cars.reduce((m,c)=>Math.max(m,c.laps),0);
+  const on=S.scWindows.some(w=>lead>=w.start&&lead<w.start+w.len);
+  if(on&&!S.scActive){S.scActive=true;bunchUp();
+    addLog('<b>SAFETY CAR</b> 出動 —— 車群壓縮，入站只需 9.5 秒');}
+  else if(!on&&S.scActive){S.scActive=false;addLog('安全車返入 pit lane，綠旗重開');}
+}
+function bunchUp(){
+  const order=S.cars.filter(c=>!c.done).sort((a,b)=>distOf(b)-distOf(a));
+  if(!order.length) return;
+  const lead=order[0].lapStart;
+  order.forEach((c,i)=>{c.lapStart=lead+i*1.1;});
+}
+function step(dt){
+  if(S.finished) return;
+  S.clock+=dt; updateSC();
+  for(const c of S.cars){
+    if(c.done) continue;
+    let guard=0;
+    while(S.clock>=c.lapStart+c.lapTime&&guard++<12){
+      c.laps++; c.age++;
+      if(c.laps>=LAPS){c.done=true;c.finishTime=c.lapStart+c.lapTime;c.finishOrder=++S.finishCount;break;}
+      c.lapStart+=c.lapTime;
+      c.lapTime=calcLapTime(c,S.seed,S.scActive);
+      if(c.isPlayer) autoDecide(c); else aiDecide(c);
+    }
+  }
+  if(S.cars.every(c=>c.done)){S.finished=true;addLog('<b>賽事結束</b>');save();}
+}
+function ordered(){
+  const done=S.cars.filter(c=>c.done).sort((a,b)=>a.finishTime-b.finishTime);
+  const run=S.cars.filter(c=>!c.done).sort((a,b)=>distOf(b)-distOf(a));
+  return done.concat(run);
+}
+const posOf=c=>ordered().findIndex(x=>x.i===c.i)+1;
+
+/* ============================================================
+   畫布
+   ============================================================ */
+const cv=document.getElementById('cv'), ctx=cv.getContext('2d');
+let CWpx=0, CHpx=0, k=1, ox=0, oy=0;
+
+// 賽道實際邊界（連 pit lane），用嚟自動放大
+const BBOX=(()=>{
+  let x0=1e9,y0=1e9,x1=-1e9,y1=-1e9;
+  for(const p of TRACK.pts.concat(PIT.pts)){
+    x0=Math.min(x0,p.x); y0=Math.min(y0,p.y); x1=Math.max(x1,p.x); y1=Math.max(y1,p.y);
+  }
+  return {x0:x0-30,y0:y0-30,x1:x1+30,y1:y1+42};
+})();
+
+function resizeCanvas(){
+  const r=cv.getBoundingClientRect();
+  const dpr=Math.min(2,window.devicePixelRatio||1);
+  CWpx=r.width; CHpx=r.height;
+  cv.width=Math.round(CWpx*dpr); cv.height=Math.round(CHpx*dpr);
+  const bw=BBOX.x1-BBOX.x0, bh=BBOX.y1-BBOX.y0;
+  k=Math.min(CWpx/bw, CHpx/bh)*0.985;
+  ox=(CWpx-bw*k)/2 - BBOX.x0*k;
+  oy=(CHpx-bh*k)/2 - BBOX.y0*k;
+  ctx.setTransform(1,0,0,1,0,0);
+  ctx.scale(dpr,dpr);
+}
+
+function pathPts(path){
+  ctx.beginPath();
+  const p=path.pts;
+  ctx.moveTo(p[0].x,p[0].y);
+  for(let i=1;i<p.length;i++) ctx.lineTo(p[i].x,p[i].y);
+  if(path.closed) ctx.closePath();
+}
+function stroke(path,w,color,dash){
+  pathPts(path); ctx.lineWidth=w; ctx.strokeStyle=color;
+  ctx.lineJoin='round'; ctx.lineCap='round'; ctx.setLineDash(dash||[]); ctx.stroke(); ctx.setLineDash([]);
+}
+function drawKerbs(){
+  const stepPx=13;
+  for(let d=0;d<TRACK.len;d+=stepPx){
+    const f=d/TRACK.len, p=posAt(TRACK,f);
+    const nx=Math.cos(p.ang+Math.PI/2), ny=Math.sin(p.ang+Math.PI/2);
+    const col=(Math.floor(d/stepPx)%2)?'#c8402f':'#e9e3d5';
+    ctx.strokeStyle=col; ctx.lineWidth=2.5; ctx.lineCap='butt';
+    for(const s of [1,-1]){
+      const bx=p.x+nx*s*18.4, by=p.y+ny*s*18.4;
+      ctx.beginPath(); ctx.moveTo(bx-nx*s*0.6,by-ny*s*0.6);
+      ctx.lineTo(bx+nx*s*3.4,by+ny*s*3.4); ctx.stroke();
+    }
+  }
+}
+function drawScene(){
+  ctx.setTransform(1,0,0,1,0,0);
+  ctx.clearRect(0,0,cv.width,cv.height);
+  const dpr=Math.min(2,window.devicePixelRatio||1);
+  ctx.scale(dpr,dpr);
+  ctx.save(); ctx.translate(ox,oy); ctx.scale(k,k);
+
+  // 場地（草地＋夜間聚光）
+  const g=ctx.createRadialGradient(VW*.45,VH*.42,40,VW*.45,VH*.42,VW*.85);
+  g.addColorStop(0,'#0f1a16'); g.addColorStop(.55,'#0b1310'); g.addColorStop(1,'#070b09');
+  ctx.fillStyle=g; ctx.fillRect(-ox/k,-oy/k,CWpx/k,CHpx/k);
+
+  // 圍場地界（幼線，增加層次）
+  ctx.strokeStyle='rgba(120,150,135,.07)'; ctx.lineWidth=1;
+  for(let x=0;x<VW;x+=60){ctx.beginPath();ctx.moveTo(x,0);ctx.lineTo(x,VH);ctx.stroke();}
+  for(let y=0;y<VH;y+=60){ctx.beginPath();ctx.moveTo(0,y);ctx.lineTo(VW,y);ctx.stroke();}
+
+  // 賽道：緩衝帶 → 瀝青 → 內圈
+  stroke(TRACK,54,'#16211c');
+  stroke(TRACK,44,'#0a0e13');
+  stroke(TRACK,38,'#2a3340');
+  ctx.globalAlpha=.35; stroke(TRACK,1,'#4c5868',[6,14]); ctx.globalAlpha=1;
+  drawKerbs();
+
+  // 分段線 S2 / S3
+  [[0.995,'S1'],[1/3,'S2'],[2/3,'S3']].forEach(([f,lab])=>{
+    const p=posAt(TRACK,f), nx=Math.cos(p.ang+Math.PI/2), ny=Math.sin(p.ang+Math.PI/2);
+    ctx.strokeStyle='rgba(255,255,255,.22)'; ctx.lineWidth=1.4;
+    ctx.beginPath(); ctx.moveTo(p.x-nx*19,p.y-ny*19); ctx.lineTo(p.x+nx*19,p.y+ny*19); ctx.stroke();
+    ctx.fillStyle='rgba(255,255,255,.28)'; ctx.font='700 8px monospace'; ctx.textAlign='center';
+    ctx.fillText(lab,p.x+nx*30,p.y+ny*30+3);
+  });
+
+  // 起終點格仔線
+  const sf=posAt(TRACK,0);
+  ctx.save(); ctx.translate(sf.x,sf.y); ctx.rotate(sf.ang);
+  for(let i=-4;i<4;i++){ctx.fillStyle=(i%2)?'#e9e3d5':'#2b3440';ctx.fillRect(i*4,-18,4,36);}
+  ctx.restore();
+
+  // 維修通道
+  stroke(PIT,26,'#0b1015');
+  stroke(PIT,20,'#1c242f');
+  ctx.globalAlpha=.5; stroke(PIT,1,'#3d4a59',[5,9]); ctx.globalAlpha=1;
+
+  // 車房：10 個 pit box，連住通道
+  for(let i=0;i<10;i++){
+    const x=250+i*34, y=438;
+    const busy=S.cars.find(c=>c.fx&&c.team===TEAMS[i].name);
+    ctx.fillStyle=busy?'#1d2530':'#111923';
+    ctx.fillRect(x,y,29,22);
+    ctx.strokeStyle=busy?'rgba(242,193,78,.8)':'#26333f'; ctx.lineWidth=1; ctx.strokeRect(x,y,29,22);
+    ctx.fillStyle=TEAMS[i].color; ctx.fillRect(x,y,29,3.5);
+    // 連去 pit lane 嘅短線
+    ctx.strokeStyle='#1c242f'; ctx.lineWidth=3;
+    ctx.beginPath(); ctx.moveTo(x+14.5,y); ctx.lineTo(x+14.5,y-9); ctx.stroke();
+    ctx.fillStyle=busy?'#f2c14e':'rgba(150,165,182,.55)';
+    ctx.font='700 7.5px monospace'; ctx.textAlign='center';
+    ctx.fillText(TEAMS[i].name.slice(0,3), x+14.5, y+15);
+    if(busy){ // 入站中：脈衝圈
+      const ph=(performance.now()%900)/900;
+      ctx.strokeStyle=`rgba(242,193,78,${0.7*(1-ph)})`; ctx.lineWidth=1.6;
+      ctx.beginPath(); ctx.arc(x+14.5,y+11,6+ph*16,0,Math.PI*2); ctx.stroke();
+    }
+  }
+  ctx.textAlign='left';
+  ctx.fillStyle='rgba(242,193,78,.65)'; ctx.font='700 8px monospace';
+  ctx.fillText('PIT LANE', 178, 428);
+
+  // 安全車
+  if(S.scActive&&!S.finished){
+    const lead=Math.max(...S.cars.map(c=>distOf(c)));
+    const p=posAt(TRACK,(((lead-0.03)%1)+1)%1);
+    ctx.save(); ctx.translate(p.x,p.y); ctx.rotate(p.ang);
+    ctx.shadowColor='rgba(242,193,78,.95)'; ctx.shadowBlur=16;
+    ctx.fillStyle='#f2c14e'; ctx.beginPath(); ctx.roundRect(-9,-5,18,10,2.5); ctx.fill();
+    ctx.restore(); ctx.shadowBlur=0;
+  }
+
+  // ---- 車：同小段路嘅車向兩側排開 ----
+  const arr=S.cars.filter(c=>!c.fx&&!c.done).map(c=>({c,f:distOf(c)%1})).sort((a,b)=>a.f-b.f);
+  const groups=[];
+  for(const it of arr){
+    const g2=groups[groups.length-1];
+    if(g2&&(it.f-g2[g2.length-1].f)<0.030) g2.push(it); else groups.push([it]);
+  }
+  const offMap=new Map();
+  for(const g2 of groups){
+    const span=Math.min(30, 9+g2.length*2.2);
+    g2.forEach((it,i)=>offMap.set(it.c.i, g2.length===1?0:((i/(g2.length-1))-0.5)*span));
+  }
+
+  for(const c of S.cars){
+    let p, inPit=false;
+    if(c.fx){inPit=true;p=posAt(PIT,c.fx.t/c.fx.dur);}
+    else p=posAt(TRACK,distOf(c)%1);
+    const off=inPit?0:(offMap.get(c.i)||0);
+    const nx=Math.cos(p.ang+Math.PI/2)*off, ny=Math.sin(p.ang+Math.PI/2)*off;
+    const x=p.x+nx, y=p.y+ny;
+
+    ctx.save(); ctx.translate(x,y); ctx.rotate(p.ang);
+    if(c.isPlayer){ctx.shadowColor='rgba(242,193,78,.9)';ctx.shadowBlur=14;}
+    else {ctx.shadowColor='rgba(0,0,0,.85)';ctx.shadowBlur=5;}
+    ctx.fillStyle=c.color;
+    ctx.beginPath(); ctx.roundRect(-10,-5,20,10,2.8); ctx.fill();
+    // 車頭三角（方向感）
+    ctx.beginPath(); ctx.moveTo(10,-3.4); ctx.lineTo(14.5,0); ctx.lineTo(10,3.4); ctx.closePath(); ctx.fill();
+    ctx.shadowBlur=0;
+    ctx.strokeStyle=c.isPlayer?'#f2c14e':'rgba(235,242,250,.65)';
+    ctx.lineWidth=c.isPlayer?1.3:0.9; ctx.stroke();
+    ctx.restore();
+
+    if(c.isPlayer){
+      ctx.font='800 9.5px ui-monospace,monospace'; ctx.textAlign='center';
+      ctx.fillStyle='rgba(6,9,16,.85)';
+      const w=ctx.measureText(c.code).width+8;
+      ctx.beginPath(); ctx.roundRect(x-w/2,y-18,w,12,3); ctx.fill();
+      ctx.fillStyle='#f7e3ae'; ctx.fillText(c.code,x,y-9);
+    } else if(inPit){
+      ctx.fillStyle='#f2c14e'; ctx.beginPath(); ctx.arc(x,y+11,2.2,0,Math.PI*2); ctx.fill();
+    }
+  }
+  ctx.restore();
+}
+
+/* ============================================================
+   UI
+   ============================================================ */
+const $=id=>document.getElementById(id);
+const el={
+  lapTxt:$('lapTxt'),flagTxt:$('flagTxt'),clockTxt:$('clockTxt'),heroEyebrow:$('heroEyebrow'),
+  heroH:$('heroH'),heroP:$('heroP'),carNum:$('carNum'),carCode:$('carCode'),carPos:$('carPos'),
+  carTyre:$('carTyre'),carCliff:$('carCliff'),carStops:$('carStops'),carWear:$('carWear'),
+  feed:$('feed'),ticker:$('ticker'),policyBtn:$('policyBtn'),pauseBtn:$('pauseBtn'),
+  speedBtn:$('speedBtn'),seedTxt:$('seedTxt'),banner:$('banner'),result:$('result'),
+  sceneTag:$('sceneTag'),pwTxt:$('pwTxt'),paTxt:$('paTxt')
+};
+const fmt=s=>String(Math.floor(s/60)).padStart(2,'0')+':'+String(Math.floor(s%60)).padStart(2,'0');
+
+function renderUI(){
+  const order=ordered(), leader=order[0], car=S.cars[S.selected];
+  const lap=Math.min(LAPS,leader.laps+1);
+
+  el.lapTxt.textContent=`LAP ${lap} / ${LAPS}`;
+  el.flagTxt.textContent=S.scActive?'SAFETY CAR':'GREEN';
+  el.flagTxt.className='flag '+(S.scActive?'sc':'green');
+  el.clockTxt.textContent=fmt(S.clock);
+  el.speedBtn.textContent=S.speed+'x';
+  el.pauseBtn.textContent=S.paused?'繼續':'暫停';
+
+  // hero 敘事
+  const pos=posOf(car);
+  const aheadIdx=order.findIndex(x=>x.i===car.i)-1;
+  const gapAhead=aheadIdx>=0?Math.max(0,(distOf(order[aheadIdx])-distOf(car))*92):0;
+  const toCliff=Math.max(0,COMPOUNDS[car.compound].life-car.age);
+  if(S.finished){
+    el.heroH.innerHTML='比賽結束';
+    el.heroP.textContent='你嘅車以 P'+pos+' 完成。';
+  } else {
+    el.heroH.innerHTML=`第 <b>${lap}</b> 圈`;
+    const intro = S.clock<8 ? '由第 '+pos+' 位起步。' : '';
+    el.heroP.textContent = intro || (pos===1
+      ? '你喺 P1，領先 '+((distOf(car)-distOf(order[1]||car))*92).toFixed(1)+' 秒 —— 守住。'
+      : `你喺 P${pos}，落後前車 ${gapAhead.toFixed(1)} 秒 · ${COMPOUNDS[car.compound].label} 仲有 ${toCliff} 圈`);
+  }
+  el.heroEyebrow.textContent = S.scActive ? 'CIRCUIT VALGRANDE · 安全車出動' : 'CIRCUIT VALGRANDE · 乾地';
+
+  // 你嘅車卡
+  el.carNum.textContent=car.num;
+  el.carCode.textContent=car.code;
+  el.carPos.textContent='P'+pos;
+  el.carTyre.textContent=`${COMPOUNDS[car.compound].label} · ${car.age} 圈`;
+  el.carCliff.textContent=toCliff+' 圈';
+  el.carStops.textContent=car.stops+' 次';
+  const w=wearPct(car);
+  el.carWear.style.width=w+'%';
+  el.carWear.className = w>=90?'b':(w>=70?'w':'');
+  document.querySelectorAll('.chipTy').forEach(b=>{
+    b.classList.toggle('sel', b.dataset.ty===car.nextCompound);
+  });
+  el.policyBtn.textContent=S.policy.auto?'ON':'OFF';
+  el.policyBtn.classList.toggle('on',S.policy.auto);
+  el.pwTxt.textContent=S.policy.wearThresh+'%';
+  el.paTxt.textContent=S.policy.maxAge+' 圈';
+
+  // feed
+  const lines=S.log.slice(-5).reverse().map(e=>
+    `<div class="ln"><span class="t">${fmt(e.t)}</span>${e.m}</div>`).join('');
+  el.feed.innerHTML=lines||'<div class="ln"><span class="t">00:00</span>綠旗起步。按 S/M/H 揀胎，P 入站。</div>';
+
+  // ticker
+  el.ticker.innerHTML=order.map((c,i)=>{
+    const ahead=i?order[i-1]:null;
+    const gap=i===0?'—':(c.done&&ahead.done? '+0.0' : '+'+(Math.max(0,(distOf(ahead)-distOf(c))*92)).toFixed(1));
+    return `<div class="tk${c.isPlayer?' me':''}" style="opacity:${c.done?.55:1}">
+      <div class="r1"><i class="chip" style="background:${c.color}"></i>${i+1}. ${c.code}</div>
+      <div class="r2"><span>${gap}s</span><span style="color:${COMPOUNDS[c.compound].color}">${c.compound}${c.age}</span></div>
+    </div>`;
+  }).join('');
+
+  if(S.finished&&!S.resultRendered) renderResult();
+}
+
+function renderResult(){
+  S.resultRendered=true;
+  const order=ordered();
+  const rows=order.map((c,i)=>{
+    const gap=c.done?'+'+(c.finishTime-order[0].finishTime).toFixed(1)+'s':'DNF';
+    return `<div class="rrow${c.isPlayer?' me':''}"><span>P${i+1}</span><span>${c.code}</span>
+      <span style="font-family:var(--sans)">${c.team}</span><span>${gap}</span>
+      <span>${POINTS[i]?POINTS[i]+' 分':'—'}</span></div>`;
+  }).join('');
+  const mine=S.cars.filter(c=>c.isPlayer).map(c=>{
+    const p=posOf(c); return `P${p} #${c.num} ${c.code}（${POINTS[p-1]||0} 分）`;
+  }).join('　·　');
+  const total=S.cars.filter(c=>c.isPlayer).reduce((s,c)=>s+(POINTS[posOf(c)-1]||0),0);
+
+  el.result.style.display='block';
+  el.result.innerHTML=`
+    <div class="eyebrow">ROUND 07 · CIRCUIT VALGRANDE</div>
+    <h2>賽後成績</h2>
+    <div class="rrow head" style="margin-top:18px"><span>POS</span><span>CAR</span><span>TEAM</span><span>GAP</span><span>PTS</span></div>
+    ${rows}
+    <div class="resultFoot">
+      你嘅車：${mine}<br>
+      車隊得分：<b style="color:var(--gold)">${total} 分</b>　·　冠軍時間 ${fmt(order[0].finishTime)}<br>
+      <span class="small">按 R 開新一場（新 seed ＝ 新安全車劇本）</span>
+    </div>`;
+}
+
+/* ============================================================
+   輸入
+   ============================================================ */
+const sel=()=>S.cars[S.selected];
+function selectCar(idx){
+  const players=S.cars.filter(c=>c.isPlayer);
+  const t=players[idx];
+  if(t) S.selected=S.cars.indexOf(t);
+}
+function handleKey(e){
+  const k=e.key;
+  if(e.target&&/INPUT|TEXTAREA/.test(e.target.tagName)) return;
+  if(k===' '||k==='Escape'){e.preventDefault(); if(S.started&&!S.finished) S.paused=!S.paused; hideBanner(); return;}
+  if(k==='?'||k==='/'){e.preventDefault(); toggleHelp(); return;}
+  if(k==='r'||k==='R'){restart(); return;}
+  if(!S.started) return;
+  if(k==='1'||k==='2'){selectCar(k==='1'?0:1); return;}
+  switch(k){
+    case 's':case 'S':sel().nextCompound='S';break;
+    case 'm':case 'M':sel().nextCompound='M';break;
+    case 'h':case 'H':sel().nextCompound='H';break;
+    case 'p':case 'P':doPit(sel(),sel().nextCompound);break;
+    case 'a':case 'A':S.policy.auto=!S.policy.auto;break;
+    case '[':S.policy.wearThresh=Math.max(40,S.policy.wearThresh-5);break;
+    case ']':S.policy.wearThresh=Math.min(100,S.policy.wearThresh+5);break;
+    case ',':S.policy.maxAge=Math.max(3,S.policy.maxAge-2);break;
+    case '.':S.policy.maxAge=Math.min(30,S.policy.maxAge+2);break;
+    case '-':S.speedIdx=Math.max(0,S.speedIdx-1);S.speed=SPEEDS[S.speedIdx];break;
+    case '=':case '+':S.speedIdx=Math.min(SPEEDS.length-1,S.speedIdx+1);S.speed=SPEEDS[S.speedIdx];break;
+  }
+  hideBanner(); save();
+}
+function toggleHelp(){
+  if(el.banner.style.display!=='none'){hideBanner();return;}
+  el.banner.style.display='block';
+  el.banner.innerHTML=`<h3>操作</h3>
+    <div>空白／Esc 暫停 · 1 / 2 揀車 · S / M / H 下一套胎 · P 入站</div>
+    <div>A 政策模式 · [ ] wear 門檻 · , . 最長胎齡 · - / = 速度 · R 新賽</div>
+    <div class="small" style="margin-top:6px">車仔入 pit lane 有動畫；切走分頁＝暫停（政策 ON 時會追算）</div>`;
+}
+function hideBanner(){el.banner.style.display='none';}
+
+function restart(){
+  const seed=(Date.now()%100000)|0;
+  S=newRace(seed);
+  S.selected=S.cars.findIndex(c=>c.isPlayer);
+  $('seedTxt').textContent='hk'+seed;
+  el.result.style.display='none';
+  hideBanner();
+  $('lobby').style.display='flex'; $('race').style.display='none';
+  S.started=false;
+  save();
+}
+function startRace(){
+  S.started=true; S.paused=false;
+  $('lobby').style.display='none';
+  $('race').style.display='flex';
+  resizeCanvas(); drawScene(); renderUI();
+}
+
+/* ============================================================
+   迴圈
+   ============================================================ */
+let last=performance.now(), acc=0, domTick=0;
+
+function frame(now){
+  const dt=Math.min(0.25,(now-last)/1000); last=now;
+  if(S.started&&!S.paused&&!S.finished){
+    acc+=dt*S.speed;
+    let guard=0;
+    while(acc>=STEP&&guard++<8000){step(STEP);acc-=STEP;}
+    if(guard>=8000) acc=0;
+  }
+  for(const c of S.cars) if(c.fx){c.fx.t+=dt; if(c.fx.t>=c.fx.dur) c.fx=null;}
+  if(S.started){drawScene(); if(++domTick%3===0) renderUI();}
+  requestAnimationFrame(frame);
+}
+
+/* 切走 / 返嚟 */
+let hiddenAt=0, lapAtHide=0;
+document.addEventListener('visibilitychange',()=>{
+  if(document.hidden){
+    hiddenAt=performance.now();
+    lapAtHide=S.cars.reduce((m,c)=>Math.max(m,c.laps),0);
+    if(S.started&&!S.policy.auto&&!S.finished) S.paused=true;
+    save();
+  } else {
+    const away=(performance.now()-hiddenAt)/1000;
+    if(S.started&&S.policy.auto&&away>5&&!S.finished){
+      let n=0,max=Math.min(300000,Math.floor(away*S.speed/STEP));
+      while(n++<max&&!S.finished) step(STEP);
+      const lapNow=S.cars.reduce((m,c)=>Math.max(m,c.laps),0);
+      el.banner.style.display='block';
+      el.banner.innerHTML=`<h3>你離開期間 · ${Math.max(1,Math.round(away/60))} 分鐘</h3>
+        <div>推進 <b>${Math.max(0,lapNow-lapAtHide)}</b> 圈，${S.finished?'賽事已結束':'賽事進行中'}。</div>
+        <div class="small">${S.log.slice(-3).map(e=>fmt(e.t)+' · '+e.m.replace(/<\/?b>/g,'')).join('<br>')}</div>`;
+      setTimeout(hideBanner,25000);
+    }
+    acc=0; last=performance.now(); save();
+  }
+});
+window.addEventListener('blur',()=>{if(S.started&&!S.policy.auto&&!S.finished) S.paused=true;});
+window.addEventListener('pagehide',save);
+window.addEventListener('resize',()=>{if(S.started){resizeCanvas();drawScene();}});
+
+/* 存檔 */
+function save(){
+  try{
+    const o={...S,paused:true};
+    o.cars=S.cars.map(c=>{const d={...c};delete d.fx;return d;});
+    localStorage.setItem(SAVE_KEY,JSON.stringify(o));
+  }catch(e){}
+}
+function load(){
+  try{
+    const raw=localStorage.getItem(SAVE_KEY);
+    if(!raw) return null;
+    const o=JSON.parse(raw);
+    if(!o||!Array.isArray(o.cars)||o.cars.length!==11) return null;
+    o.paused=true; return o;
+  }catch(e){return null;}
+}
+
+/* 按鈕 */
+$('startBtn').addEventListener('click',startRace);
+$('pitBtn').addEventListener('click',()=>{if(S.started&&!S.finished) doPit(sel(),sel().nextCompound);});
+$('policyBtn').addEventListener('click',()=>{S.policy.auto=!S.policy.auto;});
+$('pauseBtn').addEventListener('click',()=>{if(S.started&&!S.finished) S.paused=!S.paused;});
+$('speedBtn').addEventListener('click',()=>{S.speedIdx=(S.speedIdx+1)%SPEEDS.length;S.speed=SPEEDS[S.speedIdx];});
+$('restartBtn').addEventListener('click',restart);
+document.querySelectorAll('.chipTy').forEach(b=>b.addEventListener('click',()=>{sel().nextCompound=b.dataset.ty;}));
+
+/* 啟動 */
+(function boot(){
+  const restored=load();
+  S=restored||newRace((Date.now()%100000)|0);
+  S.selected=S.cars.findIndex(c=>c.isPlayer);
+  if(S.selected<0) S.selected=0;
+  S.started=false;
+  $('seedTxt').textContent='hk'+String(S.seed).padStart(6,'0');
+
+  // Lobby 背景：賽道剪影
+  (function lobbyArt(){
+    const d=TRACK.pts.map((pt,i)=>(i?'L':'M')+pt.x.toFixed(1)+' '+pt.y.toFixed(1)).join(' ')+' Z';
+    $('lobbyArt').innerHTML=`<svg viewBox="0 0 834 504" preserveAspectRatio="xMidYMid meet">
+      <path d="${d}" fill="none" stroke="#f2c14e" stroke-width="26" stroke-linejoin="round"/>
+      <path d="${d}" fill="none" stroke="#060910" stroke-width="16" stroke-linejoin="round"/></svg>`;
+  })();
+
+  document.addEventListener('keydown',handleKey);
+
+  const fit=()=>{
+    const sc=Math.min(window.innerWidth/1476,window.innerHeight/936,1.3);
+    $('stage').style.transform=`scale(${sc})`;
+  };
+  window.addEventListener('resize',fit); fit();
+
+  window.__dev={
+    run(sec){S.started=true;let n=0;while(n<sec/STEP&&!S.finished){step(STEP);n++;}
+      resizeCanvas();drawScene();renderUI();return summary();},
+    start:startRace, summary, state:()=>S,
+    pit:(i,t)=>doPit(S.cars[i],t), setPolicy:o=>Object.assign(S.policy,o),
+    posAt:(f)=>{const p=posAt(TRACK,f);return{x:p.x,y:p.y};}
+  };
+
+  requestAnimationFrame(frame);
+})();
+
+function summary(){
+  return {clock:+S.clock.toFixed(1),finished:S.finished,sc:S.scActive,started:S.started,
+    leaderLap:S.cars.reduce((m,c)=>Math.max(m,c.laps),0),
+    order:ordered().map(c=>({code:c.code,laps:c.laps,stops:c.stops,tyre:c.compound,age:c.age,done:c.done}))};
+}
+</script>
+</body>
+</html>
