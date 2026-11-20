@@ -1,0 +1,149 @@
+<body>
+<div id="app"><div id="stage">
+<div class="track-art" id="art"></div>
+
+<!-- 1. 建立車手 -->
+<section class="screen on" id="scCreate">
+  <div class="brand" id="createBrand"></div>
+  <div class="create">
+    <div>
+      <div class="eyebrow" id="createEyebrow"></div>
+      <h1 id="createHeadline"></h1>
+      <p id="createLede"></p>
+    </div>
+    <div class="card hi">
+      <div class="field">
+        <label id="labelName"></label>
+        <input id="nameIn" value="KAI" maxlength="12" autocomplete="off">
+      </div>
+      <div class="field">
+        <label id="labelStyle"></label>
+        <div class="styles" id="styles"></div>
+      </div>
+      <div class="field field-tight">
+        <label id="labelTeam"></label>
+        <div class="field-value" id="teamValue"></div>
+      </div>
+      <button class="btn is-gold btn-block" id="startBtn"></button>
+      <button class="btn btn-block-sm" id="continueBtn" style="display:none"></button>
+      <div class="seedline" id="seedLine">種子 · ——</div>
+      
+    </div>
+  </div>
+</section>
+
+<!-- 2. 比賽 -->
+<section class="screen" id="scRace">
+  <div class="hud">
+    <div class="brand" id="hudBrand"></div>
+    <div class="right">
+      <div><span data-l="position"></span> <b id="hPos">P6</b></div>
+      <div><span data-l="score"></span> <b id="hPts">0</b></div>
+      <div><span data-l="reputation"></span> <b id="hRep">0</b></div>
+      <div><span data-l="fitness"></span> <b id="hFit">100</b></div>
+    </div>
+    <button class="hudBtn" id="tableBtn" data-l="table"></button>
+  </div>
+  <div class="race-wrap">
+    <div class="moment">
+      <div class="scene" id="scene">
+        <svg id="sceneSvg" viewBox="0 0 800 172" preserveAspectRatio="none"></svg>
+        <div class="cap" id="sceneCap"></div>
+        <div class="spd" id="sceneSpd"></div>
+        <div class="flash" id="sceneFlash"></div>
+      </div>
+      <div class="sceneMsg" id="sceneMsg"></div>
+      <div class="beat" id="beatLbl"></div>
+      <h2 class="title" id="beatTitle">——</h2>
+      <div class="prompt" id="beatPrompt">——</div>
+      <div class="radio-inline">
+        <span class="radio-inline-wave"><i></i><i></i><i></i><i></i></span>
+        <div class="radio-inline-body">
+          <span class="radio-inline-who" id="radioWho"></span>
+          <p class="radio-inline-text" id="radio"></p>
+        </div>
+      </div>
+      <div class="opts" id="opts"></div>
+      <div class="consequence" id="cons"></div>
+      <button type="button" class="btn is-gold btn-block" id="advanceBtn" hidden>下一個決定 →</button>
+    </div>
+    <div class="side">
+      <div class="card state-card">
+        <div class="eyebrow" data-l="stateTitle"></div>
+        <div class="card-body-sm">
+          <div class="stat"><span data-l="position"></span><b id="sPos">P6</b></div>
+          <div class="stat"><span data-l="statePhase"></span><b id="sPhase">—</b></div>
+          <div class="stat"><span data-l="stateRisk"></span><b id="sRisk">0%</b></div>
+          <div class="stat"><span data-l="statePlace"></span><b id="sTrack">—</b></div>
+        </div>
+        <div class="rounds" id="rounds"></div>
+      </div>
+      <div class="card card-log">
+        <div class="eyebrow" data-l="recordTitle"></div>
+        <div class="log" id="log">
+          <span class="log-empty"></span></div>
+        <div class="savedot" id="saveDot" data-l="autosave"></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 3. 結果 -->
+<section class="screen" id="scResult">
+  <div class="hud">
+    <div class="brand"><i></i> SEASON NOTES <span id="hudRace2">ROUND 1 · 8</span></div>
+    <div class="right"><div><span data-l="score"></span> <b id="hPts2">0</b></div><div><span data-l="reputation"></span> <b id="hRep2">0</b></div></div>
+    <button class="hudBtn" id="tableBtn2" data-l="table"></button>
+  </div>
+  <div class="resultWrap">
+    <div>
+      <div class="eyebrow" id="resEyebrow">ROUND 1 · VALGRANDE</div>
+      <div class="result-head">
+        <div class="posBig" id="resPos">P1<small>／12</small></div>
+        <div class="result-head-meta">
+          <div class="badge" id="resPts">+25 分</div>
+          <div class="small result-head-sub" id="resHead">——</div>
+        </div>
+      </div>
+      <div class="card story story-spaced" id="resStory">——</div>
+      <button class="btn is-gold btn-next" id="nextBtn"></button>
+    </div>
+    <div class="card">
+      <div class="eyebrow" data-l="classification"></div>
+      <div class="result-table" id="resTable"></div>
+    </div>
+  </div>
+</section>
+
+<!-- 4. 賽季 -->
+<section class="screen" id="scSeason">
+  <div class="hud">
+    <div class="brand"><i></i> SEASON NOTES <span id="hudSeason">SEASON 2027</span></div>
+    <div class="right"><div><span data-l="score"></span> <b id="hPts3">0</b></div><div><span data-l="reputation"></span> <b id="hRep3">0</b></div></div>
+    <button class="hudBtn" id="backBtn" style="display:none" data-l="backToRace"></button>
+  </div>
+  <div class="seasonWrap">
+    <div class="col">
+      <div class="eyebrow" id="seasonEyebrow"></div>
+      <h2 class="season-title" id="seasonTitle"></h2>
+      <div class="card">
+        <div class="srow head"><span>R</span><span data-l="circuitWord"></span><span data-l="colPos"></span><span data-l="pointsSuffix"></span><span data-l="cumWord"></span></div>
+        <div id="seasonRows"></div>
+      </div>
+      <div class="season-end" id="seasonEnd" style="display:none"></div>
+      <button type="button" class="btn is-gold btn-season" id="resumeRaceBtn" style="display:none"></button>
+      <button type="button" class="btn is-gold btn-season" id="newSeasonBtn" style="display:none"></button>
+      <button type="button" class="btn btn-season" id="restartBtn" style="display:none" data-l="restart"></button>
+    </div>
+    <div class="stack">
+      <div class="card">
+        <div class="eyebrow" data-l="championship"></div>
+        <div class="card-body" id="standings"></div>
+      </div>
+      <div class="card">
+        <div class="eyebrow" data-l="repLogTitle"></div>
+        <div class="rlog card-body-xs" id="repLog"><span class="small">仲未有紀錄。</span></div>
+      </div>
+    </div>
+  </div>
+</section>

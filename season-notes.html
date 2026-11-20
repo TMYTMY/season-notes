@@ -4,7 +4,8 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#0d1322">
-<title>Season Notes — AURORA JUNIOR</title>
+<title>Notes</title>
+<style>
 <style>/* =====================================================================
    SEASON NOTES — DESIGN TOKENS
    ---------------------------------------------------------------------
@@ -628,40 +629,36 @@ h1,h2,h3{font-family:var(--ff-serif);font-weight:var(--fw-regular);margin:0;lett
 </style>
 </head>
 <body>
+<body>
 <div id="app"><div id="stage">
 <div class="track-art" id="art"></div>
 
 <!-- 1. 建立車手 -->
 <section class="screen on" id="scCreate">
-  <div class="brand"><i></i> SEASON NOTES <span>車手生涯</span></div>
+  <div class="brand" id="createBrand"></div>
   <div class="create">
     <div>
-      <div class="eyebrow">F4 初級方程式 · 2027 季前</div>
-      <h1>你今年 17 歲。<br>冇人識你，<em>但有人肯俾你一架車</em>。</h1>
-      <p>八場比賽、一支細車隊、一個唔算快嘅引擎。每場你會遇到六個決定 ——
-         幾時搏、幾時收、幾時得罪人。做得好，會有更大嘅車隊打電話俾你。</p>
+      <div class="eyebrow" id="createEyebrow"></div>
+      <h1 id="createHeadline"></h1>
+      <p id="createLede"></p>
     </div>
     <div class="card hi">
       <div class="field">
-        <label>車手名</label>
+        <label id="labelName"></label>
         <input id="nameIn" value="KAI" maxlength="12" autocomplete="off">
       </div>
       <div class="field">
-        <label>風格</label>
-        <div class="styles" id="styles">
-          <div class="opt sel" data-s="brake"><b>遲剎車</b><span>單圈快，但風險高</span></div>
-          <div class="opt" data-s="tyre"><b>識保胎</b><span>慢少少，但少出錯</span></div>
-          <div class="opt" data-s="fight"><b>硬淨</b><span>超車狠，得罪人多</span></div>
-        </div>
+        <label id="labelStyle"></label>
+        <div class="styles" id="styles"></div>
       </div>
       <div class="field field-tight">
-        <label>車隊</label>
-        <div class="field-value">AURORA JUNIOR · 衛星隊，資源最少</div>
+        <label id="labelTeam"></label>
+        <div class="field-value" id="teamValue"></div>
       </div>
-      <button class="btn is-gold btn-block" id="startBtn">簽約，開始季前測試 →</button>
-      <button class="btn btn-block-sm" id="continueBtn" style="display:none">繼續生涯 →</button>
+      <button class="btn is-gold btn-block" id="startBtn"></button>
+      <button class="btn btn-block-sm" id="continueBtn" style="display:none"></button>
       <div class="seedline" id="seedLine">種子 · ——</div>
-      <a class="legacy" href="team-strategy.html">舊版車隊策略</a>
+      
     </div>
   </div>
 </section>
@@ -669,14 +666,14 @@ h1,h2,h3{font-family:var(--ff-serif);font-weight:var(--fw-regular);margin:0;lett
 <!-- 2. 比賽 -->
 <section class="screen" id="scRace">
   <div class="hud">
-    <div class="brand"><i></i> SEASON NOTES <span id="hudRace">ROUND 1 · 8</span></div>
+    <div class="brand" id="hudBrand"></div>
     <div class="right">
-      <div>位置 <b id="hPos">P6</b></div>
-      <div>積分 <b id="hPts">0</b></div>
-      <div>聲望 <b id="hRep">0</b></div>
-      <div>體能 <b id="hFit">100</b></div>
+      <div><span data-l="position"></span> <b id="hPos">P6</b></div>
+      <div><span data-l="score"></span> <b id="hPts">0</b></div>
+      <div><span data-l="reputation"></span> <b id="hRep">0</b></div>
+      <div><span data-l="fitness"></span> <b id="hFit">100</b></div>
     </div>
-    <button class="hudBtn" id="tableBtn">積分表</button>
+    <button class="hudBtn" id="tableBtn" data-l="table"></button>
   </div>
   <div class="race-wrap">
     <div class="moment">
@@ -687,14 +684,14 @@ h1,h2,h3{font-family:var(--ff-serif);font-weight:var(--fw-regular);margin:0;lett
         <div class="flash" id="sceneFlash"></div>
       </div>
       <div class="sceneMsg" id="sceneMsg"></div>
-      <div class="beat" id="beatLbl">DECISION 1 / 6</div>
+      <div class="beat" id="beatLbl"></div>
       <h2 class="title" id="beatTitle">——</h2>
       <div class="prompt" id="beatPrompt">——</div>
       <div class="radio-inline">
         <span class="radio-inline-wave"><i></i><i></i><i></i><i></i></span>
         <div class="radio-inline-body">
-          <span class="radio-inline-who" id="radioWho">RACE ENGINEER · AURORA JR</span>
-          <p class="radio-inline-text" id="radio">「第一次跑呢條賽道，慢慢嚟，先摸熟。」</p>
+          <span class="radio-inline-who" id="radioWho"></span>
+          <p class="radio-inline-text" id="radio"></p>
         </div>
       </div>
       <div class="opts" id="opts"></div>
@@ -703,20 +700,20 @@ h1,h2,h3{font-family:var(--ff-serif);font-weight:var(--fw-regular);margin:0;lett
     </div>
     <div class="side">
       <div class="card state-card">
-        <div class="eyebrow">今場狀態</div>
+        <div class="eyebrow" data-l="stateTitle"></div>
         <div class="card-body-sm">
-          <div class="stat"><span>位置</span><b id="sPos">P6</b></div>
-          <div class="stat"><span>賽段</span><b id="sPhase">排位賽</b></div>
-          <div class="stat"><span>累積風險</span><b id="sRisk">0%</b></div>
-          <div class="stat"><span>賽道位置</span><b id="sTrack">中段</b></div>
+          <div class="stat"><span data-l="position"></span><b id="sPos">P6</b></div>
+          <div class="stat"><span data-l="statePhase"></span><b id="sPhase">—</b></div>
+          <div class="stat"><span data-l="stateRisk"></span><b id="sRisk">0%</b></div>
+          <div class="stat"><span data-l="statePlace"></span><b id="sTrack">—</b></div>
         </div>
         <div class="rounds" id="rounds"></div>
       </div>
       <div class="card card-log">
-        <div class="eyebrow">你嘅紀錄</div>
+        <div class="eyebrow" data-l="recordTitle"></div>
         <div class="log" id="log">
-          <span class="log-empty">仲未有紀錄 —— 每個選擇都會寫入呢度。</span></div>
-        <div class="savedot" id="saveDot">● 自動存檔</div>
+          <span class="log-empty"></span></div>
+        <div class="savedot" id="saveDot" data-l="autosave"></div>
       </div>
     </div>
   </div>
@@ -726,8 +723,8 @@ h1,h2,h3{font-family:var(--ff-serif);font-weight:var(--fw-regular);margin:0;lett
 <section class="screen" id="scResult">
   <div class="hud">
     <div class="brand"><i></i> SEASON NOTES <span id="hudRace2">ROUND 1 · 8</span></div>
-    <div class="right"><div>積分 <b id="hPts2">0</b></div><div>聲望 <b id="hRep2">0</b></div></div>
-    <button class="hudBtn" id="tableBtn2">積分表</button>
+    <div class="right"><div><span data-l="score"></span> <b id="hPts2">0</b></div><div><span data-l="reputation"></span> <b id="hRep2">0</b></div></div>
+    <button class="hudBtn" id="tableBtn2" data-l="table"></button>
   </div>
   <div class="resultWrap">
     <div>
@@ -740,10 +737,10 @@ h1,h2,h3{font-family:var(--ff-serif);font-weight:var(--fw-regular);margin:0;lett
         </div>
       </div>
       <div class="card story story-spaced" id="resStory">——</div>
-      <button class="btn is-gold btn-next" id="nextBtn">繼續 →</button>
+      <button class="btn is-gold btn-next" id="nextBtn"></button>
     </div>
     <div class="card">
-      <div class="eyebrow">Classification</div>
+      <div class="eyebrow" data-l="classification"></div>
       <div class="result-table" id="resTable"></div>
     </div>
   </div>
@@ -753,238 +750,43 @@ h1,h2,h3{font-family:var(--ff-serif);font-weight:var(--fw-regular);margin:0;lett
 <section class="screen" id="scSeason">
   <div class="hud">
     <div class="brand"><i></i> SEASON NOTES <span id="hudSeason">SEASON 2027</span></div>
-    <div class="right"><div>積分 <b id="hPts3">0</b></div><div>聲望 <b id="hRep3">0</b></div></div>
-    <button class="hudBtn" id="backBtn" style="display:none">返比賽</button>
+    <div class="right"><div><span data-l="score"></span> <b id="hPts3">0</b></div><div><span data-l="reputation"></span> <b id="hRep3">0</b></div></div>
+    <button class="hudBtn" id="backBtn" style="display:none" data-l="backToRace"></button>
   </div>
   <div class="seasonWrap">
     <div class="col">
-      <div class="eyebrow" id="seasonEyebrow">SEASON 2027 · AURORA JUNIOR</div>
-      <h2 class="season-title" id="seasonTitle">賽季成績</h2>
+      <div class="eyebrow" id="seasonEyebrow"></div>
+      <h2 class="season-title" id="seasonTitle"></h2>
       <div class="card">
-        <div class="srow head"><span>R</span><span>賽道</span><span>P</span><span>分</span><span>累計</span></div>
+        <div class="srow head"><span>R</span><span data-l="circuitWord"></span><span data-l="colPos"></span><span data-l="pointsSuffix"></span><span data-l="cumWord"></span></div>
         <div id="seasonRows"></div>
       </div>
       <div class="season-end" id="seasonEnd" style="display:none"></div>
-      <button type="button" class="btn is-gold btn-season" id="resumeRaceBtn" style="display:none">返去比賽 →</button>
-      <button type="button" class="btn is-gold btn-season" id="newSeasonBtn" style="display:none">開始新賽季 →</button>
-      <button type="button" class="btn btn-season" id="restartBtn" style="display:none">放棄生涯 · 開新賽季</button>
+      <button type="button" class="btn is-gold btn-season" id="resumeRaceBtn" style="display:none"></button>
+      <button type="button" class="btn is-gold btn-season" id="newSeasonBtn" style="display:none"></button>
+      <button type="button" class="btn btn-season" id="restartBtn" style="display:none" data-l="restart"></button>
     </div>
     <div class="stack">
       <div class="card">
-        <div class="eyebrow">Championship</div>
+        <div class="eyebrow" data-l="championship"></div>
         <div class="card-body" id="standings"></div>
       </div>
       <div class="card">
-        <div class="eyebrow">聲望變化</div>
+        <div class="eyebrow" data-l="repLogTitle"></div>
         <div class="rlog card-body-xs" id="repLog"><span class="small">仲未有紀錄。</span></div>
       </div>
     </div>
   </div>
 </section>
 
-</div></div>
-
+<script>window.PACKS = {}; window.DEFAULT_PACK = 'f1';</script>
 <script>
-'use strict';
-/* ============ 工具 ============ */
-const $ = id => document.getElementById(id);
-const clamp = (v,a,b) => Math.max(a,Math.min(b,v));
-function hash(s){let h=2166136261;for(let i=0;i<s.length;i++){h^=s.charCodeAt(i);h=Math.imul(h,16777619);}return h>>>0;}
-function mulberry(a){return function(){a|=0;a=a+0x6D2B79F5|0;let t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296;};}
-function shuffle(arr,rnd){const a=arr.slice();for(let i=a.length-1;i>0;i--){const j=Math.floor(rnd()*(i+1));const t=a[i];a[i]=a[j];a[j]=t;}return a;}
-
-/* ============ 常數 ============ */
-const SAVE_KEY='seasonNotes.save.v2';
-const RACES=8;
-const CATS=['straight','t1','tyre','sc','team','last'];
-const STYLE={
-  brake:{label:'遲剎車',bonus:1,riskMul:1.25,note:'單圈快，風險高'},
-  tyre:{label:'識保胎',bonus:0,riskMul:0.70,note:'慢少少，少出錯'},
-  fight:{label:'硬淨',bonus:1,riskMul:1.10,note:'超車狠，得罪人多'}
-};
-const CIRCUITS=[
-  {n:'CIRCUIT VALGRANDE',s:'VALGRANDE'},
-  {n:'PORTE NOIRE',s:'PORTE NOIRE'},
-  {n:'KESTREL RING',s:'KESTREL RING'},
-  {n:'LAGO SABBIA',s:'LAGO SABBIA'},
-  {n:'NORDFJORD',s:'NORDFJORD'},
-  {n:'MONTE ARIDO',s:'MONTE ARIDO'},
-  {n:'SABLE STRAIT',s:'SABLE STRAIT'},
-  {n:'DUNMORE PARK',s:'DUNMORE PARK'}
-];
-const RIVALS=['BOS','HAL','ORT','LIN','RUI','ABB','KOV','MAR','NOV','VET','PAL','DUN'];
-const TEAMS=['VELOCE','MERIDIAN','KESTREL','NORDFJORD','TALON','HELIOS','SABLE','DRAKON','PRISM','VETRA','PALLAS','DUNMORE'];
-const PTS=[25,18,15,12,10,8,6,4,2,1,0,0];
-
-/* ============ 內容庫：6 類 × 5 張 = 30 張 ============ */
-const LIB={
-straight:[
- {t:'排位賽，最後一圈',p:'車隊叫你用最後一圈幫隊友拉真空，但你仲未做出好時間。',
-  r:'如果你仲想跑自己嘅圈，我明白。但佢係我哋爭車隊積分嘅人。',who:'RACE ENGINEER · AURORA JR',o:[
-  {t:'照幫隊友拉真空',s:'排位跌 1 位，但車隊記住你',fx:{d:-1,rep:2},l:'你讓咗。隊友入到 Q3，領隊拍你膊頭。'},
-  {t:'跑自己嘅圈',s:'你自己嘅排位，但得罪人',fx:{d:2,rep:-1},l:'你做出一個好圈。無線電靜咗三秒。'},
-  {t:'兩樣都搏',s:'可能兩樣都拿，也可能兩樣都輸',fx:{d:1,risk:14},l:'你試，最後一個彎擦到牆，但圈速仲算數。'}]},
- {t:'直路尾流，三架車一串',p:'前面兩架車互相拉真空，你貼喺第三位，速度差 8 km/h。',
-  r:'你係最快嗰架，但你要決定幾時抽出嚟。',who:'RACE ENGINEER',o:[
-  {t:'早少少抽出嚟',s:'搶先機，但尾流未斷',fx:{d:2,risk:16},l:'你抽出去。前車冇預料，你搶咗個位。'},
-  {t:'等多兩個彎',s:'等尾流拉盡先動手',fx:{d:1,risk:4},l:'你等到最後一刻。出彎嗰下你剛剛好過咗佢。'},
-  {t:'保持距離，守住胎',s:'唔爭，留返後面',fx:{d:0,fit:3,risk:0},l:'你收一收。胎溫降咗，車仲好揸。'}]},
- {t:'水溫錶紅咗',p:'連續兩圈貼住前車，水溫升到 118 度。工程師叫你降溫。',
-  r:'你可以收油兩秒，或者繼續貼，博佢快啲爆胎。',who:'RACE ENGINEER',o:[
-  {t:'收油降溫',s:'保住引擎，但蝕位',fx:{d:-1,fit:2,risk:0},l:'你收咗兩秒。水溫回落，但後面嗰架過咗你。'},
-  {t:'繼續貼',s:'博前車先頂唔順',fx:{d:1,risk:12},l:'你繼續貼。第三圈，前車讓開咗 —— 佢把車泊咗喺路邊。'},
-  {t:'抽出去自己跑',s:'離開尾流，散熱快啲',fx:{d:0,risk:3},l:'你抽出嚟。冇咗尾流，但引擎終於可以呼吸。'}]},
- {t:'起步，兩邊都有車',p:'燈滅，你左邊係一架起步慢嘅車，右邊係你隊友。',
-  r:'左邊嗰架慢咗半秒。你想點？',who:'RACE ENGINEER',o:[
-  {t:'抽左邊',s:'搶兩個位，但兩架車好近',fx:{d:2,risk:10},l:'你抽左邊。兩架車嘅鏡幾乎碰埋，但你過咗。'},
-  {t:'跟隊友後面',s:'安全，車隊會滿意',fx:{d:0,rep:1,risk:2},l:'你跟住隊友。領隊喺無線電講咗聲「好」。'},
-  {t:'收油避免碰撞',s:'最安全，但輸位',fx:{d:-2,risk:0},l:'你收油。後面兩架車即刻貼上嚟。'}]},
- {t:'直路尾，煞車點前 80 米',p:'你前面嗰架車遲遲未決定入彎路線，你已經貼到 0.3 秒。',
-  r:'你冇位，但你快。你自己揀。',who:'RACE ENGINEER',o:[
-  {t:'外線遲剎車',s:'一個彎定勝負',fx:{d:3,risk:20},l:'你遲咗 30 米先踩。車尾擺咗一下，但你出彎喺佢前面。'},
-  {t:'內線早剎，等佢出錯',s:'穩陣，等機會',fx:{d:0,risk:4},l:'你早剎。佢冇出錯，但你都冇輸位。'},
-  {t:'收一收，保住架車',s:'唔搏，保住架車',fx:{d:-1,risk:0},l:'你收油。工程師冇講嘢，但你知佢鬆咗口氣。'}]}
-],
-t1:[
- {t:'第一個彎，三架車並排',p:'你外線有位。內線兩架車明顯會撞埋一齊，但你唔肯定幾時。',
-  r:'外面有空間，但入面嗰兩個都唔收油。',who:'RACE ENGINEER',o:[
-  {t:'收入內線搏位',s:'賺兩三個位，或者即刻收工',fx:{d:3,risk:22},l:'你插咗入去。有車擦到你尾翼，但仲行得。'},
-  {t:'行外線等機會',s:'安全，但可能被夾',fx:{d:0,risk:6},l:'你走外線，讓咗個位，但保住架車。'},
-  {t:'大力收油避開',s:'最安全，但輸位',fx:{d:-2,risk:0},l:'你避開咗。後面兩架車撞埋，賽道出黃旗。'}]},
- {t:'T1 之前有人鎖死輪胎',p:'前面架車鎖死，一團白煙。你可以行內線過，但會踩到佢啲膠粒。',
-  r:'佢仲喺你前面，但你快過佢。',who:'RACE ENGINEER',o:[
-  {t:'內線硬過',s:'踩住膠粒都要過',fx:{d:2,risk:14},l:'你踩住膠粒過咗。車震到手指發麻，但位係你嘅。'},
-  {t:'等佢出彎先過',s:'穩陣少少',fx:{d:1,risk:5},l:'你等佢出彎。佢讓開半個位，你順勢過。'},
-  {t:'收油，睇清楚先',s:'唔搏，保住架車',fx:{d:0,risk:0,fit:1},l:'你收油。雖然蝕位，但你睇清楚成個彎發生咩事。'}]},
- {t:'重新起步，第一彎',p:'安全車走咗，你前面一大堆車擠成一團。',
-  r:'重開嗰刻係你今場最好嘅機會。',who:'RACE ENGINEER',o:[
-  {t:'一次過搏兩個位',s:'重開亂戰，衝',fx:{d:2,risk:18},l:'你衝入去。兩架車讓咗，你由 P7 變 P5。'},
-  {t:'穩住，等前面撞',s:'唔做第一個',fx:{d:0,risk:5},l:'你留喺後面。前面真係有人鎖死，但你冇位過。'},
-  {t:'保守，守住後面',s:'唔貪，保住位置',fx:{d:-1,risk:0},l:'你守住線。後面嗰架試咗兩次都過唔到。'}]},
- {t:'隊友喺你隔籬',p:'你同隊友並排入 T1，車隊無線電未出聲。',
-  r:'……（無線電靜咗）',who:'NO RADIO',o:[
-  {t:'讓半個位俾隊友',s:'車隊會記住',fx:{d:-1,rep:2},l:'你收咗半個位。隊友過咗，賽後講咗聲多謝。'},
-  {t:'唔讓，各安天命',s:'你自己嘅位',fx:{d:1,rep:-1,risk:8},l:'你冇讓。兩架車擦身而過，隊友望住你。'},
-  {t:'一齊收油',s:'兩個都蝕，但冇人撞',fx:{d:-1,rep:1,risk:0},l:'兩個都收。車隊冇損失，但兩個都蝕位。'}]},
- {t:'T1 出口，你喺草地邊緣',p:'你出彎太闊，右邊兩條胎已經喺白線外。',
-  r:'如果你而家收油，會即刻被人過。如果你唔收，會唔會出去？',who:'RACE ENGINEER',o:[
-  {t:'唔收，硬食',s:'四個轆都要留喺賽道',fx:{d:1,risk:24},l:'你冇收。車彈咗一下，但你返到賽道，仲喺前面。'},
-  {t:'收油返線',s:'保住架車',fx:{d:-2,risk:0},l:'你收油。兩架車過咗你，但架車完整。'},
-  {t:'半收，壓住線',s:'中間路線',fx:{d:0,risk:9},l:'你半收。車壓住白線，裁判冇出聲。'}]}
-],
-tyre:[
- {t:'第 8 圈，胎開始跌',p:'你嘅軟胎已經 8 圈，後面嗰架用中胎。你估佢可以撐多十圈。',
-  r:'佢條胎新過你，你撐唔到最後。你想早入站定係撐？',who:'RACE ENGINEER',o:[
-  {t:'即刻入站（undercut）',s:'換新胎，賭佢出嚟喺你後面',fx:{d:1,risk:4},l:'你入站。出嚟啱啱喺佢前面，車隊做得好。'},
-  {t:'撐多 3 圈',s:'保住賽道位置，但出嚟會落後',fx:{d:-1,risk:2},l:'你撐到第 11 圈。胎已經唔聽話，但位置仲喺。'},
-  {t:'留喺外面賭安全車',s:'高風險高回報',fx:{d:0,risk:16},l:'你唔入站。每次過彎都滑，但安全車真係出咗。'}]},
- {t:'左前胎起泡',p:'左前胎起泡，每次入彎都震。工程師叫你減速 1.5 秒一圈。',
-  r:'你可以慢，或者你繼續推，睇佢幾時爆。',who:'RACE ENGINEER',o:[
-  {t:'減速保胎',s:'慢，但一定返到終點',fx:{d:-1,fit:2,risk:0},l:'你減速。後面嗰架貼咗上嚟，但條胎冇爆。'},
-  {t:'繼續推',s:'博佢唔爆',fx:{d:1,risk:15},l:'你繼續推。條胎震到方向盤都震，但仲喺度。'},
-  {t:'提早入站',s:'止蝕，換胎',fx:{d:0,risk:3},l:'你入站。早咗三圈，但至少唔使擔心。'}]},
- {t:'兩套胎，兩個策略',p:'你手上有兩套：一套軟胎可以跑 12 圈，一套硬胎可以跑 20 圈。',
-  r:'你想用邊套？定係你想我哋幫你決定？',who:'RACE STRATEGIST',o:[
-  {t:'軟胎，搏前三',s:'快，但尾段會跌',fx:{d:2,risk:10},l:'你揀軟胎。頭幾圈快到連工程師都吹口哨。'},
-  {t:'硬胎，跑到尾',s:'慢，但唔使再入站',fx:{d:0,risk:2},l:'你揀硬胎。冇人過你，但你都過唔到人。'},
-  {t:'跟隊友策略',s:'唔輸給隊友',fx:{d:1,rep:1,risk:4},l:'你跟隊友。兩個一齊入站，車隊好滿意。'}]},
- {t:'胎已經冇咗，後面貼到好近',p:'你胎壽命見底，後面嗰架每圈快 1.2 秒。仲有 6 圈。',
-  r:'你守得住幾耐？我哋可以叫你入站，但你會跌到第八。',who:'RACE ENGINEER',o:[
-  {t:'死守',s:'用盡路面擋佢',fx:{d:0,risk:12},l:'你守咗四圈。第五圈，佢終於過咗 —— 但你仲喺第三。'},
-  {t:'入站保新胎',s:'放棄位置，換速度',fx:{d:-3,risk:0},l:'你入站。出嚟第八，但最後兩圈你係全場最快。'},
-  {t:'迫佢犯錯',s:'用盡路面，賭佢衝出嚟',fx:{d:1,risk:20},l:'你封線封到盡。佢撞咗你一下，但你冇讓。'}]},
- {t:'賽後胎溫',p:'你落車，工程師遞咗個平板俾你：四條胎溫度差 40 度。',
-  r:'你今場嘅開法，會唔會影響下場？',who:'PERFORMANCE COACH',o:[
-  {t:'承認自己開得太狠',s:'車隊會覺得你成熟',fx:{rep:2,fit:-2},l:'你點頭。教練話：「識認，先會改。」'},
-  {t:'話係車嘅問題',s:'推卸，但保住面子',fx:{rep:-2,fit:1},l:'你話係車。工程師冇反駁，但佢記住咗。'},
-  {t:'唔出聲，記住數據',s:'自己消化',fx:{rep:0,fit:3},l:'你冇講嘢，只係望住個平板。下場你會記得。'}]}
-],
-sc:[
- {t:'安全車出動',p:'賽道壓縮，所有人距離拉近。你仲有一半賽程。',
-  r:'安全車期間入站只蝕 9 秒。你想唔想換？',who:'RACE ENGINEER',o:[
-  {t:'入站換新胎',s:'用平價入站換一套新胎',fx:{d:2,risk:3},l:'你入站，好快就出返嚟。呢個係免費嘅運氣。'},
-  {t:'唔入站，保住位置',s:'重開嗰刻你有優勢',fx:{d:0,risk:5},l:'你選擇留喺賽道。重開嗰刻你頂住兩架車。'},
-  {t:'入站，但只換兩條',s:'省時間，賭一半',fx:{d:1,risk:8},l:'你只換兩條。出嚟快，但車頭車尾唔平衡。'}]},
- {t:'安全車，你喺前列',p:'你喺前幾位，後面大部分車都入咗站，你唔入。',
-  r:'如果你而家入站，你會跌出前五。如果你唔入，你要用舊胎跑 14 圈。',who:'RACE ENGINEER',o:[
-  {t:'唔入，守住',s:'賭舊胎撐得住',fx:{d:0,risk:14},l:'你唔入。重開嗰刻你頂住，但胎一路跌。'},
-  {t:'入站，接受第五',s:'用新胎追返',fx:{d:-4,risk:0},l:'你入站。出嚟第五，但你手上係全場最新嘅胎。'},
-  {t:'賭對手中途要再入',s:'計數，唔搏即時',fx:{d:1,risk:9},l:'你唔入。你計啱咗 —— 前面兩架車最後都要再入站。'}]},
- {t:'安全車期間，無線電有雜音',p:'車隊叫你入站，但講到一半斷線。你唔肯定係咪講你。',
-  r:'……（靜電）……pit……confirm……',who:'NO RADIO',o:[
-  {t:'照入站',s:'如果係講你，就賺咗',fx:{d:-2,risk:2},l:'你入站。技師有啲意外，但佢哋反應好快。'},
-  {t:'唔入，等下一個指令',s:'唔賭',fx:{d:1,risk:6},l:'你唔入。車隊之後確認嗰句係講隊友。'},
-  {t:'問清楚先',s:'用一圈換確定',fx:{d:-1,risk:0},l:'你問清楚。雖然蝕位，但冇做錯決定。'}]},
- {t:'安全車走，前面一片混亂',p:'你就喺車群前面。你決定幾時加速。',
-  r:'你控制節奏。你想幾時踩？',who:'RACE ENGINEER',o:[
-  {t:'即刻踩，拉開',s:'唔俾後面機會',fx:{d:2,risk:10},l:'你即刻踩。後面兩架車反應慢咗半秒。'},
-  {t:'慢慢加速，等後面迫埋',s:'迫佢哋犯錯',fx:{d:0,risk:3},l:'你慢慢加速。後面貼到好近，但冇人敢過。'},
-  {t:'等最後一個彎先踩',s:'經典招式',fx:{d:1,risk:7},l:'你等到最後一個彎。後面嗰架預唔到，你拉開兩個車位。'}]},
- {t:'車群壓縮，煞車過熱',p:'跟咗五圈慢車，煞車溫度 780 度。重開之後你要即刻用盡佢。',
-  r:'你可以冷卻一圈，但你會蝕位。',who:'RACE ENGINEER',o:[
-  {t:'冷卻一圈',s:'保住煞車',fx:{d:-2,risk:0},l:'你冷卻一圈。煞車回復，但兩個位冇咗。'},
-  {t:'照用',s:'賭佢頂得住',fx:{d:0,risk:16},l:'你照踩。煞車震得厲害，但冇失效。'},
-  {t:'半冷卻，跟住前面',s:'中間路線',fx:{d:-1,risk:5},l:'你半冷卻。蝕咗一個位，但煞車仲喺。'}]}
-],
-team:[
- {t:'最後 8 圈，隊友喺你前面',p:'你比隊友快，但車隊無線電叫你讓位 —— 佢爭年度積分。',
-  r:'我哋明白你想贏。但呢個係車隊決定。',who:'TEAM PRINCIPAL',o:[
-  {t:'讓位',s:'車隊會記住，但你少幾個位',fx:{d:-2,rep:3},l:'你收油。賽後領隊話：「下年有你份。」'},
-  {t:'唔讓，繼續追',s:'你自己嘅成績，但關係破裂',fx:{d:1,rep:-2},l:'你冇收油。無線電冇再出聲。'},
-  {t:'讓，但條件係下場優先',s:'博一個承諾',fx:{d:-1,rep:1,risk:2},l:'你讓，同時要一個承諾。領隊停咗一秒，然後答「好」。'}]},
- {t:'車隊叫你慳油',p:'油量計算出錯，你要喺最後 10 圈慳 3% 油。',
-  r:'你可以跟車尾流慳油，但你會冇機會超車。',who:'RACE ENGINEER',o:[
-  {t:'跟尾流慳油',s:'慢，但一定捱到尾',fx:{d:-1,rep:1},l:'你跟住前面。油耗降返，你捱到終點。'},
-  {t:'照推，賭計錯',s:'快，但可能冇油',fx:{d:1,risk:14},l:'你照推。最後一圈，油燈閃咗，但你過咗線。'},
-  {t:'問隊友幫手拉',s:'用隊友嘅尾流',fx:{d:0,rep:1,risk:2},l:'你問隊友。佢拉咗你三圈，兩個都省到油。'}]},
- {t:'合約年',p:'你嘅合約今年完。領隊喺你耳邊講：「今日表現，我哋會記住。」',
-  r:'你知唔知自己而家係第幾？',who:'TEAM PRINCIPAL',o:[
-  {t:'搏一個頒獎台',s:'搏到就翻身',fx:{d:2,risk:16},l:'你搏。最後你上咗台，領隊喺台下望住你。'},
-  {t:'穩穩陣陣拿分',s:'唔搏，保住合約',fx:{d:0,risk:2},l:'你穩住。有分，冇驚喜，但領隊點頭。'},
-  {t:'幫隊友拿車隊分',s:'做隊友嘅後盾',fx:{d:-1,rep:3},l:'你幫隊友。賽後車隊積分多咗六分。'}]},
- {t:'二號車手',p:'你架車今場用舊規格引擎。工程師細聲講：「唔好講出去。」',
-  r:'我哋今場冇辦法幫你。',who:'RACE ENGINEER',o:[
-  {t:'照揸，用技術補',s:'用彎速補直路',fx:{d:1,risk:6},l:'你用彎速補。雖然直路慢，但你冇輸位。'},
-  {t:'公開講',s:'記者會見',fx:{rep:-3,d:0},l:'你講咗。第二日報紙有標題，車隊好嬲。'},
-  {t:'接受，幫隊友收集數據',s:'做一個好隊友',fx:{d:-1,rep:2,fit:1},l:'你接受。工程師話：「呢個人情，我記住。」'}]},
- {t:'隊友撞車，你喺隔籬',p:'隊友撞咗，安全車出動。車隊叫你入站，但你唔想。',
-  r:'我哋需要你嘅分。',who:'TEAM PRINCIPAL',o:[
-  {t:'入站，聽車隊',s:'穩陣拿分',fx:{d:-1,rep:2,risk:2},l:'你入站。出嚟第八，但胎新，你追上咗兩個位。'},
-  {t:'唔入，自己判斷',s:'你覺得賽道位置更重要',fx:{d:1,rep:-1,risk:8},l:'你唔入。重開嗰刻你頂住，但車隊唔出聲。'},
-  {t:'入站但要求換軟胎',s:'爭取最好嘅胎',fx:{d:0,risk:5},l:'你入站，要軟胎。技師猶豫咗一下，但照做。'}]}
-],
-last:[
- {t:'最後兩圈，前面嗰架失誤',p:'佢跑開咗，賽道內側有位。你嘅胎已經 20 圈。',
-  r:'佢條胎都冇咗。你自己決定。',who:'RACE ENGINEER',o:[
-  {t:'搏入內線',s:'一個彎決定成敗',fx:{d:2,risk:18},l:'你插咗入去。兩架車並排過咗個彎 —— 你贏咗。'},
-  {t:'跟住，等佢自己出錯',s:'穩陣，但可能冇機會',fx:{d:0,risk:2},l:'你貼住佢。最後一圈，佢守得住。'},
-  {t:'收油保車',s:'保住積分，唔搏',fx:{d:-1,risk:0},l:'你收油。有人話你唔夠狠。'}]},
- {t:'最後一圈，差 0.4 秒',p:'你冇 DRS，前面嗰架每個彎都守得死。',
-  r:'最後一個彎。你只有一次機會。',who:'RACE ENGINEER',o:[
-  {t:'外線大膽一搏',s:'一次過，或者撞',fx:{d:2,risk:22},l:'你走外線。兩架車差 10 厘米，但你過咗。'},
-  {t:'內線假動作',s:'騙佢開門',fx:{d:1,risk:12},l:'你假動作。佢讓咗半個位，你即刻插上去。'},
-  {t:'接受 P2',s:'保住亞軍',fx:{d:0,risk:0,rep:1},l:'你收油。P2 都係好成績，車隊有分。'}]},
- {t:'最後一圈，後面越嚟越近',p:'後面嗰架每圈快你 0.5 秒，你冇得再等。',
-  r:'唔好犯錯。就係咁簡單。',who:'RACE ENGINEER',o:[
-  {t:'保守跑線',s:'唔好犯錯',fx:{d:0,risk:2},l:'你保守跑線。後面追到 0.9 秒，但你守得住。'},
-  {t:'推盡，拉開',s:'證明你唔止贏咁少',fx:{d:1,risk:13},l:'你推盡。最後一圈做出全場最快，贏 2.4 秒。'},
-  {t:'提早收油，保引擎',s:'贏少啲都要贏',fx:{d:0,fit:2,risk:0},l:'你收油。贏 0.7 秒，但引擎溫度正常。'}]},
- {t:'最後兩圈，黃旗',p:'前面有車出咗去，黃旗。你可以超，但要小心。',
-  r:'黃旗區域唔可以超車。你知嘅。',who:'RACE ENGINEER',o:[
-  {t:'守法，唔超',s:'規矩要緊',fx:{d:-1,rep:2},l:'你冇超。賽後裁判讚你專業。'},
-  {t:'照超，賭無人睇到',s:'快，但可能被罰',fx:{d:1,rep:-3,risk:12},l:'你超咗。賽後調查，你冇被罰，但車隊唔高興。'},
-  {t:'超，但即刻讓返',s:'博個位再還',fx:{d:0,risk:3},l:'你超咗再讓返。冇人投訴，但你都冇賺。'}]},
- {t:'衝線前，車隊叫你減速',p:'你引擎溫度爆錶。工程師叫你最後半圈收油。',
-  r:'你而家 P4。如果你收油，你可能變 P6。',who:'RACE ENGINEER',o:[
-  {t:'收油，保引擎',s:'保住下場嘅引擎',fx:{d:-2,fit:3,risk:0},l:'你收油。P6，但引擎冇事。下場仲有得跑。'},
-  {t:'唔收，衝埋佢',s:'P4 要緊',fx:{d:0,risk:18},l:'你冇收。引擎捱到終點，但聲音明顯唔同咗。'},
-  {t:'收一半',s:'中間路線',fx:{d:-1,risk:6},l:'你收一半。P5，引擎溫度回落。'}]}
-]
-};
-const CARD={};
-CATS.forEach(cat=>{LIB[cat].forEach((c,i)=>{c.id=cat+'-'+(i+1);c.cat=cat;CARD[c.id]=c;});});
-
-/* ============ 場景（全部內嵌 SVG，程序化） ============ */
+/* =====================================================================
+ * PACK · f1 — 車手生涯（AURORA JUNIOR）
+ * 換主題＝換呢一個檔；framework 唔知 F1 存在。
+ * 規格見 ../FRAMEWORK.md
+ * ===================================================================== */
+/* 場景 helper（pack 可以自備） */
 function lt(x0,x1,y,step,w,op){
   let s='';
   for(let x=x0;x<x1;x+=step){s+='<rect x="'+x+'" y="'+y+'" width="'+(w||8)+'" height="2.6" fill="#f2c14e" opacity="'+(op||.35)+'"/>';}
@@ -997,7 +799,123 @@ function kerbs(x0,x1,y,step){
   }
   return s;
 }
-const SCENES={
+
+PACKS.f1 = {
+  meta:{
+    id:'f1',
+    title:'SEASON NOTES',
+    saveKey:'seasonNotes.f1.v2',
+    rounds:8,
+    field:12,
+    season:'2027',
+    subject:'AURORA JUNIOR',
+    subjectShort:'AURORA JR'
+  },
+
+  /* UI 名詞：framework 只認 key，唔認字 */
+  labels:{
+    brand:'SEASON NOTES',
+    brandSub:'車手生涯',
+    position:'位置',
+    score:'積分',
+    reputation:'聲望',
+    fitness:'體能',
+    table:'積分表',
+    stateTitle:'今場狀態',
+    statePhase:'賽段',
+    stateRisk:'累積風險',
+    statePlace:'賽道位置',
+    recordTitle:'你嘅紀錄',
+    recordEmpty:'仲未有紀錄 —— 每個選擇都會寫入呢度。',
+    autosave:'● 自動存檔',
+    roundWord:'ROUND',
+    seasonWord:'SEASON',
+    decisionWord:'DECISION',
+    classification:'Classification',
+    championship:'Championship',
+    repLogTitle:'聲望變化',
+    repLogEmpty:'仲未有紀錄。',
+    seasonFinal:'季終成績',
+    seasonTable:'賽季積分',
+    seasonEnd:'季終',
+    newSeason:'開始新賽季 →',
+    restart:'放棄生涯 · 開新賽季',
+    restartShort:'開新賽季（清除存檔）',
+    backToRace:'返比賽',
+    backToRace2:'返去比賽 →',
+    backToResult:'返去成績 →',
+    nextRace:'下一場 →',
+    nextDecision:'下一個決定 →',
+    seeResult:'睇今場成績 →',
+    seeSeason:'季終 · 睇成績 →',
+    continueCareer:'繼續生涯 →',
+    trackFront:'前排',
+    trackMid:'中段',
+    trackBack:'後排',
+    phases:['起步','第 5 圈','第 10 圈','第 15 圈','第 20 圈','最後 3 圈'],
+    phaseFallback:'比賽',
+    riskWord:'風險',
+    safe:'安全',
+    samePlace:'位置不變',
+    crashMsg:'撞車 · 退賽',
+    overtake:'爬頭成功 ·',
+    overtaken:'被爬 ·',
+    places:'位',
+    dnf:'退賽',
+    podium:'頒獎台',
+    pointsFinish:'有分完賽',
+    finished:'完成賽事',
+    noPoints:'冇分',
+    pointsSuffix:'分',
+    ofField:'／',
+    colPos:'P', colName:'CAR', colTeam:'TEAM', colPts:'PTS',
+    seedWord:'種子',
+    selfMark:'你',
+    circuitWord:'賽道'
+  },
+
+  /* 建立頁文案 */
+  create:{
+    eyebrow:'F4 初級方程式 · 2027 季前',
+    headline:['你今年 17 歲。','冇人識你，<em>但有人肯俾你一架車</em>。'],
+    lede:'八場比賽、一支細車隊、一個唔算快嘅引擎。每場你會遇到六個決定 —— 幾時搏、幾時收、幾時得罪人。做得好，會有更大嘅車隊打電話俾你。',
+    nameLabel:'車手名',
+    defaultName:'KAI',
+    styleLabel:'風格',
+    teamLabel:'車隊',
+    teamValue:'AURORA JUNIOR · 衛星隊，資源最少',
+    cta:'簽約，開始季前測試 →',
+    radioWho:'RACE ENGINEER · AURORA JR',
+    radioFirst:'「第一次跑呢條賽道，慢慢嚟，先摸熟。」'
+  },
+
+  /* 風格（建立頁揀嘅，影響風險倍率） */
+  archetypes:{
+    brake:{label:'遲剎車',bonus:1,riskMul:1.25,note:'單圈快，風險高'},
+    tyre:{label:'識保胎',bonus:0,riskMul:0.70,note:'慢少少，少出錯'},
+    fight:{label:'硬淨',bonus:1,riskMul:1.10,note:'超車狠，得罪人多'}
+  },
+
+  cats:['straight','t1','tyre','sc','team','last'],
+  scoring:[25,18,15,12,10,8,6,4,2,1,0,0],
+
+  entities:{
+    circuits:[
+      {n:'CIRCUIT VALGRANDE',s:'VALGRANDE'},
+      {n:'PORTE NOIRE',s:'PORTE NOIRE'},
+      {n:'KESTREL RING',s:'KESTREL RING'},
+      {n:'LAGO SABBIA',s:'LAGO SABBIA'},
+      {n:'NORDFJORD',s:'NORDFJORD'},
+      {n:'MONTE ARIDO',s:'MONTE ARIDO'},
+      {n:'SABLE STRAIT',s:'SABLE STRAIT'},
+      {n:'DUNMORE PARK',s:'DUNMORE PARK'}
+    ],
+    rivals:['BOS','HAL','ORT','LIN','RUI','ABB','KOV','MAR','NOV','VET','PAL','DUN'],
+    teams:['VELOCE','MERIDIAN','KESTREL','NORDFJORD','TALON','HELIOS','SABLE','DRAKON','PRISM','VETRA','PALLAS','DUNMORE']
+  },
+
+  scenes:{
+
 straight:()=>({
   cap:'STRAIGHT · 尾流',spd:'318 km/h',
   cars:[{c:'#d9533f',r:'rgba(255,255,255,.5)'},{c:'#4ea0ff',r:'rgba(255,255,255,.5)'}],
@@ -1173,12 +1091,503 @@ last:()=>({
   '<defs><linearGradient id="gSk6" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#3a2330"/><stop offset=".55" stop-color="#1c1626"/><stop offset="1" stop-color="#0a0c15"/></linearGradient>'+
     '<linearGradient id="gRd6" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#3a3038"/><stop offset="1" stop-color="#1a1822"/></linearGradient></defs>'
 })
+
+  },
+
+  /* 敘事文案（framework 唔會自己作故事） */
+  narrative:{
+    story:function(x){
+      const res=x.res, C=x.C, R=x.R, styleName=x.style;
+      const pos=res.pos;
+      if(res.dnf) return '第 '+R.laps+' 圈，架車停咗喺賽道邊。<br><br>'+
+        '你行返 pit lane，工程師冇講嘢，只係遞咗支水俾你。<br>'+
+        '你嘅風格係<b>'+styleName+'</b> —— 今次賭輸咗。<br><br>'+
+        '<span class="small">體能 -8 · 聲望 -1 · 車隊仍然會俾你下一場。</span>';
+      if(pos<=3) return '你喺 P'+pos+' 過終點。<br><br>'+
+        '無線電傳嚟一陣雜音，然後有人講：「做得好。」<br>'+
+        '呢個係你第 '+C.results.filter(function(r){return !r.dnf&&r.pos<=3;}).length+' 個<b>頒獎台</b> —— 亦係第一次，有人喺看台上記住你個名。<br><br>'+
+        '<span class="small">聲望 +3（累計 '+(C.rep>0?'+':'')+C.rep+'）· 積分 +'+res.pts+' · 賽季累計 '+C.points+'</span>';
+      if(pos<=6) return 'P'+pos+'，有分。<br><br>'+
+        '唔算精彩，但工程師話：「你今日冇做錯嘢。」<br>'+
+        '喺呢個級別，冇做錯嘢已經係一種本事。<br><br>'+
+        '<span class="small">聲望 +1（累計 '+(C.rep>0?'+':'')+C.rep+'）· 積分 +'+res.pts+' · 下一場繼續。</span>';
+      return 'P'+pos+'。'+(res.pts?'有 1 分。':'冇分。')+'<br><br>'+
+        '你落車嗰刻，隔離車隊嘅人望都冇望你一眼。<br>'+
+        '但你記得第 '+Math.max(2,R.laps)+' 圈嗰個彎 —— 你係對嘅，只係冇人見到。<br><br>'+
+        '<span class="small">體能 -4 · 下一場：再嚟。</span>';
+    },
+    seasonEnd:function(x){
+      const C=x.C, tier=x.tier;
+      const podiums=x.podiums, dnfs=x.dnfs, styleName=x.style;
+      const sig=C.name+' · '+styleName+' · 聲望 '+(C.rep>0?'+':'')+C.rep;
+      if(tier==='A') return {eyebrow:'CONTRACT OFFER', head:'F3 合約 · 有車隊打電話嚟',
+        body:'季終之後第三日，電話響。<br><br>'+
+          '「我哋睇過你成季。'+podiums+' 次頒獎台、'+C.points+' 分。下年 F3，我哋有一個位。」<br><br>'+
+          '你望住窗外。一年前你仲喺度求人俾你一架車。而家有人求你簽名。<br><br>'+
+          '<span class="small">'+sig+' · DNF '+dnfs+' 次</span>'};
+      if(tier==='B') return {eyebrow:'TEST OFFER', head:'F3 測試機會 · 未係合約',
+        body:'季終之後，你收到一封電郵：一封 F3 車隊嘅測試邀請，兩日，一部舊車。<br><br>'+
+          '「唔係合約。但如果你想嚟，我哋有位。」<br><br>'+
+          '你今季 '+C.points+' 分、'+podiums+' 次頒獎台。唔夠好，但足夠令有人記住你。<br><br>'+
+          '<span class="small">'+sig+'</span>'};
+      return {eyebrow:'NO OFFER', head:'冇人打嚟',
+        body:'季終之後，電話冇響。<br><br>'+
+          '你成季 '+C.points+' 分、'+dnfs+' 次退賽。車隊叫你返嚟做模擬器測試 —— 即係話，下年仲係呢度。<br><br>'+
+          '你收好頭盔。你知道自己唔係唔夠快，你係唔夠穩定。<br><br>'+
+          '<span class="small">'+sig+'</span>'};
+    }
+  },
+
+  /* 內容庫：6 類 × 5 張 */
+  cards:{
+
+straight:[
+ {t:'排位賽，最後一圈',p:'車隊叫你用最後一圈幫隊友拉真空，但你仲未做出好時間。',
+  r:'如果你仲想跑自己嘅圈，我明白。但佢係我哋爭車隊積分嘅人。',who:'RACE ENGINEER · AURORA JR',o:[
+  {t:'照幫隊友拉真空',s:'排位跌 1 位，但車隊記住你',fx:{d:-1,rep:2},l:'你讓咗。隊友入到 Q3，領隊拍你膊頭。'},
+  {t:'跑自己嘅圈',s:'你自己嘅排位，但得罪人',fx:{d:2,rep:-1},l:'你做出一個好圈。無線電靜咗三秒。'},
+  {t:'兩樣都搏',s:'可能兩樣都拿，也可能兩樣都輸',fx:{d:1,risk:14},l:'你試，最後一個彎擦到牆，但圈速仲算數。'}]},
+ {t:'直路尾流，三架車一串',p:'前面兩架車互相拉真空，你貼喺第三位，速度差 8 km/h。',
+  r:'你係最快嗰架，但你要決定幾時抽出嚟。',who:'RACE ENGINEER',o:[
+  {t:'早少少抽出嚟',s:'搶先機，但尾流未斷',fx:{d:2,risk:16},l:'你抽出去。前車冇預料，你搶咗個位。'},
+  {t:'等多兩個彎',s:'等尾流拉盡先動手',fx:{d:1,risk:4},l:'你等到最後一刻。出彎嗰下你剛剛好過咗佢。'},
+  {t:'保持距離，守住胎',s:'唔爭，留返後面',fx:{d:0,fit:3,risk:0},l:'你收一收。胎溫降咗，車仲好揸。'}]},
+ {t:'水溫錶紅咗',p:'連續兩圈貼住前車，水溫升到 118 度。工程師叫你降溫。',
+  r:'你可以收油兩秒，或者繼續貼，博佢快啲爆胎。',who:'RACE ENGINEER',o:[
+  {t:'收油降溫',s:'保住引擎，但蝕位',fx:{d:-1,fit:2,risk:0},l:'你收咗兩秒。水溫回落，但後面嗰架過咗你。'},
+  {t:'繼續貼',s:'博前車先頂唔順',fx:{d:1,risk:12},l:'你繼續貼。第三圈，前車讓開咗 —— 佢把車泊咗喺路邊。'},
+  {t:'抽出去自己跑',s:'離開尾流，散熱快啲',fx:{d:0,risk:3},l:'你抽出嚟。冇咗尾流，但引擎終於可以呼吸。'}]},
+ {t:'起步，兩邊都有車',p:'燈滅，你左邊係一架起步慢嘅車，右邊係你隊友。',
+  r:'左邊嗰架慢咗半秒。你想點？',who:'RACE ENGINEER',o:[
+  {t:'抽左邊',s:'搶兩個位，但兩架車好近',fx:{d:2,risk:10},l:'你抽左邊。兩架車嘅鏡幾乎碰埋，但你過咗。'},
+  {t:'跟隊友後面',s:'安全，車隊會滿意',fx:{d:0,rep:1,risk:2},l:'你跟住隊友。領隊喺無線電講咗聲「好」。'},
+  {t:'收油避免碰撞',s:'最安全，但輸位',fx:{d:-2,risk:0},l:'你收油。後面兩架車即刻貼上嚟。'}]},
+ {t:'直路尾，煞車點前 80 米',p:'你前面嗰架車遲遲未決定入彎路線，你已經貼到 0.3 秒。',
+  r:'你冇位，但你快。你自己揀。',who:'RACE ENGINEER',o:[
+  {t:'外線遲剎車',s:'一個彎定勝負',fx:{d:3,risk:20},l:'你遲咗 30 米先踩。車尾擺咗一下，但你出彎喺佢前面。'},
+  {t:'內線早剎，等佢出錯',s:'穩陣，等機會',fx:{d:0,risk:4},l:'你早剎。佢冇出錯，但你都冇輸位。'},
+  {t:'收一收，保住架車',s:'唔搏，保住架車',fx:{d:-1,risk:0},l:'你收油。工程師冇講嘢，但你知佢鬆咗口氣。'}]}
+],
+t1:[
+ {t:'第一個彎，三架車並排',p:'你外線有位。內線兩架車明顯會撞埋一齊，但你唔肯定幾時。',
+  r:'外面有空間，但入面嗰兩個都唔收油。',who:'RACE ENGINEER',o:[
+  {t:'收入內線搏位',s:'賺兩三個位，或者即刻收工',fx:{d:3,risk:22},l:'你插咗入去。有車擦到你尾翼，但仲行得。'},
+  {t:'行外線等機會',s:'安全，但可能被夾',fx:{d:0,risk:6},l:'你走外線，讓咗個位，但保住架車。'},
+  {t:'大力收油避開',s:'最安全，但輸位',fx:{d:-2,risk:0},l:'你避開咗。後面兩架車撞埋，賽道出黃旗。'}]},
+ {t:'T1 之前有人鎖死輪胎',p:'前面架車鎖死，一團白煙。你可以行內線過，但會踩到佢啲膠粒。',
+  r:'佢仲喺你前面，但你快過佢。',who:'RACE ENGINEER',o:[
+  {t:'內線硬過',s:'踩住膠粒都要過',fx:{d:2,risk:14},l:'你踩住膠粒過咗。車震到手指發麻，但位係你嘅。'},
+  {t:'等佢出彎先過',s:'穩陣少少',fx:{d:1,risk:5},l:'你等佢出彎。佢讓開半個位，你順勢過。'},
+  {t:'收油，睇清楚先',s:'唔搏，保住架車',fx:{d:0,risk:0,fit:1},l:'你收油。雖然蝕位，但你睇清楚成個彎發生咩事。'}]},
+ {t:'重新起步，第一彎',p:'安全車走咗，你前面一大堆車擠成一團。',
+  r:'重開嗰刻係你今場最好嘅機會。',who:'RACE ENGINEER',o:[
+  {t:'一次過搏兩個位',s:'重開亂戰，衝',fx:{d:2,risk:18},l:'你衝入去。兩架車讓咗，你由 P7 變 P5。'},
+  {t:'穩住，等前面撞',s:'唔做第一個',fx:{d:0,risk:5},l:'你留喺後面。前面真係有人鎖死，但你冇位過。'},
+  {t:'保守，守住後面',s:'唔貪，保住位置',fx:{d:-1,risk:0},l:'你守住線。後面嗰架試咗兩次都過唔到。'}]},
+ {t:'隊友喺你隔籬',p:'你同隊友並排入 T1，車隊無線電未出聲。',
+  r:'……（無線電靜咗）',who:'NO RADIO',o:[
+  {t:'讓半個位俾隊友',s:'車隊會記住',fx:{d:-1,rep:2},l:'你收咗半個位。隊友過咗，賽後講咗聲多謝。'},
+  {t:'唔讓，各安天命',s:'你自己嘅位',fx:{d:1,rep:-1,risk:8},l:'你冇讓。兩架車擦身而過，隊友望住你。'},
+  {t:'一齊收油',s:'兩個都蝕，但冇人撞',fx:{d:-1,rep:1,risk:0},l:'兩個都收。車隊冇損失，但兩個都蝕位。'}]},
+ {t:'T1 出口，你喺草地邊緣',p:'你出彎太闊，右邊兩條胎已經喺白線外。',
+  r:'如果你而家收油，會即刻被人過。如果你唔收，會唔會出去？',who:'RACE ENGINEER',o:[
+  {t:'唔收，硬食',s:'四個轆都要留喺賽道',fx:{d:1,risk:24},l:'你冇收。車彈咗一下，但你返到賽道，仲喺前面。'},
+  {t:'收油返線',s:'保住架車',fx:{d:-2,risk:0},l:'你收油。兩架車過咗你，但架車完整。'},
+  {t:'半收，壓住線',s:'中間路線',fx:{d:0,risk:9},l:'你半收。車壓住白線，裁判冇出聲。'}]}
+],
+tyre:[
+ {t:'第 8 圈，胎開始跌',p:'你嘅軟胎已經 8 圈，後面嗰架用中胎。你估佢可以撐多十圈。',
+  r:'佢條胎新過你，你撐唔到最後。你想早入站定係撐？',who:'RACE ENGINEER',o:[
+  {t:'即刻入站（undercut）',s:'換新胎，賭佢出嚟喺你後面',fx:{d:1,risk:4},l:'你入站。出嚟啱啱喺佢前面，車隊做得好。'},
+  {t:'撐多 3 圈',s:'保住賽道位置，但出嚟會落後',fx:{d:-1,risk:2},l:'你撐到第 11 圈。胎已經唔聽話，但位置仲喺。'},
+  {t:'留喺外面賭安全車',s:'高風險高回報',fx:{d:0,risk:16},l:'你唔入站。每次過彎都滑，但安全車真係出咗。'}]},
+ {t:'左前胎起泡',p:'左前胎起泡，每次入彎都震。工程師叫你減速 1.5 秒一圈。',
+  r:'你可以慢，或者你繼續推，睇佢幾時爆。',who:'RACE ENGINEER',o:[
+  {t:'減速保胎',s:'慢，但一定返到終點',fx:{d:-1,fit:2,risk:0},l:'你減速。後面嗰架貼咗上嚟，但條胎冇爆。'},
+  {t:'繼續推',s:'博佢唔爆',fx:{d:1,risk:15},l:'你繼續推。條胎震到方向盤都震，但仲喺度。'},
+  {t:'提早入站',s:'止蝕，換胎',fx:{d:0,risk:3},l:'你入站。早咗三圈，但至少唔使擔心。'}]},
+ {t:'兩套胎，兩個策略',p:'你手上有兩套：一套軟胎可以跑 12 圈，一套硬胎可以跑 20 圈。',
+  r:'你想用邊套？定係你想我哋幫你決定？',who:'RACE STRATEGIST',o:[
+  {t:'軟胎，搏前三',s:'快，但尾段會跌',fx:{d:2,risk:10},l:'你揀軟胎。頭幾圈快到連工程師都吹口哨。'},
+  {t:'硬胎，跑到尾',s:'慢，但唔使再入站',fx:{d:0,risk:2},l:'你揀硬胎。冇人過你，但你都過唔到人。'},
+  {t:'跟隊友策略',s:'唔輸給隊友',fx:{d:1,rep:1,risk:4},l:'你跟隊友。兩個一齊入站，車隊好滿意。'}]},
+ {t:'胎已經冇咗，後面貼到好近',p:'你胎壽命見底，後面嗰架每圈快 1.2 秒。仲有 6 圈。',
+  r:'你守得住幾耐？我哋可以叫你入站，但你會跌到第八。',who:'RACE ENGINEER',o:[
+  {t:'死守',s:'用盡路面擋佢',fx:{d:0,risk:12},l:'你守咗四圈。第五圈，佢終於過咗 —— 但你仲喺第三。'},
+  {t:'入站保新胎',s:'放棄位置，換速度',fx:{d:-3,risk:0},l:'你入站。出嚟第八，但最後兩圈你係全場最快。'},
+  {t:'迫佢犯錯',s:'用盡路面，賭佢衝出嚟',fx:{d:1,risk:20},l:'你封線封到盡。佢撞咗你一下，但你冇讓。'}]},
+ {t:'賽後胎溫',p:'你落車，工程師遞咗個平板俾你：四條胎溫度差 40 度。',
+  r:'你今場嘅開法，會唔會影響下場？',who:'PERFORMANCE COACH',o:[
+  {t:'承認自己開得太狠',s:'車隊會覺得你成熟',fx:{rep:2,fit:-2},l:'你點頭。教練話：「識認，先會改。」'},
+  {t:'話係車嘅問題',s:'推卸，但保住面子',fx:{rep:-2,fit:1},l:'你話係車。工程師冇反駁，但佢記住咗。'},
+  {t:'唔出聲，記住數據',s:'自己消化',fx:{rep:0,fit:3},l:'你冇講嘢，只係望住個平板。下場你會記得。'}]}
+],
+sc:[
+ {t:'安全車出動',p:'賽道壓縮，所有人距離拉近。你仲有一半賽程。',
+  r:'安全車期間入站只蝕 9 秒。你想唔想換？',who:'RACE ENGINEER',o:[
+  {t:'入站換新胎',s:'用平價入站換一套新胎',fx:{d:2,risk:3},l:'你入站，好快就出返嚟。呢個係免費嘅運氣。'},
+  {t:'唔入站，保住位置',s:'重開嗰刻你有優勢',fx:{d:0,risk:5},l:'你選擇留喺賽道。重開嗰刻你頂住兩架車。'},
+  {t:'入站，但只換兩條',s:'省時間，賭一半',fx:{d:1,risk:8},l:'你只換兩條。出嚟快，但車頭車尾唔平衡。'}]},
+ {t:'安全車，你喺前列',p:'你喺前幾位，後面大部分車都入咗站，你唔入。',
+  r:'如果你而家入站，你會跌出前五。如果你唔入，你要用舊胎跑 14 圈。',who:'RACE ENGINEER',o:[
+  {t:'唔入，守住',s:'賭舊胎撐得住',fx:{d:0,risk:14},l:'你唔入。重開嗰刻你頂住，但胎一路跌。'},
+  {t:'入站，接受第五',s:'用新胎追返',fx:{d:-4,risk:0},l:'你入站。出嚟第五，但你手上係全場最新嘅胎。'},
+  {t:'賭對手中途要再入',s:'計數，唔搏即時',fx:{d:1,risk:9},l:'你唔入。你計啱咗 —— 前面兩架車最後都要再入站。'}]},
+ {t:'安全車期間，無線電有雜音',p:'車隊叫你入站，但講到一半斷線。你唔肯定係咪講你。',
+  r:'……（靜電）……pit……confirm……',who:'NO RADIO',o:[
+  {t:'照入站',s:'如果係講你，就賺咗',fx:{d:-2,risk:2},l:'你入站。技師有啲意外，但佢哋反應好快。'},
+  {t:'唔入，等下一個指令',s:'唔賭',fx:{d:1,risk:6},l:'你唔入。車隊之後確認嗰句係講隊友。'},
+  {t:'問清楚先',s:'用一圈換確定',fx:{d:-1,risk:0},l:'你問清楚。雖然蝕位，但冇做錯決定。'}]},
+ {t:'安全車走，前面一片混亂',p:'你就喺車群前面。你決定幾時加速。',
+  r:'你控制節奏。你想幾時踩？',who:'RACE ENGINEER',o:[
+  {t:'即刻踩，拉開',s:'唔俾後面機會',fx:{d:2,risk:10},l:'你即刻踩。後面兩架車反應慢咗半秒。'},
+  {t:'慢慢加速，等後面迫埋',s:'迫佢哋犯錯',fx:{d:0,risk:3},l:'你慢慢加速。後面貼到好近，但冇人敢過。'},
+  {t:'等最後一個彎先踩',s:'經典招式',fx:{d:1,risk:7},l:'你等到最後一個彎。後面嗰架預唔到，你拉開兩個車位。'}]},
+ {t:'車群壓縮，煞車過熱',p:'跟咗五圈慢車，煞車溫度 780 度。重開之後你要即刻用盡佢。',
+  r:'你可以冷卻一圈，但你會蝕位。',who:'RACE ENGINEER',o:[
+  {t:'冷卻一圈',s:'保住煞車',fx:{d:-2,risk:0},l:'你冷卻一圈。煞車回復，但兩個位冇咗。'},
+  {t:'照用',s:'賭佢頂得住',fx:{d:0,risk:16},l:'你照踩。煞車震得厲害，但冇失效。'},
+  {t:'半冷卻，跟住前面',s:'中間路線',fx:{d:-1,risk:5},l:'你半冷卻。蝕咗一個位，但煞車仲喺。'}]}
+],
+team:[
+ {t:'最後 8 圈，隊友喺你前面',p:'你比隊友快，但車隊無線電叫你讓位 —— 佢爭年度積分。',
+  r:'我哋明白你想贏。但呢個係車隊決定。',who:'TEAM PRINCIPAL',o:[
+  {t:'讓位',s:'車隊會記住，但你少幾個位',fx:{d:-2,rep:3},l:'你收油。賽後領隊話：「下年有你份。」'},
+  {t:'唔讓，繼續追',s:'你自己嘅成績，但關係破裂',fx:{d:1,rep:-2},l:'你冇收油。無線電冇再出聲。'},
+  {t:'讓，但條件係下場優先',s:'博一個承諾',fx:{d:-1,rep:1,risk:2},l:'你讓，同時要一個承諾。領隊停咗一秒，然後答「好」。'}]},
+ {t:'車隊叫你慳油',p:'油量計算出錯，你要喺最後 10 圈慳 3% 油。',
+  r:'你可以跟車尾流慳油，但你會冇機會超車。',who:'RACE ENGINEER',o:[
+  {t:'跟尾流慳油',s:'慢，但一定捱到尾',fx:{d:-1,rep:1},l:'你跟住前面。油耗降返，你捱到終點。'},
+  {t:'照推，賭計錯',s:'快，但可能冇油',fx:{d:1,risk:14},l:'你照推。最後一圈，油燈閃咗，但你過咗線。'},
+  {t:'問隊友幫手拉',s:'用隊友嘅尾流',fx:{d:0,rep:1,risk:2},l:'你問隊友。佢拉咗你三圈，兩個都省到油。'}]},
+ {t:'合約年',p:'你嘅合約今年完。領隊喺你耳邊講：「今日表現，我哋會記住。」',
+  r:'你知唔知自己而家係第幾？',who:'TEAM PRINCIPAL',o:[
+  {t:'搏一個頒獎台',s:'搏到就翻身',fx:{d:2,risk:16},l:'你搏。最後你上咗台，領隊喺台下望住你。'},
+  {t:'穩穩陣陣拿分',s:'唔搏，保住合約',fx:{d:0,risk:2},l:'你穩住。有分，冇驚喜，但領隊點頭。'},
+  {t:'幫隊友拿車隊分',s:'做隊友嘅後盾',fx:{d:-1,rep:3},l:'你幫隊友。賽後車隊積分多咗六分。'}]},
+ {t:'二號車手',p:'你架車今場用舊規格引擎。工程師細聲講：「唔好講出去。」',
+  r:'我哋今場冇辦法幫你。',who:'RACE ENGINEER',o:[
+  {t:'照揸，用技術補',s:'用彎速補直路',fx:{d:1,risk:6},l:'你用彎速補。雖然直路慢，但你冇輸位。'},
+  {t:'公開講',s:'記者會見',fx:{rep:-3,d:0},l:'你講咗。第二日報紙有標題，車隊好嬲。'},
+  {t:'接受，幫隊友收集數據',s:'做一個好隊友',fx:{d:-1,rep:2,fit:1},l:'你接受。工程師話：「呢個人情，我記住。」'}]},
+ {t:'隊友撞車，你喺隔籬',p:'隊友撞咗，安全車出動。車隊叫你入站，但你唔想。',
+  r:'我哋需要你嘅分。',who:'TEAM PRINCIPAL',o:[
+  {t:'入站，聽車隊',s:'穩陣拿分',fx:{d:-1,rep:2,risk:2},l:'你入站。出嚟第八，但胎新，你追上咗兩個位。'},
+  {t:'唔入，自己判斷',s:'你覺得賽道位置更重要',fx:{d:1,rep:-1,risk:8},l:'你唔入。重開嗰刻你頂住，但車隊唔出聲。'},
+  {t:'入站但要求換軟胎',s:'爭取最好嘅胎',fx:{d:0,risk:5},l:'你入站，要軟胎。技師猶豫咗一下，但照做。'}]}
+],
+last:[
+ {t:'最後兩圈，前面嗰架失誤',p:'佢跑開咗，賽道內側有位。你嘅胎已經 20 圈。',
+  r:'佢條胎都冇咗。你自己決定。',who:'RACE ENGINEER',o:[
+  {t:'搏入內線',s:'一個彎決定成敗',fx:{d:2,risk:18},l:'你插咗入去。兩架車並排過咗個彎 —— 你贏咗。'},
+  {t:'跟住，等佢自己出錯',s:'穩陣，但可能冇機會',fx:{d:0,risk:2},l:'你貼住佢。最後一圈，佢守得住。'},
+  {t:'收油保車',s:'保住積分，唔搏',fx:{d:-1,risk:0},l:'你收油。有人話你唔夠狠。'}]},
+ {t:'最後一圈，差 0.4 秒',p:'你冇 DRS，前面嗰架每個彎都守得死。',
+  r:'最後一個彎。你只有一次機會。',who:'RACE ENGINEER',o:[
+  {t:'外線大膽一搏',s:'一次過，或者撞',fx:{d:2,risk:22},l:'你走外線。兩架車差 10 厘米，但你過咗。'},
+  {t:'內線假動作',s:'騙佢開門',fx:{d:1,risk:12},l:'你假動作。佢讓咗半個位，你即刻插上去。'},
+  {t:'接受 P2',s:'保住亞軍',fx:{d:0,risk:0,rep:1},l:'你收油。P2 都係好成績，車隊有分。'}]},
+ {t:'最後一圈，後面越嚟越近',p:'後面嗰架每圈快你 0.5 秒，你冇得再等。',
+  r:'唔好犯錯。就係咁簡單。',who:'RACE ENGINEER',o:[
+  {t:'保守跑線',s:'唔好犯錯',fx:{d:0,risk:2},l:'你保守跑線。後面追到 0.9 秒，但你守得住。'},
+  {t:'推盡，拉開',s:'證明你唔止贏咁少',fx:{d:1,risk:13},l:'你推盡。最後一圈做出全場最快，贏 2.4 秒。'},
+  {t:'提早收油，保引擎',s:'贏少啲都要贏',fx:{d:0,fit:2,risk:0},l:'你收油。贏 0.7 秒，但引擎溫度正常。'}]},
+ {t:'最後兩圈，黃旗',p:'前面有車出咗去，黃旗。你可以超，但要小心。',
+  r:'黃旗區域唔可以超車。你知嘅。',who:'RACE ENGINEER',o:[
+  {t:'守法，唔超',s:'規矩要緊',fx:{d:-1,rep:2},l:'你冇超。賽後裁判讚你專業。'},
+  {t:'照超，賭無人睇到',s:'快，但可能被罰',fx:{d:1,rep:-3,risk:12},l:'你超咗。賽後調查，你冇被罰，但車隊唔高興。'},
+  {t:'超，但即刻讓返',s:'博個位再還',fx:{d:0,risk:3},l:'你超咗再讓返。冇人投訴，但你都冇賺。'}]},
+ {t:'衝線前，車隊叫你減速',p:'你引擎溫度爆錶。工程師叫你最後半圈收油。',
+  r:'你而家 P4。如果你收油，你可能變 P6。',who:'RACE ENGINEER',o:[
+  {t:'收油，保引擎',s:'保住下場嘅引擎',fx:{d:-2,fit:3,risk:0},l:'你收油。P6，但引擎冇事。下場仲有得跑。'},
+  {t:'唔收，衝埋佢',s:'P4 要緊',fx:{d:0,risk:18},l:'你冇收。引擎捱到終點，但聲音明顯唔同咗。'},
+  {t:'收一半',s:'中間路線',fx:{d:-1,risk:6},l:'你收一半。P5，引擎溫度回落。'}]}
+]
+
+  }
 };
 
-/* ============ 狀態 / 存檔 ============ */
+
+/* =====================================================================
+ * PACK · bistro — 主廚生涯（BISTRO SEPT）
+ * 證明：同一個 framework、同一套 UI，換呢個檔就變另一個遊戲。
+ * ===================================================================== */
+
+/* 靜態場景 helper：一塊漸變 + 地平線 + 任意裝飾 */
+function stage(bg1,bg2,horizon,deco){
+  return '<rect x="-20" y="-20" width="840" height="215" fill="'+bg1+'"/>'+
+    '<rect x="-20" y="-20" width="840" height="'+(horizon+18)+'" fill="url(#gStage)"/>'+
+    '<rect x="-20" y="'+(horizon-30)+'" width="840" height="34" fill="url(#gWarm)" opacity=".55"/>'+
+    deco+
+    '<path d="M-20 '+horizon+' L820 '+(horizon-6)+' L820 176 L-20 176 Z" fill="'+bg2+'"/>'+
+    '<defs>'+
+    '<linearGradient id="gStage" x1="0" y1="0" x2="0" y2="1">'+
+    '<stop offset="0" stop-color="#243a58"/><stop offset="1" stop-color="#2f4a6d"/></linearGradient>'+
+    '<linearGradient id="gWarm" x1="0" y1="0" x2="0" y2="1">'+
+    '<stop offset="0" stop-color="#f2c14e" stop-opacity="0"/><stop offset="1" stop-color="#f2c14e" stop-opacity=".5"/></linearGradient>'+
+    '</defs>';
+}
+
+PACKS.bistro = {
+  meta:{
+    id:'bistro',
+    title:'MISE',
+    saveKey:'bistro.save.v1',
+    rounds:6,
+    field:8,
+    season:'2027',
+    subject:'BISTRO SEPT',
+    subjectShort:'SEPT'
+  },
+
+  labels:{
+    brand:'MISE', brandSub:'主廚生涯',
+    position:'名次', score:'評分', reputation:'名聲', fitness:'體力', table:'排行榜',
+    stateTitle:'今晚狀態', statePhase:'時段', stateRisk:'失誤風險', statePlace:'廚房位置',
+    recordTitle:'今晚紀錄', recordEmpty:'仲未有紀錄 —— 每個決定都會寫入呢度。',
+    autosave:'● 自動存檔',
+    roundWord:'WEEK', seasonWord:'SEASON', decisionWord:'DECISION',
+    classification:'Scorecard', championship:'Leaderboard',
+    repLogTitle:'名聲變化', repLogEmpty:'仲未有紀錄。',
+    seasonFinal:'季終成績', seasonTable:'賽季評分', seasonEnd:'季終',
+    newSeason:'開新一季 →', restart:'放棄 · 開新一季', restartShort:'開新一季（清除存檔）',
+    backToRace:'返廚房', backToRace2:'返去幹活 →', backToResult:'返去成績 →',
+    nextRace:'下一週 →', nextDecision:'下一個決定 →',
+    seeResult:'睇今晚成績 →', seeSeason:'季終 · 睇成績 →', continueCareer:'繼續 →',
+    trackFront:'爐頭', trackMid:'中段', trackBack:'洗碗位',
+    phases:['備料','開門','第一輪','第二輪','甜點','收舖'], phaseFallback:'服務中',
+    riskWord:'風險', safe:'安全', samePlace:'位置不變',
+    crashMsg:'失手 · 打爛', overtake:'搶到 ·', overtaken:'被搶 ·', places:'位',
+    dnf:'收舖', podium:'三星', pointsFinish:'有分', finished:'完成', noPoints:'冇分',
+    pointsSuffix:'分', ofField:'／',
+    colPos:'P', colName:'CHEF', colTeam:'餐廳', colPts:'PTS',
+    seedWord:'種子', selfMark:'你', circuitWord:'場', cumWord:'累計'
+  },
+
+  create:{
+    eyebrow:'BISTRO SEPT · 2027 季前',
+    headline:['你 24 歲。','做咗三年 prep。<em>今晚有人請你頂爐頭</em>。'],
+    lede:'六個星期、一張八人餐牌、一個唔夠人手嘅廚房。每週你會遇到六個決定 —— 幾時快、幾時等、幾時得罪供貨商。做得好，會有更大嘅餐廳打電話俾你。',
+    nameLabel:'廚師名', defaultName:'ENZO',
+    styleLabel:'風格',
+    teamLabel:'餐廳', teamValue:'BISTRO SEPT · 二十四個位，開放式廚房',
+    cta:'簽約，開始季前試菜 →',
+    radioWho:'SOUS CHEF · SEPT', radioFirst:'「今晚滿座，唔好諗太多，先出咗頭盤。」'
+  },
+
+  archetypes:{
+    fire:{label:'大火快炒',bonus:1,riskMul:1.25,note:'出餐快，易失手'},
+    slow:{label:'慢火細做',bonus:0,riskMul:0.70,note:'慢少少，穩陣'},
+    chefy:{label:'創意主導',bonus:1,riskMul:1.10,note:'驚喜大，風險高'}
+  },
+
+  cats:['pass','service','supplier','critic','staff','close'],
+  scoring:[10,8,6,5,4,3,2,1],
+
+  entities:{
+    circuits:[
+      {n:'BISTRO SEPT',s:'SEPT'},{n:'TABLE 12',s:'TABLE 12'},
+      {n:'MARKET RUN',s:'MARKET'},{n:'THE CRITIC',s:'CRITIC'},
+      {n:'STAFF NIGHT',s:'STAFF'},{n:'LAST SERVICE',s:'CLOSING'}
+    ],
+    rivals:['MAR','LUC','ODA','BRE','TAN','VIV','HOL','NEY'],
+    teams:['SEPT','CASA NOVE','KILN','LAUREN','OMBRA','FENNEL','PARC','SALT']
+  },
+
+  scenes:{
+    pass:()=>({cap:'PASS · 出餐口',spd:'7 張單',zoom:1,
+      svg:stage('#25395a','#1c2f4d',104,
+        '<rect x="238" y="96" width="720" height="10" rx="221" fill="#26313f"/>'+
+        '<g fill="#f2c14e" opacity=".85"><rect x="274" y="86" width="26" height="10" rx="221"/>'+
+        '<rect x="355" y="86" width="26" height="10" rx="221"/><rect x="436" y="86" width="26" height="10" rx="221"/></g>'+
+        '<g opacity=".5" stroke="#8fa7c4" stroke-width="1.2" fill="none">'+
+        '<path d="M60 130 L760 126"/><path d="M60 150 L760 146"/></g>')}),
+    service:()=>({cap:'FLOOR · 全場滿座',spd:'24 位',zoom:1,
+      svg:stage('#25395a','#1d3050',92,
+        '<g fill="#2c405d" stroke="#3d5474"><rect x="256" y="104" width="90" height="26" rx="222"/>'+
+        '<rect x="332" y="112" width="90" height="26" rx="222"/><rect x="414" y="104" width="90" height="26" rx="222"/>'+
+        '<rect x="494" y="112" width="90" height="26" rx="222"/></g>'+
+        '<g fill="#f2c14e" opacity=".5"><circle cx="265" cy="120" r="5"/><circle cx="288" cy="120" r="5"/>'+
+        '<circle cx="342" cy="128" r="5"/><circle cx="364" cy="128" r="5"/></g>')}),
+    supplier:()=>({cap:'MARKET · 早上六點',spd:'6 個箱',zoom:1,
+      svg:stage('#263b5c','#1d3051',100,
+        '<g fill="#2b3f5a" stroke="#3d5474"><rect x="274" y="96" width="70" height="46" rx="221"/>'+
+        '<rect x="314" y="104" width="70" height="38" rx="221"/><rect x="355" y="90" width="70" height="52" rx="221"/></g>'+
+        '<g stroke="#f2c14e" stroke-opacity=".7" stroke-width="2"><path d="M140 96 L140 84"/><path d="M330 90 L330 78"/></g>')}),
+    critic:()=>({cap:'THE CRITIC · 第二道菜',spd:'1 位',zoom:1,
+      svg:stage('#223454','#101a29',88,
+        '<rect x="332" y="100" width="300" height="40" rx="223" fill="#243349" stroke="#3d5474"/>'+
+        '<g fill="#f2c14e"><rect x="349" y="112" width="16" height="16" rx="221"/><rect x="360" y="112" width="16" height="16" rx="221"/>'+
+        '<rect x="372" y="112" width="16" height="16" rx="221"/></g>'+
+        '<g fill="#3a4a63"><rect x="445" y="112" width="16" height="16" rx="221"/><rect x="457" y="112" width="16" height="16" rx="221"/></g>')}),
+    staff:()=>({cap:'STAFF NIGHT · 收工後',spd:'5 人',zoom:1,
+      svg:stage('#25395a','#20334f',96,
+        '<g fill="#33496a"><rect x="274" y="120" width="22" height="40" rx="224"/><rect x="310" y="120" width="22" height="40" rx="224"/>'+
+        '<rect x="346" y="120" width="22" height="40" rx="224"/><rect x="382" y="120" width="22" height="40" rx="224"/></g>'+
+        '<rect x="265" y="160" width="300" height="6" rx="221" fill="#f2c14e" opacity=".35"/>')}),
+    close:()=>({cap:'LAST SERVICE · 收舖',spd:'23:40',zoom:1,
+      svg:stage('#060b13','#1e3150',110,
+        '<g opacity=".6" stroke="#8fa7c4" stroke-width="1" fill="none"><path d="M60 130 L760 126"/></g>'+
+        '<rect x="368" y="112" width="140" height="8" rx="222" fill="#f2c14e" opacity=".5"/>'+
+        '<g fill="#2c405d"><rect x="274" y="126" width="60" height="34" rx="221"/><rect x="499" y="126" width="60" height="34" rx="221"/></g>')})
+  },
+
+  narrative:{
+    story:function(x){
+      const res=x.res,C=x.C,R=x.R,styleName=x.style,pos=res.pos;
+      if(res.dnf) return '第 '+R.laps+' 張單，你把嘢倒瀉喺 pass 口。<br><br>'+
+        '你洗乾淨手，繼續。sous chef 冇鬧你，只係話：「慢返少少。」<br>'+
+        '你嘅風格係<b>'+styleName+'</b> —— 今晚太快。<br><br>'+
+        '<span class="small">體力 -8 · 名聲 -1</span>';
+      if(pos<=3) return '你今晚做到第 '+pos+' 位。<br><br>'+
+        '第二輪嗰道菜，客人叫咗侍應返嚟問係邊個做。<br>'+
+        '呢個係你第 '+C.results.filter(function(r){return !r.dnf&&r.pos<=3;}).length+' 次入前三。<br><br>'+
+        '<span class="small">名聲 +3（累計 '+(C.rep>0?'+':'')+C.rep+'）· 評分 +'+res.pts+'</span>';
+      if(pos<=5) return 'P'+pos+'，有分。<br><br>出餐準時，冇退菜。sous chef 點咗下頭。<br><br>'+
+        '<span class="small">名聲 +1（累計 '+(C.rep>0?'+':'')+C.rep+'）· 評分 +'+res.pts+'</span>';
+      return 'P'+pos+'。'+(res.pts?'有 1 分。':'冇分。')+'<br><br>有一枱等到走。你在洗碗位諗咗好耐。<br><br>'+
+        '<span class="small">體力 -4 · 下一週：再嚟。</span>';
+    },
+    seasonEnd:function(x){
+      const C=x.C,tier=x.tier,podiums=x.podiums,dnfs=x.dnfs,styleName=x.style;
+      const sig=C.name+' · '+styleName+' · 名聲 '+(C.rep>0?'+':'')+C.rep;
+      if(tier==='A') return {eyebrow:'HEAD CHEF OFFER',head:'有人請你開自己嘅廚房',
+        body:'季終之後第三日，電話響。<br><br>「我食過你六個星期。你嘅手勢我記得。下年，我哋有個位。」<br><br>'+
+        '你望住自己對鞋。一年前你仲喺度切洋蔥。<br><br><span class="small">'+sig+' · 失手 '+dnfs+' 次</span>'};
+      if(tier==='B') return {eyebrow:'TRIAL SHIFT',head:'試工機會 · 未係合約',
+        body:'季終之後，你收到一個訊息：一晚試工，四個鐘，冇錢。<br><br>'+
+        '「唔係合約。但如果你想嚟，我哋有位。」<br><br><span class="small">'+sig+'</span>'};
+      return {eyebrow:'NO CALL',head:'冇人打嚟',
+        body:'季終之後，電話冇響。<br><br>你成季 '+C.points+' 分。老闆話下季照樣開門，照樣請你。<br><br>'+
+        '<span class="small">'+sig+'</span>'};
+    }
+  },
+
+  cards:{
+    pass:[
+     {t:'第一張單入咗',p:'七張單同時落，pass 口得你一個。',r:'「你頂住先，我落樓攞貨。」',who:'SOUS CHEF · SEPT',o:[
+       {t:'一張一張嚟',s:'穩，但慢',fx:{d:0,risk:3},l:'你順住做。出餐慢咗，但冇退菜。'},
+       {t:'兩張同時開火',s:'快，但兩邊都要睇',fx:{d:2,risk:16},l:'你開兩個爐。有一碟差少少焦。'},
+       {t:'叫樓面幫手',s:'借人，但欠人情',fx:{d:1,rep:-1,risk:6},l:'侍應幫你擺盤。佢面色唔太好。'}]},
+     {t:'一碟退返嚟',p:'客人話太鹹。',r:'你自己試一啖，唔鹹。',who:'SOUS CHEF',o:[
+       {t:'認，重做',s:'慢，但企得住',fx:{d:-1,rep:2,risk:0},l:'你重做一碟。客人走嗰陣同你點頭。'},
+       {t:'照上，唔理',s:'快，但賭',fx:{d:0,rep:-2,risk:8},l:'你照上。之後冇再投訴，但冇人讚。'},
+       {t:'出去解釋',s:'露面，有風險',fx:{d:1,risk:12},l:'你行出廚房解釋。客人笑咗。'}]},
+     {t:'最後一張單，23:28',p:'廚房已經洗到一半。',r:'「仲有一張。你想點？」',who:'SOUS CHEF',o:[
+       {t:'照做',s:'做完先收',fx:{d:1,fit:-3,risk:0},l:'你做完。走嗰陣成間舖黑晒。'},
+       {t:'快炒，唔跟步驟',s:'快，但可能失手',fx:{d:1,risk:18},l:'你亂咁嚟。出咗，但你自己都唔想試。'},
+       {t:'同客人講冇',s:'老實，但得罪',fx:{d:-2,rep:-1},l:'客人冇出聲，走咗。'}]}
+    ],
+    service:[
+     {t:'十二人 party 遲到',p:'訂七點，七點九先到。',r:'「佢哋一到就全枱一齊上。」',who:'HEAD WAITER',o:[
+       {t:'全部同時出',s:'壯觀，但亂',fx:{d:2,risk:17},l:'十二碟同時出。兩碟凍咗。'},
+       {t:'分批出',s:'穩，但客人不滿',fx:{d:0,rep:-1,risk:3},l:'分三批。有人投訴點解唔齊。'},
+       {t:'先出頭盤拖時間',s:'中間路線',fx:{d:1,risk:7},l:'你出頭盤。時間啱啱好。'}]},
+     {t:'隔離枱等咗四十分鐘',p:'你哋漏咗一張單。',r:'「你話我知，我出去補救。」',who:'HEAD WAITER',o:[
+       {t:'認錯，請佢一杯',s:'蝕錢，但留住人',fx:{d:-1,rep:3,risk:0},l:'你請咗一杯。佢下星期再嚟。'},
+       {t:'賴系統',s:'保住面子',fx:{d:0,rep:-2,risk:5},l:'你賴系統。樓面知係你漏。'},
+       {t:'即刻補一碟招牌',s:'用成本買時間',fx:{d:1,risk:9},l:'你出咗一碟招牌。佢冇再提。'}]},
+     {t:'滿座，仲有人排隊',p:'門口企咗六個人。',r:'「你想加枱定叫人走？」',who:'SOUS CHEF',o:[
+       {t:'加枱',s:'多做生意，但擠',fx:{d:1,risk:13},l:'你加咗兩張枱。廚房追得好辛苦。'},
+       {t:'唔加，維持質素',s:'穩',fx:{d:0,rep:1,risk:2},l:'你冇加。客人等，但食物準。'},
+       {t:'開外賣窗',s:'新做法',fx:{d:2,risk:15,rep:1},l:'你開外賣。廚房亂，但生意好。'}]}
+    ],
+    supplier:[
+     {t:'魚販遲到',p:'六點半，貨未到。',r:'「今日嘅魚你仲要唔要？」',who:'SOUS CHEF',o:[
+       {t:'等佢',s:'餐牌唔使改',fx:{d:0,risk:6},l:'你等到七點。餐牌照舊。'},
+       {t:'去街市買',s:'自己搞，質素唔穩',fx:{d:1,risk:14,fit:-2},l:'你跑去街市。魚細條啲，但新鮮。'},
+       {t:'改餐牌',s:'冇魚，做其他',fx:{d:-1,rep:1,risk:2},l:'你改咗餐牌。客人冇發覺。'}]},
+     {t:'供應商加價 15%',p:'你嘅成本頂唔住。',r:'「你要唔要轉第二間？」',who:'OWNER',o:[
+       {t:'照加，自己食',s:'質素保住',fx:{d:-1,rep:2,risk:3},l:'你照用。成本食咗你利潤。'},
+       {t:'轉平價貨',s:'省錢，但味道變',fx:{d:1,rep:-2,risk:10},l:'你轉咗。有熟客問你換咗咩。'},
+       {t:'同佢傾',s:'睇你牙力',fx:{d:1,risk:9},l:'你同佢傾到 8%。'}]},
+     {t:'一批貨有問題',p:'菜葉邊爛咗。',r:'「用得唔得？今晚滿座。」',who:'SOUS CHEF',o:[
+       {t:'唔用，掉',s:'蝕錢，但安全',fx:{d:-2,rep:2,risk:0},l:'你掉咗。餐牌少一道。'},
+       {t:'揀好嘅用',s:'中間路線',fx:{d:0,risk:8},l:'你揀過先用。冇人發覺。'},
+       {t:'照用',s:'危險',fx:{d:1,rep:-3,risk:20},l:'你照用。有人食剩晒。'}]}
+    ],
+    critic:[
+     {t:'有人話枱邊嗰位係寫食評',p:'第二道菜準備上。',r:'「你信唔信？」',who:'HEAD WAITER',o:[
+       {t:'照常出',s:'唔特別招呼',fx:{d:0,risk:2},l:'你照常出。'},
+       {t:'加碼，出 signature',s:'搏一鋪',fx:{d:2,risk:15},l:'你出 signature。佢望住碟望咗好耐。'},
+       {t:'親自出去',s:'露面',fx:{d:1,rep:1,risk:8},l:'你出去講咗兩句。佢笑。'}]},
+     {t:'佢叫咗你招牌菜',p:'但今日嘅貨唔夠靚。',r:'「換唔換第二道？」',who:'SOUS CHEF',o:[
+       {t:'照出',s:'賭',fx:{d:1,risk:18},l:'你照出。佢食晒。'},
+       {t:'換一道更好',s:'穩',fx:{d:0,rep:1,risk:4},l:'你換咗。佢冇問。'},
+       {t:'親自解釋',s:'坦白',fx:{d:1,rep:2,risk:6},l:'你行出去解釋。佢寫咗落簿。'}]},
+     {t:'佢食完，叫埋單',p:'冇講任何嘢。',r:'「要唔要送杯嘢？」',who:'HEAD WAITER',o:[
+       {t:'送',s:'成本買印象',fx:{d:0,rep:2,risk:2},l:'你送咗一杯。佢點頭走。'},
+       {t:'唔送',s:'照規矩',fx:{d:0,risk:0},l:'你冇送。佢走咗。'},
+       {t:'出去問一句',s:'直接',fx:{d:1,risk:10,rep:1},l:'你問佢覺得點。佢講咗一句：「醬太濃。」'}]}
+    ],
+    staff:[
+     {t:'二廚想走',p:'佢話有人挖佢。',r:'「你想我留定走？」',who:'SECOND COOK',o:[
+       {t:'留佢，俾多啲',s:'成本，但穩定',fx:{d:1,fit:-2,risk:3},l:'你留咗佢。成本高咗。'},
+       {t:'由佢走',s:'少個人，你要頂',fx:{d:-1,fit:-5,risk:10},l:'佢走咗。你頂咗兩個位。'},
+       {t:'叫佢留到下季',s:'拖住',fx:{d:0,risk:6},l:'佢答應留到季尾。'}]},
+     {t:'洗碗位請假',p:'今晚得返四個人。',r:'「你想點排？」',who:'SOUS CHEF',o:[
+       {t:'自己洗',s:'頂硬上',fx:{d:1,fit:-6,risk:5},l:'你洗咗成晚。手都皺。'},
+       {t:'叫外援',s:'花錢',fx:{d:0,risk:3},l:'你叫咗個散工。'},
+       {t:'減少出餐',s:'穩，但賺少',fx:{d:-1,rep:1,risk:2},l:'你減咗出餐量。'}]},
+     {t:'有人喺廚房爆粗',p:'成隊都聽到。',r:'「你管唔管？」',who:'OWNER',o:[
+       {t:'即刻制止',s:'立規矩',fx:{d:0,rep:1,risk:4},l:'你制止咗。氣氛凍咗一晚。'},
+       {t:'私下講',s:'留面',fx:{d:1,risk:3},l:'你收工後同佢講。佢點頭。'},
+       {t:'當冇事',s:'唔想搞大',fx:{d:0,rep:-2,risk:7},l:'你當冇事。有人唔服。'}]}
+    ],
+    close:[
+     {t:'23:50，仲有一枱',p:'佢哋叫咗甜品。',r:'「廚房想收。」',who:'SOUS CHEF',o:[
+       {t:'做',s:'做完先走',fx:{d:1,fit:-2,risk:2},l:'你做完。走嗰陣零晨十二點半。'},
+       {t:'同佢講廚房收咗',s:'快，但得罪',fx:{d:-1,rep:-1,risk:3},l:'你叫樓面講。客人走咗。'},
+       {t:'出預製甜品',s:'快，但唔係你嘅水準',fx:{d:0,risk:9},l:'你出咗雪櫃嗰碟。'}]},
+     {t:'盤點，數字唔對',p:'差咗兩百蚊貨。',r:'「邊個負責？」',who:'OWNER',o:[
+       {t:'自己認',s:'蝕錢，但企得住',fx:{d:0,rep:2,risk:2},l:'你認咗。老闆冇再問。'},
+       {t:'查落去',s:'慢，但公道',fx:{d:0,fit:-2,risk:4},l:'你查到十二點。係記帳錯。'},
+       {t:'當冇事',s:'危險',fx:{d:0,rep:-2,risk:8},l:'你冇出聲。下個月又差。'}]},
+     {t:'季尾，有人嚟食飯',p:'一位舊客人，帶咗朋友。',r:'「佢話想見下煮嘢嗰個。」',who:'HEAD WAITER',o:[
+       {t:'出去見',s:'露面',fx:{d:1,rep:2,risk:3},l:'你出去。佢介紹你畀朋友。'},
+       {t:'唔出，廚房仲有嘢',s:'專注',fx:{d:2,fit:-2,risk:3},l:'你留喺廚房。出餐完美。'},
+       {t:'出 signature 招呼',s:'搏',fx:{d:2,risk:13},l:'你出 signature。佢食完拍手。'}]}
+    ]
+  }
+};
+
+</script>
+<script>
+/* =====================================================================
+ * FRAMEWORK v1 — 主題無關嘅生涯／抉擇引擎
+ * 唔識 F1、唔識任何題材；所有題材內容由 PACK 提供（src/packs/*.js）
+ * 規格：FRAMEWORK.md
+ * ===================================================================== */
+'use strict';
+var PACKS = window.PACKS || (window.PACKS = {});
+var PACK_ID = (function(){
+  try{ return new URLSearchParams(location.search).get('pack') || window.DEFAULT_PACK || 'f1'; }
+  catch(e){ return window.DEFAULT_PACK || 'f1'; }
+})();
+var PACK = PACKS[PACK_ID] || PACKS[window.DEFAULT_PACK] || PACKS[Object.keys(PACKS)[0]];
+var L = PACK.labels;
+
+/* 卡牌註冊：pack 只提供陣列，framework 負責 id */
+var CARD = {};
+PACK.cats.forEach(function(cat){
+  (PACK.cards[cat]||[]).forEach(function(c,i){
+    c.id = cat+'-'+(i+1); c.cat = cat; CARD[c.id] = c;
+  });
+});
+
+/* ============ 工具 ============ */
+const $ = id => document.getElementById(id);
+const clamp = (v,a,b) => Math.max(a,Math.min(b,v));
+function hash(s){let h=2166136261;for(let i=0;i<s.length;i++){h^=s.charCodeAt(i);h=Math.imul(h,16777619);}return h>>>0;}
+function mulberry(a){return function(){a|=0;a=a+0x6D2B79F5|0;let t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296;};}
+function shuffle(arr,rnd){const a=arr.slice();for(let i=a.length-1;i>0;i--){const j=Math.floor(rnd()*(i+1));const t=a[i];a[i]=a[j];a[j]=t;}return a;}
+
+/* ============ 常數 ============ */
 function newCareer(){
-  return {v:2, seed:(Math.random()*1e9)|0, name:'KAI', style:'brake', round:1, races:RACES,
-    points:0, rep:0, fit:100, results:[], repLog:[], rivalPts:{}, decks:{}, race:null, done:false};
+  return {v:2, seed:(Math.random()*1e9)|0, round:1, races:PACK.meta.rounds,
+    points:0, rep:0, fit:100, results:[], repLog:[], rivalPts:{}, decks:{}, race:null, done:false,
+    field:PACK.meta.field||12,
+    name:PACK.create.defaultName, style:Object.keys(PACK.archetypes)[0]};
 }
 let C=newCareer();
 let R=null;
@@ -1189,13 +1598,13 @@ let resolving=false;
 
 function save(){
   try{
-    localStorage.setItem(SAVE_KEY, JSON.stringify(C));
+    localStorage.setItem(PACK.meta.saveKey, JSON.stringify(C));
     const d=$('saveDot'); if(d){d.classList.add('on'); setTimeout(()=>d.classList.remove('on'),700);}
   }catch(e){}
 }
 function loadSave(){
   try{
-    const raw=localStorage.getItem(SAVE_KEY);
+    const raw=localStorage.getItem(PACK.meta.saveKey);
     if(!raw) return false;
     const o=JSON.parse(raw);
     if(!o||o.v!==2||!Array.isArray(o.results)) return false;
@@ -1205,14 +1614,14 @@ function loadSave(){
     return true;
   }catch(e){ return false; }
 }
-function clearSave(){ try{localStorage.removeItem(SAVE_KEY);}catch(e){} }
+function clearSave(){ try{localStorage.removeItem(PACK.meta.saveKey);}catch(e){} }
 
 /* 牌庫 */
 function initDecks(){
   C.decks={};
-  CATS.forEach(cat=>{
+  PACK.cats.forEach(cat=>{
     const rnd=mulberry(hash(C.seed+'|'+cat));
-    C.decks[cat]={order:shuffle(LIB[cat].map(c=>c.id),rnd), idx:0, last:null};
+    C.decks[cat]={order:shuffle(PACK.cards[cat].map(c=>c.id),rnd), idx:0, last:null};
   });
 }
 function drawCard(cat){
@@ -1220,7 +1629,7 @@ function drawCard(cat){
   if(!d){ initDecks(); return drawCard(cat); }
   if(d.idx>=d.order.length){
     const rnd=mulberry(hash(C.seed+'|'+cat+'|'+C.round+'|'+d.order.join(',')));
-    d.order=shuffle(LIB[cat].map(c=>c.id),rnd);
+    d.order=shuffle(PACK.cards[cat].map(c=>c.id),rnd);
     d.idx=0;
     if(d.order[0]===d.last&&d.order.length>1){ const t=d.order[0]; d.order[0]=d.order[1]; d.order[1]=t; }
   }
@@ -1230,7 +1639,7 @@ function drawCard(cat){
 }
 function makeRace(){
   const rnd=mulberry(hash(C.seed+'|round'+C.round+'|cards'));
-  const cats=shuffle(CATS.slice(),rnd);
+  const cats=shuffle(PACK.cats.slice(),rnd);
   const cards=cats.map(cat=>drawCard(cat));
   const startPos=6+Math.floor(rnd()*4);
   return {cards:cards, beats:0, pos:startPos, startPos:startPos, risk:0, log:[], crashed:false, laps:30, result:null};
@@ -1270,14 +1679,14 @@ function carSVG(spec,w,h,isMe){
   if(isMe){
     g+='<circle cx="'+k(W*0.04)+'" cy="0" r="'+k(Math.max(1.6,H*0.10))+'" fill="#f7e3ae"/>';
     g+='<text x="0" y="'+k(-H*0.86)+'" text-anchor="middle" font-family="ui-monospace,monospace" '+
-       'font-size="'+k(Math.max(11,H*0.85))+'" font-weight="700" fill="#f7e3ae">你</text>';
+       'font-size="'+k(Math.max(11,H*0.85))+'" font-weight="700" fill="#f7e3ae">'+L.selfMark+'</text>';
   }
   g+='</g>';
   return '<g class="car"><g transform="scale(1,'+(1/1.55)+')">'+g.replace('<g class="car" transform="translate(0,0)">','<g>')+'</g></g>';
 }
 
 function paintScene(cat,preserve){
-  const sc=SCENES[cat]();
+  const sc=PACK.scenes[cat]();
   curCat=cat;
   const box=$('scene').getBoundingClientRect();
   const bw=box.width||760, bh=box.height||172;
@@ -1285,21 +1694,24 @@ function paintScene(cat,preserve){
   CARW=clamp(36/Math.max(sx,.05),18,72);
   CARH=clamp(17/Math.max(sy,.05),9,30);
   const svg=$('sceneSvg');
+  const isStatic=!sc.lanes||!sc.lanes.length;
   let cars='';
-  cars+=carSVG({c:'#f2c14e',r:'#fff3d0'},CARW,CARH,true);
-  cars+=carSVG(sc.cars[0],CARW,CARH,false);
-  cars+=carSVG(sc.cars[1],CARW,CARH,false);
-  // 垂直放大：令賽道佔滿場面（天空／草地縮到邊緣）
-  const ZK=1.55, ZC=126;
+  if(!isStatic){
+    cars+=carSVG({c:'#f2c14e',r:'#fff3d0'},CARW,CARH,true);
+    cars+=carSVG(sc.cars[0],CARW,CARH,false);
+    cars+=carSVG(sc.cars[1],CARW,CARH,false);
+  }
+  const ZK=sc.zoom||1.55, ZC=sc.zoomCenter||126;
   svg.setAttribute('viewBox','0 0 800 172');
-  svg.setAttribute('preserveAspectRatio','none');
+  svg.setAttribute('preserveAspectRatio', isStatic?'xMidYMid slice':'none');
   svg.innerHTML='<g id="sceneAll" transform="translate(0,'+ZC+') scale(1,'+ZK+') translate(0,-'+ZC+')">'
-    + sc.svg + '<g id="carLayer">'+cars+'</g></g>';
+    + sc.svg + (isStatic?'':'<g id="carLayer">'+cars+'</g>') + '</g>';
   const groups=svg.querySelectorAll('#carLayer .car');
   carEls={me:groups[0],r1:groups[1],r2:groups[2]};
   laneEls=[svg.querySelector('#ln0'),svg.querySelector('#ln1'),svg.querySelector('#ln2')];
   $('sceneCap').textContent=sc.cap;
   $('sceneSpd').textContent=sc.spd;
+  if(isStatic){ return; }
   if(!preserve){
     playerF=sc.init.me.f; rivalF=[sc.init.rv[0].f,sc.init.rv[1].f];
   }
@@ -1330,13 +1742,14 @@ function clearMsg(){
 function easeInOut(p){return p<.5?2*p*p:1-Math.pow(-2*p+2,2)/2;}
 
 function runAnim(o){
+  if(!carEls.me){ anim=null; return; }   // static 場景：無車可動
   anim={t:0,dur:o.dur||1.7,from:playerF,to:o.to,lane:o.lane,crash:!!o.crash,back:!!o.back};
   carEls.me.setAttribute('opacity','1');
   lastTs=0;
   if(!rafId) rafId=requestAnimationFrame(tick);
 }
 function tick(ts){
-  if(!anim){ rafId=null; return; }
+  if(!anim||!carEls.me){ rafId=null; return; }
   if(!lastTs) lastTs=ts;
   const dt=Math.min(.05,(ts-lastTs)/1000); lastTs=ts;
   anim.t+=dt;
@@ -1379,12 +1792,12 @@ function paintHud(){
   $('hRep2').textContent=(C.rep>0?'+':'')+C.rep;
   $('hPts3').textContent=C.points;
   $('hRep3').textContent=(C.rep>0?'+':'')+C.rep;
-  $('hudSeason').textContent='SEASON 2027';
+  $('hudSeason').textContent=L.seasonWord+' '+PACK.meta.season;
   if(R){
     $('sPos').textContent='P'+R.pos;
     if($('hPos')) $('hPos').textContent='P'+R.pos;
     $('sRisk').textContent=R.risk+'%';
-    $('sTrack').textContent=R.pos<=3?'前排':(R.pos<=7?'中段':'後排');
+    $('sTrack').textContent=R.pos<=3?L.trackFront:(R.pos<=7?L.trackMid:L.trackBack);
   }
   // progress dots
   let dots='';
@@ -1412,7 +1825,7 @@ function startRace(){
   else { C.race=R; }
   playerF=.52; rivalF=[.6,.66]; anim=null;
   clearMsg();
-  $('log').innerHTML='<span class="log-empty">仲未有紀錄 —— 每個選擇都會寫入呢度。</span>';
+  $('log').innerHTML='<span class="log-empty">'+L.recordEmpty+'</span>';
   paintHud();
   show('scRace');
   renderBeat();
@@ -1430,7 +1843,7 @@ function showAdvance(last, gen){
   if(!b || gen!==beatGen) return;
   b.hidden=false;
   b.disabled=false;
-  b.textContent=last?'睇今場成績 →':'下一個決定 →';
+  b.textContent=last?L.seeResult:L.nextDecision;
   b.onclick=function(){
     if(gen!==beatGen || !R) return;
     b.disabled=true;
@@ -1462,14 +1875,14 @@ function renderBeat(){
   paintScene(card.cat,false);
   paintHud();
   if(R.log&&R.log.length) renderLog();
-  $('sPhase').textContent=['起步','第 5 圈','第 10 圈','第 15 圈','第 20 圈','最後 3 圈'][R.beats]||'比賽';
+  $('sPhase').textContent=L.phases[R.beats]||L.phaseFallback;
   const wrap=$('opts'); wrap.innerHTML='';
   card.o.forEach((o,i)=>{
     const btn=document.createElement('button');
-    const rk=Math.round((o.fx&&o.fx.risk?o.fx.risk:0)*STYLE[C.style].riskMul);
+    const rk=Math.round((o.fx&&o.fx.risk?o.fx.risk:0)*PACK.archetypes[C.style].riskMul);
     const sev=rk===0?'sev0':(rk<10?'sev1':(rk<25?'sev2':'sev3'));
     btn.className='btn'+(rk>=14?' danger':(rk===0?' safe':''));
-    const riskHTML='<span class="risk '+sev+'">'+(rk?'風險 '+rk+'%':'安全')+'</span>';
+    const riskHTML='<span class="risk '+sev+'">'+(rk?L.riskWord+' '+rk+'%':L.safe)+'</span>';
     btn.innerHTML='<span>'+o.t+'</span><small>'+o.s+'</small>'+riskHTML;
     btn.onclick=()=>choose(i);
     wrap.appendChild(btn);
@@ -1482,7 +1895,7 @@ function choose(i){
   const card=CARD[R.cards[R.beats]];
   const o=card.o[i];
   const fx=o.fx||{};
-  const riskPct=Math.round((fx.risk||0)*STYLE[C.style].riskMul);
+  const riskPct=Math.round((fx.risk||0)*PACK.archetypes[C.style].riskMul);
   const crashChance=riskPct*0.45+R.risk*0.10;
   const crash=crashChance>0 && Math.random()*100<crashChance;
 
@@ -1511,10 +1924,10 @@ function choose(i){
   hideAdvance();
 
   const lane=i===0?0:(i===1?1:2);
-  let to=playerF,msg='位置不變',kind='';
-  if(crash){ to=playerF+0.02; msg='撞車 · 退賽'; kind='bad'; }
-  else if((fx.d||0)>0){ to=0.82; msg='爬頭成功 · +'+fx.d+' 位'; kind='ok'; }
-  else if((fx.d||0)<0){ to=0.34; msg='被爬 · '+fx.d+' 位'; kind='bad'; }
+  let to=playerF,msg=L.samePlace,kind='';
+  if(crash){ to=playerF+0.02; msg=L.crashMsg; kind='bad'; }
+  else if((fx.d||0)>0){ to=0.82; msg=L.overtake+' +'+fx.d+' '+L.places; kind='ok'; }
+  else if((fx.d||0)<0){ to=0.34; msg=L.overtaken+' '+fx.d+' '+L.places; kind='bad'; }
   else { to=Math.min(0.72,playerF+0.02); }
 
   runAnim({lane:lane,to:to,crash:crash,back:!crash&&(fx.d||0)>0,dur:1.7});
@@ -1540,27 +1953,27 @@ function finishRace(){
   hideAdvance();
   document.body.dataset.race='done';
   const dnf=!!R.crashed;
-  let pos=R.pos- STYLE[C.style].bonus + (Math.floor(Math.random()*3)-1);
+  let pos=R.pos- PACK.archetypes[C.style].bonus + (Math.floor(Math.random()*3)-1);
   if(C.fit<55) pos+=1;
   pos=clamp(pos,1,12);
   if(dnf) pos=12;
-  const pts=dnf?0:PTS[pos-1];
+  const pts=dnf?0:PACK.scoring[pos-1];
   const repGain=dnf?-1:(pos<=3?3:(pos<=6?1:0));
   C.points+=pts;
   C.rep+=repGain;
   C.fit=clamp(C.fit-(dnf?8:4),30,100);
-  if(repGain) C.repLog.push({round:C.round,d:repGain,t:(dnf?'退賽 · ':('P'+pos+' · '))+CIRCUITS[(C.round-1)%CIRCUITS.length].s});
+  if(repGain) C.repLog.push({round:C.round,d:repGain,t:(dnf?L.dnf+' · ':('P'+pos+' · '))+PACK.entities.circuits[(C.round-1)%PACK.entities.circuits.length].s});
 
   // 全場名次（其他 11 架）
   const order=[];
-  const pool=shuffle(RIVALS.slice(),mulberry(hash(C.seed+'|order'+C.round)));
+  const pool=shuffle(PACK.entities.rivals.slice(),mulberry(hash(C.seed+'|order'+C.round)));
   for(let p=1;p<=12;p++){
     if(p===pos) order.push({p:p,name:C.name,team:'AURORA JR',me:true});
-    else order.push({p:p,name:pool.pop()||'—',team:TEAMS[(p*3+C.round)%TEAMS.length],me:false});
+    else order.push({p:p,name:pool.pop()||'—',team:PACK.entities.teams[(p*3+C.round)%PACK.entities.teams.length],me:false});
   }
-  order.forEach(function(e){ if(!e.me) C.rivalPts[e.name]=(C.rivalPts[e.name]||0)+PTS[e.p-1]; });
+  order.forEach(function(e){ if(!e.me) C.rivalPts[e.name]=(C.rivalPts[e.name]||0)+PACK.scoring[e.p-1]; });
 
-  const res={round:C.round,pos:pos,dnf:dnf,pts:pts,rep:repGain,circuit:CIRCUITS[(C.round-1)%CIRCUITS.length],order:order};
+  const res={round:C.round,pos:pos,dnf:dnf,pts:pts,rep:repGain,circuit:PACK.entities.circuits[(C.round-1)%PACK.entities.circuits.length],order:order};
   R.result=res;
   C.results.push(res);
   C.race=R;
@@ -1570,161 +1983,24 @@ function finishRace(){
 }
 
 function renderResult(res){
-  $('hudRace2').textContent='ROUND '+res.round+' · '+C.races;
+  $('hudRace2').textContent=L.roundWord+' '+res.round+' · '+C.races;
   $('hPts2').textContent=C.points;
   $('hRep2').textContent=(C.rep>0?'+':'')+C.rep;
-  $('resEyebrow').textContent='ROUND '+res.round+' · '+res.circuit.n;
-  $('resPos').innerHTML='P'+res.pos+'<small>／12</small>';
-  $('resPts').textContent=res.dnf?'DNF':(res.pts?('+'+res.pts+' 分'):'冇分');
-  $('resHead').textContent=res.dnf?'退賽':(res.pos<=3?'頒獎台':(res.pos<=6?'有分完賽':'完成賽事'));
-  $('resStory').innerHTML=buildStory(res);
-  let rows='<div class="rrow"><span>P</span><span>CAR</span><span>TEAM</span><span>PTS</span></div>';
+  $('resEyebrow').textContent=L.roundWord+' '+res.round+' · '+res.circuit.n;
+  $('resPos').innerHTML='P'+res.pos+'<small>'+L.ofField+C.field+'</small>';
+  $('resPts').textContent=res.dnf?'DNF':(res.pts?('+'+res.pts+' '+L.pointsSuffix):L.noPoints);
+  $('resHead').textContent=res.dnf?L.dnf:(res.pos<=3?L.podium:(res.pos<=6?L.pointsFinish:L.finished));
+  $('resStory').innerHTML=PACK.narrative.story({res:res,C:C,R:R,style:PACK.archetypes[C.style].label});
+  let rows='<div class="rrow"><span>'+L.colPos+'</span><span>'+L.colName+'</span><span>'+L.colTeam+'</span><span>'+L.colPts+'</span></div>';
   res.order.forEach(function(e){
     rows+='<div class="rrow'+(e.me?' me':'')+'"><span>'+e.p+'</span><span>'+e.name+'</span>'+
-      '<span class="rrow-team">'+e.team+'</span><span>'+PTS[e.p-1]+'</span></div>';
+      '<span class="rrow-team">'+e.team+'</span><span>'+PACK.scoring[e.p-1]+'</span></div>';
   });
   $('resTable').innerHTML=rows;
-  $('nextBtn').textContent = res.round<C.races ? '下一場 →' : '季終 · 睇成績 →';
+  $('nextBtn').textContent = res.round<C.races ? L.nextRace : L.seeSeason;
   paintHud();
 }
 
-function buildStory(res){
-  const styleName=STYLE[C.style].label;
-  const pos=res.pos;
-  if(res.dnf) return '第 '+R.laps+' 圈，架車停咗喺賽道邊。<br><br>'+
-    '你行返 pit lane，工程師冇講嘢，只係遞咗支水俾你。<br>'+
-    '你嘅風格係<b>'+styleName+'</b> —— 今次賭輸咗。<br><br>'+
-    '<span class="small">體能 -8 · 聲望 -1 · 車隊仍然會俾你下一場。</span>';
-  if(pos<=3) return '你喺 P'+pos+' 過終點。<br><br>'+
-    '無線電傳嚟一陣雜音，然後有人講：「做得好。」<br>'+
-    '呢個係你第 '+C.results.filter(function(r){return !r.dnf&&r.pos<=3;}).length+' 個<b>頒獎台</b> —— 亦係第一次，有人喺看台上記住你個名。<br><br>'+
-    '<span class="small">聲望 +3（累計 '+(C.rep>0?'+':'')+C.rep+'）· 積分 +'+res.pts+' · 賽季累計 '+C.points+'</span>';
-  if(pos<=6) return 'P'+pos+'，有分。<br><br>'+
-    '唔算精彩，但工程師話：「你今日冇做錯嘢。」<br>'+
-    '喺呢個級別，冇做錯嘢已經係一種本事。<br><br>'+
-    '<span class="small">聲望 +1（累計 '+(C.rep>0?'+':'')+C.rep+'）· 積分 +'+res.pts+' · 下一場繼續。</span>';
-  return 'P'+pos+'。'+(res.pts?'有 1 分。':'冇分。')+'<br><br>'+
-    '你落車嗰刻，隔離車隊嘅人望都冇望你一眼。<br>'+
-    '但你記得第 '+Math.max(2,R.laps)+' 圈嗰個彎 —— 你係對嘅，只係冇人見到。<br><br>'+
-    '<span class="small">體能 -4 · 下一場：再嚟。</span>';
-}
-
-/* ============ 賽季 ============ */
-function renderSeason(final){
-  const wide=window.innerWidth>=980;
-  $('seasonEyebrow').textContent='SEASON 2027 · '+C.name+' · AURORA JUNIOR';
-  $('seasonTitle').textContent=final?'季終成績':'賽季積分';
-  $('seasonEyebrow').textContent='SEASON 2027 · AURORA JUNIOR · '+C.name;
-  let rows='';
-  let cum=0;
-  for(let i=0;i<C.races;i++){
-    const r=C.results[i];
-    const cir=CIRCUITS[i];
-    if(r){
-      cum+=r.pts;
-      rows+='<div class="srow'+(r.round===C.round?' me':'')+'"><span>R'+(i+1)+'</span><span>'+cir.s+'</span>'+
-        '<span>'+(r.dnf?'—':('P'+r.pos))+'</span><span>'+(r.dnf?'DNF':r.pts)+'</span><span>'+cum+'</span></div>';
-    }else{
-      rows+='<div class="srow pending"><span>R'+(i+1)+'</span><span>'+cir.s+'</span><span>—</span><span>—</span><span>'+cum+'</span></div>';
-    }
-  }
-  $('seasonRows').innerHTML=rows;
-
-  // 車手榜
-  const board=[{name:C.name,team:'AURORA JR',pts:C.points,me:true}];
-  Object.keys(C.rivalPts).forEach(function(k){ board.push({name:k,team:'—',pts:C.rivalPts[k],me:false}); });
-  board.sort(function(a,b){return b.pts-a.pts;});
-  let st='';
-  board.slice(0,12).forEach(function(e,i){
-    st+='<div class="crow'+(e.me?' me':'')+'"><span>'+(i+1)+'</span><span class="crow-name">'+e.name+'</span>'+
-      '<span class="crow-team">'+e.team+'</span><span>'+e.pts+'</span></div>';
-  });
-  $('standings').innerHTML=st;
-
-  // 聲望紀錄
-  if(C.repLog.length){
-    $('repLog').innerHTML=C.repLog.slice().reverse().map(function(x){
-      return '<div><b>'+(x.d>0?'+':'')+x.d+'</b><em>R'+x.round+'</em>'+x.t+'</div>';
-    }).join('');
-  }else{
-    $('repLog').innerHTML='<span class="small">仲未有紀錄。</span>';
-  }
-  paintHud();
-
-  if(final){
-    $('resumeRaceBtn').style.display='none';
-    const podiums=C.results.filter(function(r){return !r.dnf&&r.pos<=3;}).length;
-    const dnfs=C.results.filter(function(r){return r.dnf;}).length;
-    const tier=(C.points>=48||(podiums>=2&&C.points>=32))?'A':((C.points>=22||podiums>=1)?'B':'C');
-    let head='',body='';
-    if(tier==='A'){
-      head='F3 合約 · 有車隊打電話嚟';
-      body='季終之後第三日，電話響。<br><br>'+
-        '「我哋睇過你成季。'+podiums+' 次頒獎台、'+C.points+' 分。下年 F3，我哋有一個位。」<br><br>'+
-        '你望住窗外。一年前你仲喺度求人俾你一架車。而家有人求你簽名。<br><br>'+
-        '<span class="small">'+C.name+' · '+STYLE[C.style].label+' · 聲望 '+(C.rep>0?'+':'')+C.rep+' · DNF '+dnfs+' 次</span>';
-    }else if(tier==='B'){
-      head='F3 測試機會 · 未係合約';
-      body='季終之後，你收到一封電郵：一封 F3 車隊嘅測試邀請，兩日，一部舊車。<br><br>'+
-        '「唔係合約。但如果你想嚟，我哋有位。」<br><br>'+
-        '你今季 '+C.points+' 分、'+podiums+' 次頒獎台。唔夠好，但足夠令有人記住你。<br><br>'+
-        '<span class="small">'+C.name+' · '+STYLE[C.style].label+' · 聲望 '+(C.rep>0?'+':'')+C.rep+'</span>';
-    }else{
-      head='冇人打嚟';
-      body='季終之後，電話冇響。<br><br>'+
-        '你成季 '+C.points+' 分、'+dnfs+' 次退賽。車隊叫你返嚟做模擬器測試 —— 即係話，下年仲係呢度。<br><br>'+
-        '你收好頭盔。你知道自己唔係唔夠快，你係唔夠穩定。<br><br>'+
-        '<span class="small">'+C.name+' · '+STYLE[C.style].label+' · 聲望 '+(C.rep>0?'+':'')+C.rep+'</span>';
-    }
-    $('seasonEnd').style.display='block';
-    $('seasonEnd').innerHTML='<div class="tierBox '+(tier==='A'?'a':(tier==='C'?'c':''))+'">'+
-      '<div class="eyebrow">'+(tier==='A'?'CONTRACT OFFER':(tier==='B'?'TEST OFFER':'NO OFFER'))+'</div>'+
-      '<h2>'+head+'</h2>'+
-      '<div class="story">'+body+'</div></div>';
-    $('newSeasonBtn').style.display='inline-block';
-    $('restartBtn').style.display='none';
-    $('backBtn').style.display='none';
-  }else{
-    $('seasonEnd').style.display='none';
-    $('resumeRaceBtn').textContent=(R&&R.result)?'返去成績 →':'返去比賽 →';
-    $('resumeRaceBtn').style.display='inline-block';
-    $('newSeasonBtn').style.display='none';
-    $('restartBtn').style.display='inline-block';
-    $('backBtn').style.display='inline-block';
-  }
-  if(!wide) $('backBtn').style.minHeight='44px';
-}
-
-function endSeason(){
-  C.done=true; C.race=null; R=null;
-  save();
-  renderSeason(true);
-  show('scSeason');
-}
-
-/* ============ 事件 ============ */
-document.querySelectorAll('#styles .opt').forEach(function(o){
-  o.onclick=function(){
-    document.querySelectorAll('#styles .opt').forEach(function(x){x.classList.remove('sel');});
-    o.classList.add('sel');
-  };
-});
-$('startBtn').onclick=function(){
-  if(hasSave && !C.done && C.results.length>0){
-    // 開始新賽季：清除舊存檔
-    clearSave();
-    hasSave=false;
-  }
-  startCareer();
-};
-$('continueBtn').onclick=function(){ resume(); };
-$('nextBtn').onclick=function(){
-  if(!R||!R.result) return;
-  if(C.round<C.races){ C.round++; C.race=null; R=null; save(); startRace(); }
-  else { endSeason(); }
-};
-$('tableBtn').onclick=function(){ renderSeason(false); show('scSeason'); };
-$('tableBtn2').onclick=function(){ renderSeason(false); show('scSeason'); };
 function backToRace(){
   if(C.done){ renderSeason(true); show('scSeason'); return; }
   if(R&&R.result){ renderResult(R.result); show('scResult'); return; }
@@ -1740,13 +2016,13 @@ function resetCareer(){
   hideAdvance();
   clearSave(); hasSave=false;
   C=newCareer(); R=null;
-  $('seedLine').textContent='種子 · hk'+String(Math.abs(C.seed)%1000000).padStart(6,'0');
-  $('nameIn').value='KAI';
+  $('seedLine').textContent=L.seedWord+' · hk'+String(Math.abs(C.seed)%1000000).padStart(6,'0');
+  $('nameIn').value=PACK.create.defaultName;
   $('continueBtn').style.display='none';
-  $('continueBtn').textContent='繼續生涯 →';
-  $('startBtn').textContent='簽約，開始季前測試 →';
+  $('continueBtn').textContent=L.continueCareer;
+  $('startBtn').textContent=PACK.create.cta;
   document.querySelectorAll('#styles .opt').forEach(function(x){
-    x.classList.toggle('sel',x.dataset.s==='brake');
+    x.classList.toggle('sel',x.dataset.s===Object.keys(PACK.archetypes)[0]);
   });
   paintHud();
   show('scCreate');
@@ -1788,19 +2064,19 @@ function resume(){
 function boot(){
   const loaded=loadSave();
   if(loaded){
-    $('seedLine').textContent='種子 · hk'+String(Math.abs(C.seed)%1000000).padStart(6,'0');
+    $('seedLine').textContent=L.seedWord+' · hk'+String(Math.abs(C.seed)%1000000).padStart(6,'0');
     $('nameIn').value=C.name;
     document.querySelectorAll('#styles .opt').forEach(function(x){
       x.classList.toggle('sel',x.dataset.s===C.style);
     });
     $('continueBtn').style.display='block';
-    $('continueBtn').textContent='繼續生涯 · ROUND '+Math.min(C.round,C.races)+' / '+C.races+
-      (C.done?' · 季終':'')+' →';
-    $('startBtn').textContent='開新賽季（清除存檔）';
+    $('continueBtn').textContent=L.continueCareer.replace(' →','')+' · '+L.roundWord+' '+
+      Math.min(C.round,C.races)+' / '+C.races+(C.done?' · '+L.seasonEnd:'')+' →';
+    $('startBtn').textContent=L.restartShort;
     if(C.done||R||C.results.length){ resume(); }
   }else{
     C=newCareer();
-    $('seedLine').textContent='種子 · hk'+String(Math.abs(C.seed)%1000000).padStart(6,'0');
+    $('seedLine').textContent=L.seedWord+' · hk'+String(Math.abs(C.seed)%1000000).padStart(6,'0');
   }
   paintHud();
 }
@@ -1843,13 +2119,150 @@ window.__dev={ get C(){return C;}, get R(){return R;}, choose:choose,
     for(let r=1;r<=8;r++){
       C.round=r;
       const rnd=mulberry(hash(C.seed+'|round'+r+'|cards'));
-      out.push(shuffle(CATS.slice(),rnd).map(function(cat){return drawCard(cat);}));
+      out.push(shuffle(PACK.cats.slice(),rnd).map(function(cat){return drawCard(cat);}));
     }
     C.seed=bs; C.round=br; C.decks=bd;
     return out;
   } };
 
+
+/* ============ 賽季（narrative 由 pack 提供） ============ */
+
+function renderSeason(final){
+  const wide=window.innerWidth>=980;
+  $('seasonEyebrow').textContent=L.seasonWord+' '+PACK.meta.season+' · '+PACK.meta.subject+' · '+C.name;
+  $('seasonTitle').textContent=final?L.seasonFinal:L.seasonTable;
+  let rows='',cum=0;
+  for(let i=0;i<C.races;i++){
+    const r=C.results[i], cir=PACK.entities.circuits[i];
+    if(r){
+      cum+=r.pts;
+      rows+='<div class="srow'+(r.round===C.round?' me':'')+'"><span>R'+(i+1)+'</span><span>'+cir.s+'</span>'+
+        '<span>'+(r.dnf?'—':('P'+r.pos))+'</span><span>'+(r.dnf?'DNF':r.pts)+'</span><span>'+cum+'</span></div>';
+    }else{
+      rows+='<div class="srow pending"><span>R'+(i+1)+'</span><span>'+cir.s+'</span><span>—</span><span>—</span><span>'+cum+'</span></div>';
+    }
+  }
+  $('seasonRows').innerHTML=rows;
+
+  const board=[{name:C.name,team:PACK.meta.subjectShort||PACK.meta.subject,pts:C.points,me:true}];
+  Object.keys(C.rivalPts).forEach(function(k){ board.push({name:k,team:'—',pts:C.rivalPts[k],me:false}); });
+  board.sort(function(a,b){return b.pts-a.pts;});
+  let st='';
+  board.slice(0,12).forEach(function(e,i){
+    st+='<div class="crow'+(e.me?' me':'')+'"><span>'+(i+1)+'</span><span class="crow-name">'+e.name+'</span>'+
+      '<span class="crow-team">'+e.team+'</span><span>'+e.pts+'</span></div>';
+  });
+  $('standings').innerHTML=st;
+
+  if(!C.repLog.length){
+    $('repLog').innerHTML='<span class="small">'+L.repLogEmpty+'</span>';
+  }else{
+    $('repLog').innerHTML=C.repLog.slice().reverse().map(function(x){
+      return '<div><b>'+(x.d>0?'+':'')+x.d+'</b><em>R'+x.round+'</em>'+x.t+'</div>';
+    }).join('');
+  }
+  paintHud();
+
+  if(final){
+    $('resumeRaceBtn').style.display='none';
+    const podiums=C.results.filter(function(r){return !r.dnf&&r.pos<=3;}).length;
+    const dnfs=C.results.filter(function(r){return r.dnf;}).length;
+    const tier=(C.points>=48||(podiums>=2&&C.points>=32))?'A':((C.points>=22||podiums>=1)?'B':'C');
+    const n=PACK.narrative.seasonEnd({tier:tier,C:C,podiums:podiums,dnfs:dnfs,style:PACK.archetypes[C.style].label});
+    $('seasonEnd').style.display='block';
+    $('seasonEnd').innerHTML='<div class="tierBox '+(tier==='A'?'a':(tier==='C'?'c':''))+'">'+
+      '<div class="eyebrow">'+n.eyebrow+'</div><h2>'+n.head+'</h2>'+
+      '<div class="story">'+n.body+'</div></div>';
+    $('newSeasonBtn').textContent=L.newSeason;
+    $('newSeasonBtn').style.display='inline-block';
+    $('restartBtn').style.display='none';
+    $('backBtn').style.display='none';
+  }else{
+    $('seasonEnd').style.display='none';
+    $('resumeRaceBtn').textContent=(R&&R.result)?L.backToResult:L.backToRace2;
+    $('resumeRaceBtn').style.display='inline-block';
+    $('newSeasonBtn').style.display='none';
+    $('restartBtn').style.display='inline-block';
+    $('backBtn').style.display='inline-block';
+  }
+  if(!wide) $('backBtn').style.minHeight='44px';
+}
+
+function endSeason(){
+  C.done=true; C.race=null; R=null;
+  save();
+  renderSeason(true);
+  show('scSeason');
+}
+
+
+/* ============ 建立頁（由 pack.create 生成） ============ */
+
+function renderCreate(){
+  const c=PACK.create;
+  document.title=PACK.meta.title+' — '+PACK.meta.subject;
+  const brand=document.querySelector('#scCreate .brand');
+  if(brand) brand.innerHTML='<i></i> '+L.brand+' <span>'+L.brandSub+'</span>';
+  const eb=$('createEyebrow'); if(eb) eb.textContent=c.eyebrow;
+  const h=$('createHeadline'); if(h) h.innerHTML=c.headline.join('<br>');
+  const lede=$('createLede'); if(lede) lede.textContent=c.lede;
+  const nl=$('labelName'); if(nl) nl.textContent=c.nameLabel;
+  const sl=$('labelStyle'); if(sl) sl.textContent=c.styleLabel;
+  const tl=$('labelTeam'); if(tl) tl.textContent=c.teamLabel;
+  const tv=$('teamValue'); if(tv) tv.textContent=c.teamValue;
+  const ni=$('nameIn'); if(ni) ni.value=c.defaultName;
+  const st=$('styles');
+  if(st){
+    st.innerHTML=Object.keys(PACK.archetypes).map(function(k,i){
+      const a=PACK.archetypes[k];
+      return '<div class="opt'+(i===0?' sel':'')+'" data-s="'+k+'"><b>'+a.label+'</b><span>'+a.note+'</span></div>';
+    }).join('');
+    st.querySelectorAll('.opt').forEach(function(o){
+      o.onclick=function(){
+        st.querySelectorAll('.opt').forEach(function(x){x.classList.remove('sel');});
+        o.classList.add('sel');
+      };
+    });
+  }
+  const sb=$('startBtn'); if(sb) sb.textContent=c.cta;
+  const rw=$('radioWho'); if(rw) rw.textContent=c.radioWho;
+  const rf=$('radio'); if(rf) rf.textContent=c.radioFirst;
+  const hu=$('hudBrand');
+  if(hu) hu.innerHTML='<i></i> '+L.brand+' <span id="hudRace">'+L.roundWord+' 1 · '+PACK.meta.rounds+'</span>';
+}
+
+/* 靜態 label 由 data-l 注入 */
+function injectLabels(){
+  document.querySelectorAll('[data-l]').forEach(function(el){
+    const k=el.dataset.l;
+    if(L[k]!=null) el.textContent=L[k];
+  });
+}
+
+/* ============ 事件綁定（renderCreate 之後） ============ */
+function bindEvents(){
+  $('startBtn').onclick=function(){
+    if(hasSave && !C.done && C.results.length>0){ clearSave(); hasSave=false; }
+    startCareer();
+  };
+  $('continueBtn').onclick=function(){ resume(); };
+  $('nextBtn').onclick=function(){
+    if(!R||!R.result) return;
+    if(C.round<C.races){ C.round++; C.race=null; R=null; save(); startRace(); }
+    else { endSeason(); }
+  };
+  $('tableBtn').onclick=function(){ renderSeason(false); show('scSeason'); };
+  $('tableBtn2').onclick=function(){ renderSeason(false); show('scSeason'); };
+}
+
+renderCreate();
+bindEvents();
+injectLabels();
+
+/* 開機 */
 boot();
+
 </script>
 </body>
 </html>
