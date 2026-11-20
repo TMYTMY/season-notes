@@ -229,8 +229,8 @@ body{color:var(--tx);font-family:var(--ff-sans);-webkit-text-size-adjust:100%}
   border:1px solid var(--line-faint);border-radius:var(--r-16);padding:var(--pad-stage);overflow:hidden}
 
 /* ---------- screens ---------- */
-.screen{position:absolute;inset:var(--pad-stage);display:none;flex-direction:column}
-.screen.on{display:flex}
+.screen{position:absolute;inset:var(--pad-stage);display:none;flex-direction:column;min-height:0}
+.screen.on{display:flex;overflow-x:hidden;overflow-y:auto}
 .eyebrow{font-size:var(--fs-10-5);letter-spacing:var(--ls-xl);color:var(--gold);
   text-transform:uppercase;font-weight:var(--fw-bold)}
 h1,h2,h3{font-family:var(--ff-serif);font-weight:var(--fw-regular);margin:0;letter-spacing:var(--ls-hero)}
@@ -298,6 +298,9 @@ h1,h2,h3{font-family:var(--ff-serif);font-weight:var(--fw-regular);margin:0;lett
 .opt b{display:block;font-size:var(--fs-14);color:var(--cream);margin-bottom:var(--sp-3)}
 .opt span{font-size:var(--fs-12);color:var(--slate);line-height:1.4;display:block}
 .seedline{font-family:var(--ff-mono);font-size:var(--fs-11);color:var(--slate);margin-top:var(--sp-12)}
+.legacy{display:flex;align-items:center;justify-content:center;min-height:44px;margin-top:var(--sp-4);
+  font-size:var(--fs-12);color:var(--slate);text-decoration:none;letter-spacing:var(--ls-2xs)}
+.legacy:hover{color:var(--gold)}
 
 /* ---------- hud ---------- */
 .hud{display:flex;justify-content:space-between;align-items:center;height:var(--h-hud);
@@ -324,9 +327,11 @@ h1,h2,h3{font-family:var(--ff-serif);font-weight:var(--fw-regular);margin:0;lett
   color:var(--slate);margin-bottom:var(--sp-14);max-width:var(--w-prose)}
 .opts{display:flex;flex-direction:column;gap:var(--sp-8);width:100%}
 .opts .btn{padding:var(--pad-option);font-size:var(--fs-15);font-weight:var(--fw-bold);
-  line-height:1.35;display:flex;flex-wrap:wrap;align-items:center;column-gap:var(--sp-10);
+  line-height:1.35;display:grid;grid-template-columns:minmax(0,1fr) auto;
+  align-items:center;column-gap:var(--sp-12);row-gap:var(--sp-3);
   min-height:52px;text-align:left;width:100%}
-.opts .btn .risk{margin-left:auto;flex:none;align-self:center;
+.opts .btn > span:not(.risk){grid-column:1;grid-row:1;min-width:0}
+.opts .btn .risk{grid-column:2;grid-row:1 / span 2;justify-self:end;align-self:center;
   font-family:var(--ff-mono);font-size:var(--fs-11);letter-spacing:var(--ls-3xs);
   padding:var(--sp-3) var(--sp-8);border-radius:var(--r-pill);min-height:24px;
   display:inline-flex;align-items:center;border:1px solid transparent;white-space:nowrap}
@@ -337,10 +342,12 @@ h1,h2,h3{font-family:var(--ff-serif);font-weight:var(--fw-regular);margin:0;lett
 .opts .btn.danger{border-color:var(--tint-red-40)}
 .opts .btn.danger:hover{border-color:var(--tint-red-75);background:var(--tint-red-07)}
 .opts .btn.safe{border-color:var(--tint-green-28)}
-.opts .btn small{display:block;flex-basis:100%;order:3;font-weight:var(--fw-regular);
-  font-size:var(--fs-13);line-height:1.45;color:var(--slate);margin-top:var(--sp-3)}
+.opts .btn small{grid-column:1;grid-row:2;display:block;min-width:0;font-weight:var(--fw-regular);
+  font-size:var(--fs-13);line-height:1.45;color:var(--slate);margin-top:0}
+.opts .btn.is-out{display:none}
+.opts .btn.picked{border-color:var(--gold);color:var(--cream);background:var(--tint-gold-08)}
 .opts .btn:hover small{color:var(--slate)}
-.consequence{margin-top:var(--sp-16);font-size:var(--fs-13);line-height:var(--lh-prose);
+.consequence{margin-top:var(--sp-12);font-size:var(--fs-15);line-height:var(--lh-copy);
   color:var(--gold);font-family:var(--ff-serif);opacity:0;transform:translateY(4px);
   transition:var(--dur-med);min-height:0}
 .consequence.on{opacity:1;transform:none}
@@ -351,21 +358,25 @@ h1,h2,h3{font-family:var(--ff-serif);font-weight:var(--fw-regular);margin:0;lett
   background:linear-gradient(180deg,var(--scene-1),var(--scene-2))}
 .scene svg{width:100%;height:100%;display:block;animation:sceneIn .5s ease}
 @keyframes sceneIn{from{opacity:0;transform:scale(1.02)}to{opacity:1;transform:none}}
-.scene .cap{position:absolute;left:var(--sp-16);top:var(--sp-14);font-family:var(--ff-mono);
-  font-size:var(--fs-12);font-weight:var(--fw-semibold);letter-spacing:var(--ls-md);
-  color:var(--gold);text-shadow:var(--shadow-text)}
+.scene .cap{position:absolute;left:var(--sp-12);top:var(--sp-12);font-family:var(--ff-mono);
+  font-size:var(--fs-12);font-weight:var(--fw-semibold);letter-spacing:var(--ls-sm);
+  color:var(--gold);text-shadow:none;background:var(--overlay);border:1px solid var(--line2);
+  border-radius:var(--r-pill);padding:var(--sp-3) var(--sp-9);max-width:68%;
+  overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .scene .spd{position:absolute;right:var(--sp-16);top:var(--sp-14);font-family:var(--ff-mono);
   font-size:var(--fs-12);font-weight:var(--fw-semibold);color:var(--cream);
   background:var(--overlay);border:1px solid var(--line2);border-radius:var(--r-pill);
   padding:var(--sp-3) var(--sp-9);text-shadow:none}
 .car{transition:transform var(--dur-med) var(--ease)}
-.sceneMsg{position:absolute;left:50%;bottom:var(--sp-9);transform:translate(-50%,6px);
+.sceneMsg{align-self:flex-start;max-width:100%;box-sizing:border-box;
   font-family:var(--ff-mono);font-size:var(--fs-12);letter-spacing:var(--ls-sm);
-  padding:var(--sp-5) var(--sp-13);border-radius:var(--r-pill);background:var(--overlay);
-  border:1px solid var(--line2);color:var(--slate);opacity:0;
-  transition:.22s;white-space:nowrap;pointer-events:none;max-width:92%;overflow:hidden;
+  border-radius:var(--r-pill);background:var(--overlay);
+  border:0 solid transparent;color:var(--slate);opacity:0;
+  max-height:0;margin:0;padding:0;overflow:hidden;
+  transition:.22s;white-space:nowrap;pointer-events:none;
   text-overflow:ellipsis}
-.sceneMsg.on{opacity:1;transform:translate(-50%,0)}
+.sceneMsg.on{opacity:1;max-height:36px;margin:0 0 var(--sp-10);
+  padding:var(--sp-5) var(--sp-13);border-width:1px;border-color:var(--line2)}
 .sceneMsg.ok{color:var(--gold);border-color:var(--tint-gold-55)}
 .sceneMsg.bad{color:var(--warn);border-color:var(--tint-red-55)}
 .scene.shake{animation:shk .4s ease}
@@ -534,6 +545,7 @@ h1,h2,h3{font-family:var(--ff-serif);font-weight:var(--fw-regular);margin:0;lett
   }
   html,body{overflow-x:hidden;overflow-y:auto;height:auto}
   #app{position:static;display:block}
+  .screen.on{overflow:visible}
   #stage{width:100%!important;height:auto!important;min-height:100dvh;transform:none!important;
     border-radius:0;border:0;padding:var(--pad-stage)}
   .screen{position:static;inset:auto;display:none;
@@ -558,10 +570,7 @@ h1,h2,h3{font-family:var(--ff-serif);font-weight:var(--fw-regular);margin:0;lett
   .moment{max-width:none}
   .moment .title{line-height:var(--lh-ui)}
   .moment .beat{font-size:var(--fs-10);margin-bottom:var(--sp-7)}
-  .moment .prompt{font-size:var(--fs-15);line-height:1.65;margin-bottom:var(--sp-12)}
-  .opts{order:5}
-  .radio-inline{order:6;margin-top:var(--sp-4);margin-bottom:0}
-  .consequence{order:7}
+  .moment .prompt{font-size:var(--fs-15);line-height:1.65;margin-bottom:var(--sp-10)}
   .opts .btn{min-height:56px;font-size:var(--fs-15)}
   .opts .btn small{font-size:var(--fs-13)}
   .opts .btn .risk{font-size:var(--fs-11)}
@@ -569,13 +578,12 @@ h1,h2,h3{font-family:var(--ff-serif);font-weight:var(--fw-regular);margin:0;lett
   .scene .cap{font-size:var(--fs-11);letter-spacing:.12em;left:var(--sp-12);top:var(--sp-12);
     right:auto;max-width:64%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
   .scene .spd{font-size:var(--fs-11);right:var(--sp-12);top:var(--sp-12)}
-  .radio-inline{margin-bottom:var(--sp-14);padding-left:var(--sp-11);gap:var(--sp-9)}
-  .radio-inline-text{line-height:1.75}
+  .radio-inline{margin-bottom:var(--sp-12);padding-left:var(--sp-11);gap:var(--sp-9)}
+  .radio-inline-text{font-size:var(--fs-14);line-height:1.6}
   .opts{gap:var(--sp-8)}
   .opts .btn{min-height:62px;line-height:var(--lh-ui)}
-  .opts .btn small{font-size:var(--fs-12-5);margin-top:var(--sp-3)}
-  .opts .btn .risk{right:var(--sp-10);font-size:var(--fs-9-5);
-    padding:var(--sp-2) var(--sp-6)}
+  .opts .btn small{font-size:var(--fs-12-5)}
+  .opts .btn .risk{font-size:var(--fs-11);padding:var(--sp-3) var(--sp-8)}
 
   .side{gap:var(--sp-10)}
   .stat{font-size:var(--fs-13);padding:var(--sp-6) 0}
@@ -601,10 +609,11 @@ h1,h2,h3{font-family:var(--ff-serif);font-weight:var(--fw-regular);margin:0;lett
 }
 
 /* ---------- spec v2 : create / result 收尾 ---------- */
-#startBtn,#nextBtn{min-height:48px}
-#nextBtn{min-width:200px}
+#startBtn,#nextBtn,#advanceBtn,#resumeRaceBtn,#newSeasonBtn{min-height:48px}
+#nextBtn,#resumeRaceBtn,#newSeasonBtn{min-width:200px}
+#advanceBtn[hidden]{display:none !important}
 @media (max-width:980px){
-  #startBtn,#nextBtn{width:100%;min-height:52px}
+  #startBtn,#nextBtn,#advanceBtn,#resumeRaceBtn,#newSeasonBtn{width:100%;min-height:52px}
   .create{padding:var(--sp-20) 0 0}
 }
 @media (max-width:430px){
@@ -614,6 +623,8 @@ h1,h2,h3{font-family:var(--ff-serif);font-weight:var(--fw-regular);margin:0;lett
   .styles .opt span{font-size:var(--fs-12)}
 }
 ._disabled,.btn:disabled{opacity:.4;pointer-events:none}
+.opts .btn.picked:disabled{opacity:1;pointer-events:none;color:var(--cream);
+  border-color:var(--gold);background:var(--tint-gold-08)}
 </style>
 </head>
 <body>
@@ -650,6 +661,7 @@ h1,h2,h3{font-family:var(--ff-serif);font-weight:var(--fw-regular);margin:0;lett
       <button class="btn is-gold btn-block" id="startBtn">簽約，開始季前測試 →</button>
       <button class="btn btn-block-sm" id="continueBtn" style="display:none">繼續生涯 →</button>
       <div class="seedline" id="seedLine">種子 · ——</div>
+      <a class="legacy" href="team-strategy.html">舊版車隊策略</a>
     </div>
   </div>
 </section>
@@ -673,8 +685,8 @@ h1,h2,h3{font-family:var(--ff-serif);font-weight:var(--fw-regular);margin:0;lett
         <div class="cap" id="sceneCap"></div>
         <div class="spd" id="sceneSpd"></div>
         <div class="flash" id="sceneFlash"></div>
-        <div class="sceneMsg" id="sceneMsg"></div>
       </div>
+      <div class="sceneMsg" id="sceneMsg"></div>
       <div class="beat" id="beatLbl">DECISION 1 / 6</div>
       <h2 class="title" id="beatTitle">——</h2>
       <div class="prompt" id="beatPrompt">——</div>
@@ -687,6 +699,7 @@ h1,h2,h3{font-family:var(--ff-serif);font-weight:var(--fw-regular);margin:0;lett
       </div>
       <div class="opts" id="opts"></div>
       <div class="consequence" id="cons"></div>
+      <button type="button" class="btn is-gold btn-block" id="advanceBtn" hidden>下一個決定 →</button>
     </div>
     <div class="side">
       <div class="card state-card">
@@ -752,8 +765,9 @@ h1,h2,h3{font-family:var(--ff-serif);font-weight:var(--fw-regular);margin:0;lett
         <div id="seasonRows"></div>
       </div>
       <div class="season-end" id="seasonEnd" style="display:none"></div>
-      <button class="btn is-gold btn-season" id="newSeasonBtn" style="display:none">開始新賽季 →</button>
-      <button class="btn btn-season" id="restartBtn" style="display:none">放棄生涯 · 開新賽季</button>
+      <button type="button" class="btn is-gold btn-season" id="resumeRaceBtn" style="display:none">返去比賽 →</button>
+      <button type="button" class="btn is-gold btn-season" id="newSeasonBtn" style="display:none">開始新賽季 →</button>
+      <button type="button" class="btn btn-season" id="restartBtn" style="display:none">放棄生涯 · 開新賽季</button>
     </div>
     <div class="stack">
       <div class="card">
@@ -1170,6 +1184,8 @@ let C=newCareer();
 let R=null;
 let hasSave=false;
 let activeScreen='scCreate';
+let beatGen=0;
+let resolving=false;
 
 function save(){
   try{
@@ -1402,10 +1418,40 @@ function startRace(){
   renderBeat();
 }
 
+function hideAdvance(){
+  const b=$('advanceBtn');
+  if(!b) return;
+  b.hidden=true;
+  b.disabled=false;
+  b.onclick=null;
+}
+function showAdvance(last, gen){
+  const b=$('advanceBtn');
+  if(!b || gen!==beatGen) return;
+  b.hidden=false;
+  b.disabled=false;
+  b.textContent=last?'睇今場成績 →':'下一個決定 →';
+  b.onclick=function(){
+    if(gen!==beatGen || !R) return;
+    b.disabled=true;
+    resolving=false;
+    clearMsg();
+    R.beats++;
+    C.race=R;
+    save();
+    if(R.beats<R.cards.length) renderBeat();
+    else finishRace();
+  };
+  if(window.innerWidth<980) b.scrollIntoView({block:'nearest',inline:'nearest'});
+}
 function renderBeat(){
+  beatGen++;
+  resolving=false;
+  hideAdvance();
   const id=R.cards[R.beats], card=CARD[id];
   if(!card){ finishRace(); return; }
   $('beatLbl').textContent='DECISION '+(R.beats+1)+' / '+R.cards.length+'  ·  '+card.cat.toUpperCase();
+  if(window.innerWidth<980) window.scrollTo(0,0);
   $('beatTitle').textContent=card.t;
   $('beatPrompt').textContent=card.p;
   $('radio').textContent='「'+card.r+'」';
@@ -1452,8 +1498,17 @@ function choose(i){
   paintHud();
 
   const btns=Array.prototype.slice.call(document.querySelectorAll('#opts .btn'));
-  btns.forEach(x=>x.disabled=true);
-  $('cons').classList.remove('on'); $('cons').textContent='';
+  btns.forEach(function(x,idx){
+    x.disabled=true;
+    if(idx===i) x.classList.add('picked');
+    else x.classList.add('is-out');
+  });
+  resolving=true;
+  const gen=beatGen;
+  const last=R.beats+1>=R.cards.length;
+  $('cons').textContent=o.l;
+  $('cons').classList.add('on');
+  hideAdvance();
 
   const lane=i===0?0:(i===1?1:2);
   let to=playerF,msg='位置不變',kind='';
@@ -1463,23 +1518,11 @@ function choose(i){
   else { to=Math.min(0.72,playerF+0.02); }
 
   runAnim({lane:lane,to:to,crash:crash,back:!crash&&(fx.d||0)>0,dur:1.7});
-  setTimeout(()=>setMsg(msg,kind),crash?800:620);
-
-  setTimeout(()=>{
-    $('cons').textContent=o.l;
-    $('cons').classList.add('on');
-    setTimeout(()=>{
-      clearMsg();
-      R.beats++;
-      C.race=R;
-      save();
-      if(R.beats<R.cards.length){
-        renderBeat();
-      }else{
-        finishRace();
-      }
-    },1000);
-  },crash?2000:1700);
+  setTimeout(function(){
+    if(gen!==beatGen) return;
+    setMsg(msg,kind);
+    showAdvance(last, gen);
+  }, crash?800:620);
 }
 
 function renderLog(){
@@ -1492,6 +1535,9 @@ function renderLog(){
 
 /* ============ 賽果 ============ */
 function finishRace(){
+  beatGen++;
+  resolving=false;
+  hideAdvance();
   document.body.dataset.race='done';
   const dnf=!!R.crashed;
   let pos=R.pos- STYLE[C.style].bonus + (Math.floor(Math.random()*3)-1);
@@ -1606,6 +1652,7 @@ function renderSeason(final){
   paintHud();
 
   if(final){
+    $('resumeRaceBtn').style.display='none';
     const podiums=C.results.filter(function(r){return !r.dnf&&r.pos<=3;}).length;
     const dnfs=C.results.filter(function(r){return r.dnf;}).length;
     const tier=(C.points>=48||(podiums>=2&&C.points>=32))?'A':((C.points>=22||podiums>=1)?'B':'C');
@@ -1639,6 +1686,8 @@ function renderSeason(final){
     $('backBtn').style.display='none';
   }else{
     $('seasonEnd').style.display='none';
+    $('resumeRaceBtn').textContent=(R&&R.result)?'返去成績 →':'返去比賽 →';
+    $('resumeRaceBtn').style.display='inline-block';
     $('newSeasonBtn').style.display='none';
     $('restartBtn').style.display='inline-block';
     $('backBtn').style.display='inline-block';
@@ -1676,13 +1725,19 @@ $('nextBtn').onclick=function(){
 };
 $('tableBtn').onclick=function(){ renderSeason(false); show('scSeason'); };
 $('tableBtn2').onclick=function(){ renderSeason(false); show('scSeason'); };
-$('backBtn').onclick=function(){
+function backToRace(){
   if(C.done){ renderSeason(true); show('scSeason'); return; }
-  if(R&&R.result){ renderResult(R.result); show('scResult'); }
-  else if(R){ show('scRace'); renderBeat(); }
-  else { show('scCreate'); }
-};
+  if(R&&R.result){ renderResult(R.result); show('scResult'); return; }
+  if(R&&resolving){ show('scRace'); return; }
+  if(R){ show('scRace'); renderBeat(); return; }
+  show('scCreate');
+}
+$('backBtn').onclick=backToRace;
+$('resumeRaceBtn').onclick=backToRace;
 function resetCareer(){
+  beatGen++;
+  resolving=false;
+  hideAdvance();
   clearSave(); hasSave=false;
   C=newCareer(); R=null;
   $('seedLine').textContent='種子 · hk'+String(Math.abs(C.seed)%1000000).padStart(6,'0');
