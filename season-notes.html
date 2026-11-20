@@ -176,6 +176,7 @@
   --sp-60:60px;
   /* ---------- RADIUS ---------- */
   --r-2:2px;
+  --r-4:4px;
   --r-3:3px;
   --r-8:8px;
   --r-9:9px;
@@ -194,8 +195,8 @@
   --h-btn:30px;
   --w-aside:460px;
   --w-side:372px;
-  --w-moment:800px;
-  --w-prose:660px;
+  --w-moment:980px;
+  --w-prose:700px;
   --w-copy:520px;
   --pad-stage:22px 26px;
   --pad-card:16px 18px;
@@ -205,7 +206,7 @@
   /* ---------- LAYOUT ---------- */
   --g-create:1fr var(--w-aside);
   --g-race:1fr 360px;
-  --g-result:1.25fr 1fr;
+  --g-result:1fr 420px;
   --g-season:1.12fr 1fr;
   --g-styles:repeat(3,1fr);
   --g-srow:26px 1fr 30px 42px 46px;
@@ -275,11 +276,11 @@ h1,h2,h3{font-family:var(--ff-serif);font-weight:var(--fw-regular);margin:0;lett
 
 /* ---------- create / create ---------- */
 .create{flex:1;display:grid;grid-template-columns:var(--g-create);
-  gap:var(--sp-60);align-items:center;padding:0 var(--sp-30)}
+  gap:var(--sp-48);align-items:start;padding:var(--sp-56) var(--sp-30) 0;align-content:start}
 .create h1{font-size:var(--fs-52);line-height:var(--lh-tight);color:var(--cream)}
 .create h1 em{font-style:normal;color:var(--gold)}
-.create p{font-size:var(--fs-14);line-height:var(--lh-read);color:var(--slate);
-  margin:var(--sp-20) 0 0;max-width:var(--w-copy)}
+.create p{font-size:var(--fs-15);line-height:1.65;color:var(--slate);
+  margin:var(--sp-18) 0 0;max-width:var(--w-copy)}
 .field{margin-bottom:var(--sp-16)}
 .field-tight{margin-bottom:var(--sp-8)}
 .field label{display:block;font-size:var(--fs-10-5);letter-spacing:var(--ls-label);
@@ -294,10 +295,9 @@ h1,h2,h3{font-family:var(--ff-serif);font-weight:var(--fw-regular);margin:0;lett
   padding:var(--sp-11) var(--sp-10);cursor:pointer;transition:var(--dur-fast);min-height:52px}
 .opt:hover{border-color:var(--line-hover)}
 .opt.sel{border-color:var(--gold);background:var(--tint-gold-08)}
-.opt b{display:block;font-size:var(--fs-12-5);color:var(--cream);margin-bottom:var(--sp-3)}
-.opt span{font-size:var(--fs-10-5);color:var(--muted);
-  line-height:var(--lh-ui);display:block}
-.seedline{font-family:var(--ff-mono);font-size:var(--fs-10-5);color:var(--faint);margin-top:var(--sp-10)}
+.opt b{display:block;font-size:var(--fs-14);color:var(--cream);margin-bottom:var(--sp-3)}
+.opt span{font-size:var(--fs-12);color:var(--slate);line-height:1.4;display:block}
+.seedline{font-family:var(--ff-mono);font-size:var(--fs-11);color:var(--slate);margin-top:var(--sp-12)}
 
 /* ---------- hud ---------- */
 .hud{display:flex;justify-content:space-between;align-items:center;height:var(--h-hud);
@@ -328,9 +328,12 @@ h1,h2,h3{font-family:var(--ff-serif);font-weight:var(--fw-regular);margin:0;lett
   min-height:52px;text-align:left;width:100%}
 .opts .btn .risk{margin-left:auto;flex:none;align-self:center;
   font-family:var(--ff-mono);font-size:var(--fs-11);letter-spacing:var(--ls-3xs);
-  color:var(--warn);border:1px solid var(--tint-red-45);background:var(--tint-red-10);
   padding:var(--sp-3) var(--sp-8);border-radius:var(--r-pill);min-height:24px;
-  display:inline-flex;align-items:center}
+  display:inline-flex;align-items:center;border:1px solid transparent;white-space:nowrap}
+.opts .btn .risk.sev0{color:var(--green);border-color:var(--tint-green-35);background:rgba(63,191,139,.10)}
+.opts .btn .risk.sev1{color:var(--gold);border-color:var(--tint-gold-45);background:var(--tint-gold-08)}
+.opts .btn .risk.sev2{color:#f0a25c;border-color:rgba(240,162,92,.45);background:rgba(240,162,92,.10)}
+.opts .btn .risk.sev3{color:var(--warn);border-color:var(--tint-red-45);background:var(--tint-red-10)}
 .opts .btn.danger{border-color:var(--tint-red-40)}
 .opts .btn.danger:hover{border-color:var(--tint-red-75);background:var(--tint-red-07)}
 .opts .btn.safe{border-color:var(--tint-green-28)}
@@ -425,7 +428,7 @@ h1,h2,h3{font-family:var(--ff-serif);font-weight:var(--fw-regular);margin:0;lett
 
 /* ---------- result ---------- */
 .resultWrap{flex:1;display:grid;grid-template-columns:var(--g-result);
-  gap:var(--sp-26);min-height:0;align-items:start}
+  gap:var(--sp-32);min-height:0;align-items:start;padding-top:var(--sp-8)}
 .result-head{display:flex;align-items:flex-end;gap:var(--sp-18);
   margin:var(--sp-10) 0 var(--sp-6)}
 .result-head-meta{padding-bottom:var(--sp-10)}
@@ -437,7 +440,8 @@ h1,h2,h3{font-family:var(--ff-serif);font-weight:var(--fw-regular);margin:0;lett
 .rrow{display:grid;grid-template-columns:var(--g-rrow);gap:var(--sp-10);
   font-size:var(--fs-12);padding:var(--sp-5) 0;border-bottom:1px solid var(--line-faint);
   font-family:var(--ff-mono);color:var(--slate)}
-.rrow.me{color:var(--gold)}
+.rrow.me{color:var(--gold);box-shadow:inset 3px 0 0 var(--gold);padding-left:var(--sp-10);
+  background:rgba(242,193,78,.045);border-radius:var(--r-4)}
 .rrow-team{font-family:var(--ff-sans);font-size:var(--fs-11)}
 .story{font-family:var(--ff-serif);font-size:var(--fs-14);
   line-height:var(--lh-story);color:var(--slate)}
@@ -555,6 +559,9 @@ h1,h2,h3{font-family:var(--ff-serif);font-weight:var(--fw-regular);margin:0;lett
   .moment .title{line-height:var(--lh-ui)}
   .moment .beat{font-size:var(--fs-10);margin-bottom:var(--sp-7)}
   .moment .prompt{font-size:var(--fs-15);line-height:1.65;margin-bottom:var(--sp-12)}
+  .opts{order:5}
+  .radio-inline{order:6;margin-top:var(--sp-4);margin-bottom:0}
+  .consequence{order:7}
   .opts .btn{min-height:56px;font-size:var(--fs-15)}
   .opts .btn small{font-size:var(--fs-13)}
   .opts .btn .risk{font-size:var(--fs-11)}
@@ -592,6 +599,21 @@ h1,h2,h3{font-family:var(--ff-serif);font-weight:var(--fw-regular);margin:0;lett
   .wave i,.radio-inline-wave i{animation:none;height:8px;opacity:.7}
   .scene.shake{animation:none}
 }
+
+/* ---------- spec v2 : create / result 收尾 ---------- */
+#startBtn,#nextBtn{min-height:48px}
+#nextBtn{min-width:200px}
+@media (max-width:980px){
+  #startBtn,#nextBtn{width:100%;min-height:52px}
+  .create{padding:var(--sp-20) 0 0}
+}
+@media (max-width:430px){
+  .styles{grid-template-columns:1fr}
+  .styles .opt{display:flex;align-items:baseline;gap:var(--sp-10);min-height:52px}
+  .styles .opt b{margin-bottom:0;flex:none}
+  .styles .opt span{font-size:var(--fs-12)}
+}
+._disabled,.btn:disabled{opacity:.4;pointer-events:none}
 </style>
 </head>
 <body>
@@ -1235,7 +1257,7 @@ function carSVG(spec,w,h,isMe){
        'font-size="'+k(Math.max(11,H*0.85))+'" font-weight="700" fill="#f7e3ae">你</text>';
   }
   g+='</g>';
-  return g;
+  return '<g class="car"><g transform="scale(1,'+(1/1.55)+')">'+g.replace('<g class="car" transform="translate(0,0)">','<g>')+'</g></g>';
 }
 
 function paintScene(cat,preserve){
@@ -1244,14 +1266,19 @@ function paintScene(cat,preserve){
   const box=$('scene').getBoundingClientRect();
   const bw=box.width||760, bh=box.height||172;
   const sx=bw/800, sy=bh/172;
-  CARW=clamp(28/Math.max(sx,.05),14,64);
-  CARH=clamp(13/Math.max(sy,.05),7,26);
+  CARW=clamp(36/Math.max(sx,.05),18,72);
+  CARH=clamp(17/Math.max(sy,.05),9,30);
   const svg=$('sceneSvg');
   let cars='';
   cars+=carSVG({c:'#f2c14e',r:'#fff3d0'},CARW,CARH,true);
   cars+=carSVG(sc.cars[0],CARW,CARH,false);
   cars+=carSVG(sc.cars[1],CARW,CARH,false);
-  svg.innerHTML=sc.svg+'<g id="carLayer">'+cars+'</g>';
+  // 垂直放大：令賽道佔滿場面（天空／草地縮到邊緣）
+  const ZK=1.55, ZC=126;
+  svg.setAttribute('viewBox','0 0 800 172');
+  svg.setAttribute('preserveAspectRatio','none');
+  svg.innerHTML='<g id="sceneAll" transform="translate(0,'+ZC+') scale(1,'+ZK+') translate(0,-'+ZC+')">'
+    + sc.svg + '<g id="carLayer">'+cars+'</g></g>';
   const groups=svg.querySelectorAll('#carLayer .car');
   carEls={me:groups[0],r1:groups[1],r2:groups[2]};
   laneEls=[svg.querySelector('#ln0'),svg.querySelector('#ln1'),svg.querySelector('#ln2')];
@@ -1394,8 +1421,9 @@ function renderBeat(){
   card.o.forEach((o,i)=>{
     const btn=document.createElement('button');
     const rk=Math.round((o.fx&&o.fx.risk?o.fx.risk:0)*STYLE[C.style].riskMul);
+    const sev=rk===0?'sev0':(rk<10?'sev1':(rk<25?'sev2':'sev3'));
     btn.className='btn'+(rk>=14?' danger':(rk===0?' safe':''));
-    const riskHTML=rk?('<span class="risk">風險 '+rk+'%</span>'):'';
+    const riskHTML='<span class="risk '+sev+'">'+(rk?'風險 '+rk+'%':'安全')+'</span>';
     btn.innerHTML='<span>'+o.t+'</span><small>'+o.s+'</small>'+riskHTML;
     btn.onclick=()=>choose(i);
     wrap.appendChild(btn);
