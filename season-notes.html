@@ -367,7 +367,6 @@ h1,h2,h3{font-family:var(--ff-serif);font-weight:var(--fw-regular);margin:0;lett
   font-size:var(--fs-12);font-weight:var(--fw-semibold);color:var(--cream);
   background:var(--overlay);border:1px solid var(--line2);border-radius:var(--r-pill);
   padding:var(--sp-3) var(--sp-9);text-shadow:none}
-.car{transition:transform var(--dur-med) var(--ease)}
 .sceneMsg{align-self:flex-start;max-width:100%;box-sizing:border-box;
   font-family:var(--ff-mono);font-size:var(--fs-12);letter-spacing:var(--ls-sm);
   border-radius:var(--r-pill);background:var(--overlay);
@@ -1335,22 +1334,23 @@ function scMarkup(){
 `;
 }
 function carGroup(opts){
-  const {kind="f1", body, dark, rot=0, scale=1, flip=false, label="", role=""} = opts;
+  const {kind="f1", body, dark, rot=0, scale=1, flip=false, role=""} = opts;
   const inner = kind==="sc" ? scMarkup() : f1Markup(body, dark);
   const flipT = flip ? `translate(136,0) scale(-1,1)` : "";
-  let labelEl = "";
-  if(label){
-    const lw = 30, lh = 16;
-    const ly = -24 * scale - 18;
-    labelEl = `<g class="you-chip" transform="translate(0,${ly})">
-      <rect class="you-chip-box" x="${-lw/2}" y="${-lh+4}" width="${lw}" height="${lh}" rx="3" fill="#0a101c" stroke="#27354e" stroke-width=".8"/>
-      <text x="0" y="3.2" text-anchor="middle" fill="#f2efe6" font-size="12" font-family="PingFang TC,Microsoft JhengHei,WenQuanYi Micro Hei,Droid Sans Fallback,sans-serif">${label}</text>
-    </g>`;
-  }
   return `<g class="car" data-role="${role}" data-scale="${scale}">
     <g class="car-body" transform="rotate(${rot}) scale(${scale}) translate(-68,-29)">
       <g transform="${flipT}">${inner}</g>
-    </g>${labelEl}
+    </g>
+  </g>`;
+}
+function youChip(scale){
+  const lw=30, lh=16;
+  const ly=-24*scale-18;
+  return `<g id="youChip" class="you-chip" transform="translate(0,0)">
+    <g transform="translate(0,${ly})">
+      <rect class="you-chip-box" x="${-lw/2}" y="${-lh+4}" width="${lw}" height="${lh}" rx="3" fill="#0a101c" stroke="#27354e" stroke-width=".8"/>
+      <text x="0" y="3.2" text-anchor="middle" fill="#f2efe6" font-size="12" font-family="PingFang TC,Microsoft JhengHei,WenQuanYi Micro Hei,Droid Sans Fallback,sans-serif">你</text>
+    </g>
   </g>`;
 }
 
@@ -1363,14 +1363,14 @@ function paintScene(cat,preserve){
   const k=(PLAYER_PX*(bh/160))/GLYPH_H;
   sceneGeom={sx:bw/800, sy:bh/172, k:k, gx:k/(bw/800), gy:k/(bh/172)};
   let cars='';
-  cars+=carGroup({body:GOLD, dark:GOLD2, scale:1, label:'你', role:'player'});
+  cars+=carGroup({body:GOLD, dark:GOLD2, scale:1, role:'player'});
   cars+=carGroup({body:sc.cars[0].c, dark:sc.cars[0].d, scale:RIVAL_SCALE, role:'rival'});
   cars+=carGroup({body:sc.cars[1].c, dark:sc.cars[1].d, scale:RIVAL_SCALE, role:'rival'});
   if(sc.scCar) cars+=carGroup({kind:'sc', scale:1, role:'sc'});
   svg.setAttribute('viewBox','0 0 800 172');
   svg.setAttribute('preserveAspectRatio','none');
   svg.innerHTML='<g id="sceneAll" transform="translate(0,'+ZC+') scale(1,'+ZK+') translate(0,-'+ZC+')">'
-    + sc.svg + '</g><g id="carLayer">'+cars+'</g>';
+    + sc.svg + '</g><g id="carLayer">'+cars+'</g><g id="labelLayer">'+youChip(1)+'</g>';
   const groups=svg.querySelectorAll('#carLayer .car');
   carEls={me:groups[0],r1:groups[1],r2:groups[2],sc:groups[3]||null};
   laneEls=[svg.querySelector('#ln0'),svg.querySelector('#ln1'),svg.querySelector('#ln2')];
@@ -1383,7 +1383,7 @@ function paintScene(cat,preserve){
   placeAt(carEls.r1,sc.init.rv[0].lane,rivalF[0]);
   placeAt(carEls.r2,sc.init.rv[1].lane,rivalF[1]);
   if(carEls.sc&&sc.scCar) placeAt(carEls.sc,sc.scCar.lane,sc.scCar.f);
-  carEls.me.setAttribute('opacity','1');
+  setMeOpacity('1');
 }
 function placeAt(g,lane,frac,spin){
   if(!g) return;
@@ -1403,6 +1403,16 @@ function placeAt(g,lane,frac,spin){
     const sc=g.getAttribute('data-scale')||'1';
     body.setAttribute('transform','rotate('+((ang+(spin||0))).toFixed(2)+') scale('+sc+') translate(-68,-29)');
   }
+  if(g.getAttribute('data-role')==='player'){
+    const lab=document.getElementById('youChip');
+    if(lab) lab.setAttribute('transform', g.getAttribute('transform'));
+  }
+}
+function setMeOpacity(v){
+  if(!carEls.me) return;
+  carEls.me.setAttribute('opacity', v);
+  const lab=document.getElementById('youChip');
+  if(lab) lab.setAttribute('opacity', v);
 }
 function setMsg(txt,kind){
   const m=$('sceneMsg');
@@ -1419,7 +1429,7 @@ function easeInOut(p){return p<.5?2*p*p:1-Math.pow(-2*p+2,2)/2;}
 
 function runAnim(o){
   anim={t:0,dur:o.dur||1.7,from:playerF,to:o.to,lane:o.lane,crash:!!o.crash,back:!!o.back};
-  carEls.me.setAttribute('opacity','1');
+  setMeOpacity('1');
   lastTs=0;
   if(!rafId) rafId=requestAnimationFrame(tick);
 }
@@ -1432,7 +1442,7 @@ function tick(ts){
   playerF=anim.from+(anim.to-anim.from)*e;
   if(anim.crash){
     placeAt(carEls.me,anim.lane,playerF,(1-p)*18);
-    carEls.me.setAttribute('opacity',String(1-p*0.5));
+    setMeOpacity(String(1-p*0.5));
   }else{
     placeAt(carEls.me,anim.lane,playerF);
   }
