@@ -1,0 +1,695 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="robots" content="noindex">
+<title>Career Notes</title>
+<style>
+:root{
+  --ink:#0e1218; --paper:#f4f1e8; --card:#161c26; --card2:#1d2532; --cardlift:#232c3b;
+  --line:#2b3546; --line2:#3a465b; --slate:#a8b0be; --muted:#7d8798;
+  --gold:#f2c14e; --gold2:#d8a63a; --red:#c8402f; --green:#4f9a72; --blue:#5b86c9;
+  --fs-12:12px; --fs-14:14px; --fs-16:16px; --r:10px;
+}
+*{box-sizing:border-box}
+html,body{margin:0;padding:0}
+body{
+  background:radial-gradient(120% 90% at 20% 0%,#1a2230 0%,var(--ink) 55%) fixed;
+  color:var(--paper); font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","Noto Sans TC","PingFang TC","Microsoft JhengHei",sans-serif;
+  font-size:var(--fs-16); line-height:1.6; -webkit-text-size-adjust:100%;
+}
+.wrap{max-width:980px;margin:0 auto;padding:0 18px 40px}
+header.hud{
+  position:sticky;top:0;z-index:10;background:rgba(14,18,24,.92);backdrop-filter:blur(8px);
+  border-bottom:1px solid var(--line);padding:8px 18px;
+}
+.hudrow{max-width:980px;margin:0 auto;display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+.brand{font-size:var(--fs-12);letter-spacing:.22em;color:var(--slate);text-transform:uppercase;display:flex;align-items:center;gap:8px}
+.brand i{width:8px;height:8px;background:var(--gold);display:block;transform:rotate(45deg)}
+.age{margin-left:auto;font-variant-numeric:tabular-nums;font-size:var(--fs-14);color:var(--gold)}
+.stats{display:flex;gap:6px;flex-wrap:wrap;margin-top:6px}
+.stat{background:var(--card);border:1px solid var(--line);border-radius:8px;padding:3px 9px;font-size:var(--fs-12);color:var(--slate);white-space:nowrap}
+.stat b{color:var(--paper);font-variant-numeric:tabular-nums;margin-left:5px;font-weight:600}
+.stat.hot b{color:var(--red)}
+.stat.money b{color:var(--gold)}
+.bar{height:3px;background:var(--line);border-radius:2px;overflow:hidden;margin-top:8px}
+.bar i{display:block;height:100%;background:var(--gold);width:0}
+section{display:none;padding-top:26px}
+section.on{display:block}
+h1{font-size:26px;line-height:1.25;margin:0 0 10px;letter-spacing:-.01em}
+h2{font-size:20px;line-height:1.3;margin:0 0 10px}
+p{color:var(--slate);margin:0 0 14px}
+.kicker{font-size:var(--fs-12);letter-spacing:.18em;text-transform:uppercase;color:var(--gold2);margin-bottom:10px}
+.card{background:linear-gradient(160deg,var(--cardlift),var(--card2));border:1px solid var(--line2);border-left:3px solid var(--gold);border-radius:var(--r);padding:16px}
+.opts{display:flex;flex-direction:column;gap:9px;margin-top:16px}
+button{font:inherit;color:inherit;cursor:pointer;border-radius:var(--r);border:1px solid var(--line2);background:var(--card);text-align:left}
+button:focus-visible{outline:2px solid var(--gold2);outline-offset:2px}
+.opt{display:flex;align-items:center;gap:10px;padding:13px 14px;min-height:56px;transition:border-color .15s,background .15s}
+.opt:hover{border-color:var(--gold2);background:var(--cardlift)}
+.opt .lab{flex:1}
+.opt .lab small{display:block;color:var(--muted);font-size:var(--fs-12);line-height:1.45;margin-top:3px}
+.opt .tag{font-size:11px;color:var(--muted);border:1px solid var(--line2);border-radius:6px;padding:2px 7px;white-space:nowrap}
+.btn{display:inline-block;padding:13px 20px;min-height:48px;background:var(--gold);color:#171307;border:none;border-radius:var(--r);font-weight:600;text-align:center}
+.btn.ghost{background:transparent;color:var(--paper);border:1px solid var(--line2)}
+.btn:disabled{opacity:.4;cursor:default}
+.btnrow{display:flex;gap:10px;flex-wrap:wrap;margin-top:18px}
+.alloc{display:flex;flex-direction:column;gap:8px;margin-top:14px}
+.arow{display:flex;align-items:center;gap:10px;background:var(--card);border:1px solid var(--line);border-radius:var(--r);padding:10px 12px;min-height:56px}
+.arow .an{flex:1}
+.arow .an small{display:block;color:var(--muted);font-size:var(--fs-12)}
+.step{display:flex;align-items:center;gap:6px}
+.step button{width:44px;height:44px;display:flex;align-items:center;justify-content:center;font-size:20px;background:var(--card2);border:1px solid var(--line2);border-radius:9px;color:var(--paper);text-align:center}
+.step .n{min-width:26px;text-align:center;font-variant-numeric:tabular-nums;color:var(--gold)}
+.left{color:var(--slate);font-size:var(--fs-14)}
+.left b{color:var(--gold);font-variant-numeric:tabular-nums}
+.log{border-top:1px solid var(--line);margin-top:20px;padding-top:12px}
+.log div{font-size:var(--fs-14);color:var(--slate);padding:5px 0;border-bottom:1px dashed rgba(58,70,91,.5)}
+.log div span{color:var(--muted);font-size:var(--fs-12);margin-right:8px}
+.pill{display:inline-block;font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);border:1px solid var(--line2);border-radius:6px;padding:2px 8px;margin-right:6px}
+table{border-collapse:collapse;width:100%;margin:12px 0;font-size:var(--fs-14)}
+td{padding:6px 4px;border-bottom:1px solid var(--line);color:var(--slate)}
+td:last-child{text-align:right;color:var(--paper);font-variant-numeric:tabular-nums}
+.seed{font-size:var(--fs-12);color:var(--muted);margin-top:10px}
+@media (max-width:520px){
+  h1{font-size:22px}
+  h2{font-size:18px}
+  .wrap{padding:0 14px 32px}
+  header.hud{padding:7px 14px}
+  .opt{padding:12px;min-height:60px}
+  .btn{width:100%}
+  .btnrow{gap:8px}
+  .stat{font-size:11px;padding:2px 7px}
+}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+</style>
+</head>
+<body>
+<header class="hud">
+  <div class="hudrow">
+    <div class="brand"><i></i> CAREER NOTES</div>
+    <div class="age" id="hAge">14 歲</div>
+  </div>
+  <div class="hudrow">
+    <div class="stats" id="hStats"></div>
+  </div>
+  <div class="hudrow"><div class="bar"><i id="hBar"></i></div></div>
+</header>
+
+<div class="wrap">
+  <section id="scIntro" class="on">
+    <div class="kicker">第一章 · 14–20</div>
+    <h1>你唔會落場揸車。<br>你只會決定自己變成邊種車手。</h1>
+    <p>14 歲到 20 歲，七年、二十六個決定。每年十點時間，永遠唔夠分。</p>
+    <div class="card">
+      <h2>由 14 歲開始</h2>
+      <p style="margin:0">每次決定都會留低嘢：屬性、現金、名聲、HEAT、同三個人對你嘅睇法。</p>
+      <div class="btnrow">
+        <button class="btn" id="btnStart">開始</button>
+        <button class="btn ghost" id="btnResume" hidden>繼續上一局</button>
+      </div>
+      <div class="seed" id="seedLine"></div>
+    </div>
+  </section>
+
+  <section id="scAlloc">
+    <div class="kicker" id="allocKicker">14 歲 · 時間分配</div>
+    <h2>今年十點時間，你點分？</h2>
+    <p id="allocHint">一定要放棄一樣 —— 呢個係第一個三難。</p>
+    <div class="left">剩餘 <b id="leftPts">10</b> 點</div>
+    <div class="alloc" id="allocList"></div>
+    <div class="btnrow"><button class="btn" id="btnAlloc" disabled>確認分配</button></div>
+  </section>
+
+  <section id="scCard">
+    <div class="kicker" id="cardKicker">14 歲</div>
+    <h2 id="cardTitle">——</h2>
+    <p id="cardPremise">——</p>
+    <div class="opts" id="cardOpts"></div>
+    <div class="log" id="cardLog"></div>
+  </section>
+
+  <section id="scDoor">
+    <div class="kicker">17 歲尾</div>
+    <h2>門唔係揀，係開</h2>
+    <p id="doorWhy">——</p>
+    <div class="opts" id="doorOpts"></div>
+  </section>
+
+  <section id="scEnd">
+    <div class="kicker" id="endKicker">20 歲 · 第一章結算</div>
+    <h1 id="endTitle">——</h1>
+    <p id="endBody">——</p>
+    <div class="card"><table id="endTable"></table></div>
+    <div class="btnrow">
+      <button class="btn" id="btnAgain">再玩一局</button>
+      <button class="btn ghost" id="btnReview">睇返呢七年</button>
+    </div>
+    <div class="log" id="endLog"></div>
+  </section>
+</div>
+
+<script>
+const $=function(s){return document.querySelector(s.charAt(0)==='#'?s:'#'+s)};
+const SAVE='career.save.v3';
+const ATTRS=['rea','drv','men','sta','feel','nerve','disc'];
+const L={rea:'反應',drv:'爭勝心',men:'心理',sta:'體力',feel:'車感',nerve:'膽量',disc:'紀律'};
+const START={rea:42,drv:45,men:40,sta:45,feel:38,nerve:45,disc:40};
+const ACTS=[
+ {k:'train',n:'練習',d:'反應 +2，車感 +1'},
+ {k:'wrench',n:'整車',d:'車感 +1，紀律 +1'},
+ {k:'study',n:'學業',d:'家人 +7'},
+ {k:'work',n:'打工',d:'現金 +1.5 萬'},
+ {k:'race',n:'比賽',d:'爭勝心 +1，名聲 +5，HEAT +4'},
+ {k:'people',n:'陪人',d:'最弱嗰段關係 +9，心理 +1'}
+];
+const RELN={mentor:'師傅',family:'家人',rival:'宿敵'};
+
+const CARDS=[
+{id:'y14a',y:14,kind:'tech',t:'第一部車',p:'車房有兩部二手卡丁：一部引擎好但車架歪；一部車架正但引擎舊。你手上有十二萬。',
+ o:[{t:'買引擎好嗰部',s:'車感 +，但要同歪車架搏鬥',fx:{feel:5,men:-2,cash:-6},l:'車快，但你每一圈都要同車架角力。'},
+    {t:'買車架正嗰部',s:'反應 +，速度要等引擎',fx:{rea:4,disc:2,cash:-8},l:'車慢但聽話。你學會用線位補速度。'},
+    {t:'唔買，借車房嘅車',s:'省錢，但永遠排第二',fx:{mentor:7,feel:-3,drv:-3},l:'車房老闆借車俾你。你心知呢架車唔屬於你。'}]},
+{id:'y14b',y:14,kind:'social',t:'放學之後',p:'每日四點放學，你有四個鐘。屋企人想你做功課，車房想你落場。',
+ o:[{t:'去車房',s:'車感 +，學業向下',fx:{feel:5,family:-6},l:'你喺車房待到天黑。成績表唔敢攞返屋企。'},
+    {t:'留喺屋企',s:'家人 +，技術停一停',fx:{family:8,disc:2,feel:-2},l:'你留低。屋企人覺得你仲係個學生。'},
+    {t:'兩邊走',s:'兩邊都唔夠，但兩邊唔會散',fx:{feel:2,family:2,sta:-4},l:'你跑來跑去。冇一樣做到最好，但冇一樣斷。'}]},
+{id:'y14c',y:14,kind:'tech',t:'第一次落場',p:'地區賽，第一次同人鬥。你在第十位起步，前面全部係老手。',
+ o:[{t:'第一彎就搏',s:'要位，或者一齊出草地',fx:{drv:4,rea:2,heat:6,rel:{rival:-6}},l:'你插入去。有人响你耳邊鬧，但你拿到兩個位。'},
+    {t:'跟住學',s:'慢，但睇得清楚',fx:{feel:4,men:2},l:'你跟咗八圈。你睇到佢哋幾時入彎。'},
+    {t:'撞咗照跑',s:'車損，人唔傷，但車房要錢',fx:{drv:3,feel:2,cash:-3,inj:0,heat:4},l:'你撞歪前轆，仍然跑完。車房老闆冇講嘢。'}]},
+{id:'y15a',y:15,kind:'social',t:'宿敵出現',p:'同一個號碼嘅紅車連續兩場贏你。佢落車講：「你唔夠快，係你嘅車唔夠快？」',
+ o:[{t:'應佢',s:'名聲 +，HEAT +，關係難修',fx:{fame:6,heat:5,rel:{rival:-8},drv:3},l:'你回咗一句。第二日全個車場都知。'},
+    {t:'唔出聲',s:'心理 +，但心裡有條刺',fx:{men:5,disc:2},l:'你冇答。你記住佢個樣。'},
+    {t:'問佢點跑',s:'車感 +，但佢當你係細路',fx:{feel:5,rel:{rival:6},drv:-2},l:'佢真係教你半個鐘。你唔知佢真心定可憐你。'}]},
+{id:'y15b',y:15,kind:'tech',t:'師傅收唔收你',p:'車房有位老技師，帶過兩個入 F4。佢話：「我要睇你三次練習。」',
+ o:[{t:'照佢方法練',s:'紀律 +，車感 +，但慢',fx:{disc:5,feel:4,mentor:8},l:'你改晒自己嘅開法。慢，但每次都一樣。'},
+    {t:'照自己方法',s:'快，但佢唔會點頭',fx:{rea:4,men:2,mentor:-6},l:'你跑得快，佢轉身走開。'},
+    {t:'問佢要幾耐',s:'老實，關係中性偏正',fx:{mentor:3,men:3},l:'佢話：「你急，我就唔教。」你等。'}]},
+{id:'y15c',y:15,kind:'social',t:'家人唔想你揸車',p:'阿媽話賽車冇出息，要你專心考試。你今年已經十六歲。',
+ o:[{t:'應承減練習',s:'家人 +，技術退',fx:{family:9,feel:-4,rea:-2},l:'你少去車房。車慢咗，但屋企靜咗。'},
+    {t:'照去',s:'技術 +，家人 −',fx:{feel:4,rea:3,family:-9},l:'你繼續去。飯桌上冇人提賽車。'},
+    {t:'帶佢去睇一次',s:'要錢，但可能扭轉',fx:{family:6,cash:-2},l:'佢睇你跑完。佢冇講好，但冇再鬧。'}]},
+{id:'y16a',y:16,kind:'social',t:'全國賽報名費',p:'全國賽入場費八萬。你手上唔夠。',
+ o:[{t:'問屋企',s:'現金夠，但欠人情',fx:{cash:8,family:-10},l:'阿爸攞錢出嚟。你知呢筆錢要還。'},
+    {t:'打工儲',s:'食時間，但唔欠人',fx:{cash:5,sta:-6,feel:-2},l:'你返夜更。練習少咗，但你唔想再問人。'},
+    {t:'搵贊助',s:'要露面，FAME 有要求',fx:{fame:5,heat:4,cash:6,disc:-2},l:'你幫車房貼貼紙，換來一半費用。'}]},
+{id:'y16b',y:16,kind:'tech',t:'第一個贊助',p:'一間改裝店想贊助你，條件係每次賽後要企喺車前面任人影。',
+ o:[{t:'簽',s:'現金 +，名聲 +，自由 −',fx:{cash:10,fame:8,heat:6,disc:-3},l:'你簽咗。你開始要笑住企喺車側邊。'},
+    {t:'唔簽',s:'保住自由，但錢繼續緊',fx:{drv:3,men:2,cash:-1},l:'你拒絕。改裝店轉去支持你宿敵。'},
+    {t:'簽一半',s:'兩邊都唔盡',fx:{cash:5,fame:3,heat:3},l:'你只做一半場次。對方冇講嘢，但記住。'}]},
+{id:'y16c',y:16,kind:'tech',t:'一次大撞',p:'直路尾鎖死，你撞到輪胎牆。車毀，你行得出嚟，但右手唔聽話。',
+ o:[{t:'照跑下一場',s:'可能終身傷',fx:{inj:1,drv:5,heat:6},l:'你包住手跑。第三圈你放開咗方向盤一下。'},
+    {t:'休息兩個月',s:'體力 +，技術停',fx:{sta:6,feel:-4,men:3},l:'你休息。復出嗰場，你慢咗半秒，但完整。'},
+    {t:'換更硬嘅剎車',s:'花錢換安全',fx:{cash:-5,disc:4},l:'你換晒剎車皮。車房話你終於像個職業。'}]},
+{id:'y17a',y:17,kind:'social',t:'有人問你以後想點',p:'記者、車房、屋企人，三邊都問同一條問題：你打算點行落去？',
+ o:[{t:'話要入 F4',s:'名聲 +，壓力 +',fx:{fame:7,men:-3,drv:4},l:'你講出口。之後每一場都有人睇住你。'},
+    {t:'話未決定',s:'中性，但少人記住你',fx:{men:4,disc:2,fame:-2},l:'你含糊帶過。冇人再問。'},
+    {t:'話要自己搞車隊',s:'野心大，錢要緊',fx:{drv:5,disc:3,cash:-3},l:'你講完自己都笑。但你有記住。'}]},
+{id:'y17b',y:17,kind:'tech',t:'車房夜賽',p:'車房搞非法夜賽，贏嘅有錢。你知呢啲會留紀錄。',
+ o:[{t:'落場',s:'現金 +，HEAT 大升',fx:{cash:12,heat:16,drv:4,rea:3},l:'你贏咗。有人拍片，有人記住你個車牌。'},
+    {t:'做觀眾',s:'學到嘢，唔上身',fx:{feel:3,heat:2},l:'你企喺人群後面睇。你學到街頭嘅線位。'},
+    {t:'唔去',s:'紀律 +，人脈 −',fx:{disc:4,rel:{mentor:-4},men:2},l:'你冇去。第二日車房冇人同你講嘢。'}]},
+{id:'y14d',y:14,kind:'tech',t:'車房嘅老規矩',p:'車房老闆話：想用佢嘅工具，就要先幫佢抹三個月車。',
+ o:[{t:'照做',s:'紀律 +，車感 +，慢熱',fx:{disc:4,feel:3,mentor:6},l:'你抹咗三個月車。佢開始教你嘢。'},
+    {t:'問可唔可以快啲',s:'有禮貌地逼，關係中性',fx:{mentor:2,men:3,drv:2},l:'佢話：「你急得嚟都算識問。」'},
+    {t:'自己買工具',s:'錢 −，唔欠人',fx:{cash:-4,feel:2,mentor:-3},l:'你自己置咗一套。老闆冇再叫你抹車。'}]},
+{id:'y15d',y:15,kind:'social',t:'學校同車場',p:'班主任話你缺席太多，再缺就要見家長。',
+ o:[{t:'補返出席',s:'家人 +，練習 −',fx:{family:7,disc:3,feel:-3},l:'你補咗兩個月。車慢咗，但學校冇再打電話。'},
+    {t:'照缺',s:'練習 +，家人 −',fx:{feel:4,rea:2,family:-8},l:'你繼續缺。見家長嗰日你喺車場。'},
+    {t:'叫屋企人幫你講',s:'兩邊都拖，心理 −',fx:{family:2,men:-3},l:'阿媽幫你講咗。你覺得自己好似細路。'}]},
+{id:'y16d',y:16,kind:'tech',t:'全國賽之前',p:'大會話今年有 scouts 落場睇人。你部車仲有問題。',
+ o:[{t:'借錢換件',s:'錢 −，競爭力 +',fx:{cash:-7,feel:4},l:'你換咗波箱同避震。'},
+    {t:'用舊件跑',s:'省錢，但慢',fx:{disc:3,feel:-2},l:'你用舊件。車慢兩秒，但你跑完。'},
+    {t:'同人夾車',s:'關係 +，但車唔係你',fx:{rel:{rival:6},feel:2,cash:-2},l:'你同宿敵夾一部車。兩個都要跑。'}]},
+{id:'y17d',y:17,kind:'social',t:'最後一場地區賽',p:'贏咗就有機會被人記住。你部車狀態一般，人亦攰。',
+ o:[{t:'全力跑',s:'名聲 +，體力 −',fx:{fame:8,sta:-6,drv:3},l:'你跑到嘔。你贏咗半個車位。'},
+    {t:'留力考車',s:'穩定 +，名聲 −',fx:{disc:4,men:3,fame:-4},l:'你收住跑。有人話你冇火。'},
+    {t:'中途讓車',s:'換人情',fx:{rel:{mentor:6},fame:-2},l:'你讓咗。有人記住。'}]},
+{id:'y17c',y:17,kind:'social',t:'學業同賽車',p:'文憑試同全國賽撞期。兩個只可以揀一個。',
+ o:[{t:'考文憑試',s:'家人 +，賽季斷',fx:{family:12,disc:4,feel:-5},l:'你入考場。賽季你自己放棄咗。'},
+    {t:'去比賽',s:'賽季完整，家人 −',fx:{feel:6,fame:6,family:-12},l:'你冇入考場。阿媽一個月冇同你講嘢。'},
+    {t:'請假去考',s:'兩邊都勉強',fx:{family:5,feel:2,sta:-6},l:'你考完即刻趕去賽場。你兩邊都唔夠。'}]}
+];
+
+const EXAM=[
+{id:'ex-prep',t:'考車前一星期',p:'路試下星期。你可以自己溫、俾錢補習，或者靠街頭經驗。',
+ o:[{t:'自己溫',s:'免費，時間要自己擠',fx:{disc:3},prep:8,l:'你把筆記抄咗兩次。'},
+    {t:'補習',s:'三萬，準備最足',fx:{cash:-3,disc:2},prep:15,l:'補習老師講晒考官會睇咩。'},
+    {t:'唔溫，靠經驗',s:'車感 +，但路試考規矩',fx:{feel:4,heat:3},prep:2,l:'你冇溫。你覺得自己識揸車就得。'}]},
+{id:'ex-eve',t:'路試前一晚',p:'夜晚十一點。你可以留屋企、偷偷練車，或者去朋友個派對。',
+ o:[{t:'留屋企',s:'休息，狀態最好',fx:{sta:4,men:3},prep:6,l:'你十點上床。'},
+    {t:'偷偷練車',s:'車感 +，HEAT +',fx:{feel:3,heat:7},prep:4,l:'你喺工業區兜咗兩個鐘。有車跟過你。'},
+    {t:'去派對',s:'心理鬆，狀態差',fx:{heat:11,men:2,sta:-5},prep:-6,l:'你三點先返。第二朝頭痛。'}]},
+{id:'ex-day',t:'路試當日',p:'考官坐上車。你手震，但佢未開始寫嘢。',
+ o:[{t:'穩陣做',s:'合格率最高',fx:{disc:3},prep:9,l:'你每一個動作都做足。'},
+    {t:'表現自己',s:'考官印象雙面',fx:{fame:2,drv:3},prep:2,l:'你刻意做靚每個動作。考官冇表情。'},
+    {t:'緊張到亂',s:'準備白費',fx:{men:-4},prep:-10,l:'你未出停車場就死火兩次。'}]}
+];
+
+const GEAR={t:'波箱',p:'考官問你考自動波定棍波。',
+ o:[{t:'考自動波',s:'合格率 +15，但只可以揸自動波',gear:'auto',l:'你揀自動波。安全，但窄。'},
+    {t:'考棍波',s:'合格率 −10，要答三條題；之後兩種都揸得',gear:'manual',l:'你揀棍波。考官翻咗一頁。'}]};
+
+const QS=[
+{t:'上斜起步，點樣避免溜後？',a:[{t:'半離合到車頭微震，放手掣同時加油',ok:1},{t:'淨係踩油',ok:0},{t:'先放手掣再搵磨擦點',ok:0}],e:'磨擦點未到就放煞車，車一定溜後。'},
+{t:'長斜落坡，應該點控制車速？',a:[{t:'拖低一個波，用引擎制動',ok:1},{t:'長踩腳掣',ok:0},{t:'空波滑行',ok:0}],e:'空波滑行係最危險，冇引擎制動，剎車會過熱。'},
+{t:'塞車慢行，離合器應該點用？',a:[{t:'短時間半聯動，停下就踩盡',ok:1},{t:'長時間吊住半離合',ok:0},{t:'一路踩住離合滑行',ok:0}],e:'長時間半離合會燒離合器。'}
+];
+
+const ENTRY={
+f4:{t:'F4：你要一個席位',p:'三種入法。冇一種係免費。',
+ o:[{t:'廠隊青年軍',s:'車最快，但要讓位、聽話',fx:{route:{trust:30},fame:8,drv:-2,disc:4},l:'你簽咗。合約有六頁。'},
+    {t:'衛星隊',s:'自由，但車慢',fx:{route:{trust:22},drv:4,men:3},l:'你揀細隊。你話要自己搏。'},
+    {t:'自費買席位',s:'話事權最大，家人壓力爆',fx:{cash:-40,route:{trust:36},family:-14},l:'你自己俾錢。阿爸冇再問你賽車。'}]},
+rally:{t:'Rally：你要一個副駕',p:'三個人可以坐你隔籬，三種代價。',
+ o:[{t:'老練副駕',s:'默契升得快，人工貴、會公開批評你',fx:{cash:-12,route:{matey:24},feel:5},l:'佢第一場就當住所有人話你收油太早。'},
+    {t:'新手副駕',s:'便宜、肯學，但關鍵時刻聽錯指令',fx:{cash:-3,route:{matey:10},feel:2,men:-2},l:'佢好緊張。你講笑叫佢唔好死。'},
+    {t:'親戚做副駕',s:'免費、絕對信任，但一世欠人情',fx:{route:{matey:18},family:-10,cash:0},l:'你表哥坐隔籬。佢唔收錢，但佢阿媽日日提。'}]},
+street:{t:'街頭：錢喺賭桌度',p:'三種玩法，三種下場。',
+ o:[{t:'賭大注',s:'贏就翻身，輸就欠債',fx:{heat:18,drv:5},gamble:1,l:'一鋪定生死。'},
+    {t:'細注慢慢贏',s:'安全，但被人看不起',fx:{cash:6,route:{gang:8},fame:-3},l:'你贏得慢。有人叫你做「散紙」。'},
+    {t:'做二幫手',s:'學到嘢，名聲唔升',fx:{route:{gang:16},feel:4,cash:2},l:'你幫人抹車、換胎。你學到嘢。'}]}
+};
+
+const ROUTE19={
+f4:[{id:'f4-19a',t:'第一次正式出賽',p:'車隊要你保車，你隊友要你幫佢拉真空。',
+ o:[{t:'搏自己成績',s:'名聲 +，車隊信任 −',fx:{fame:8,route:{trust:-8},drv:4},l:'你跑咗第六。車隊冇恭喜你。'},
+    {t:'保守完賽',s:'信任 +，名聲一般',fx:{route:{trust:10},fame:2,disc:3},l:'你穩穩陣陣。車隊話你可靠。'},
+    {t:'幫隊友',s:'換人情，自己無成績',fx:{route:{trust:6},rel:{rival:8},fame:-2},l:'你讓咗。隊友拍你膊頭。'}]},
+ {id:'f4-19b',t:'錢同自由',p:'贊助商想要你出席活動，車隊要你模擬器。同一日。',
+ o:[{t:'去贊助活動',s:'現金 +，車隊 −',fx:{cash:9,route:{trust:-6},fame:4},l:'你企足全日。車隊教練冇出聲。'},
+    {t:'留模擬器',s:'車隊 +，錢 −',fx:{route:{trust:9},feel:4,cash:-2},l:'你跑咗四百圈模擬器。'},
+    {t:'兩邊都去',s:'兩邊都唔盡，體力 −',fx:{sta:-6,cash:4,route:{trust:2}},l:'你跑來跑去。兩邊都覺得你唔夠專心。'}]}],
+rally:[{id:'ra-19a',t:'第一個賽段',p:'路面濕，副駕未熟你嘅節奏。',
+ o:[{t:'照佢指示',s:'默契 +，但慢',fx:{route:{matey:10},feel:3},l:'你照讀。慢，但冇出錯。'},
+    {t:'靠感覺跑',s:'快，但默契 −',fx:{feel:6,route:{matey:-10},nerve:3},l:'你唔聽指示。快咗四秒，副駕黑面。'},
+    {t:'中途停車討論',s:'食時間，但長遠好',fx:{route:{matey:14},sta:-2},l:'你停咗一分鐘講清楚。'}]},
+ {id:'ra-19b',t:'車隊要你換設定',p:'工程師想你用保守設定，你想用自己嘅。',
+ o:[{t:'聽工程師',s:'紀律 +，車感 −',fx:{disc:4,route:{matey:4},feel:-3},l:'車穩，但唔快。'},
+    {t:'用自己設定',s:'車感 +，風險 +',fx:{feel:6,nerve:4,heat:5},l:'車快，但每次跳都嚇你一跳。'},
+    {t:'兩套都試',s:'食時間，學到最多',fx:{feel:4,sta:-4,route:{matey:3}},l:'你兩個設定都跑。工程師冇再反對。'}]}],
+street:[{id:'st-19a',t:'幫會叫你交數',p:'你要交一筆錢，或者交一個人情。',
+ o:[{t:'交錢',s:'現金 −，關係 +',fx:{cash:-8,route:{gang:10}},l:'你交足。幫會話你識做。'},
+    {t:'交人情',s:'關係 +，HEAT +',fx:{route:{gang:6},heat:9},l:'你幫佢做一單。有人認得你。'},
+    {t:'拖',s:'兩樣都唔交，關係 −',fx:{route:{gang:-12},heat:4},l:'你話下個月。佢冇答。'}]},
+ {id:'st-19b',t:'第一次有人叫你做正行',p:'車房老闆話可以請你，但要你斷晒夜賽。',
+ o:[{t:'應承',s:'HEAT −，名聲 −',fx:{heat:-14,disc:5,fame:-4},l:'你換咗工。夜晚冇人再叫你。'},
+    {t:'拒絕',s:'HEAT 繼續升',fx:{heat:8,drv:3},l:'你話唔得。老闆搖頭。'},
+    {t:'腳踏兩船',s:'兩邊都賺，兩邊都危',fx:{cash:5,heat:12,sta:-4},l:'你日頭返工夜晚落場。'}]}]
+};
+
+const ROUTE20={
+f4:{id:'f4-20a',t:'第一季最後三場',p:'車隊信任未夠，積分又差少少。你要揀一個。',
+ o:[{t:'搏積分',s:'成績 +，信任 −',fx:{fame:10,route:{trust:-7},nerve:4},l:'你搏到第五。車隊講嘢好聽但冇笑容。'},
+    {t:'保車完賽',s:'信任 +',fx:{route:{trust:11},disc:4},l:'你兩場第八。車隊話你識做。'},
+    {t:'公開抱怨',s:'名聲 +，信任大減',fx:{fame:7,route:{trust:-14},drv:5},l:'你喺訪問講咗一句。第二日冇人同你食飯。'}]},
+ rally:{id:'ra-20a',t:'大雨夜賽段',p:'全程濕地，能見度三十米。副駕問你要唔要收。',
+ o:[{t:'照推',s:'快，但可能撞',fx:{nerve:6,feel:4,heat:6},risk:1,l:'你推。兩次差少少出界。'},
+    {t:'收油保完賽',s:'慢，但一定到',fx:{route:{matey:8},disc:4},l:'你收。你完成咗賽段。'},
+    {t:'中途換胎',s:'食時間，換穩定',fx:{sta:-4,feel:3,route:{matey:5}},l:'你停低換胎。副駕支持。'}]},
+ street:{id:'st-20a',t:'有人跟你返屋企',p:'夜晚有部車跟你三個街口。你認得係上次問話嗰班人。',
+ o:[{t:'停低倾',s:'可能解決，可能上身',fx:{heat:6,men:4},risk:1,l:'你停低。佢哋問咗好多嘢。'},
+    {t:'揸走',s:'HEAT +，但今晚安全',fx:{heat:9,drv:3},l:'你走。你冇返屋企。'},
+    {t:'照返屋企',s:'冷靜，但被記住',fx:{heat:4,men:6,disc:2},l:'你照泊車。佢哋望住你入去。'}]}
+};
+
+const ROUTE20B={
+f4:[{id:'f4-20b',t:'隊友要你讓車',p:'最後一圈，隊友爭車手榜。',
+ o:[{t:'讓',s:'信任 +，名聲 −',fx:{route:{trust:12},fame:-6,rel:{rival:6}},l:'你收油。車隊記住。'},
+    {t:'唔讓',s:'名聲 +，信任 −',fx:{fame:8,route:{trust:-10},drv:4},l:'你守住。隊友冇再同你講嘢。'},
+    {t:'問車隊',s:'兩邊都唔得罪，但慢',fx:{route:{trust:4},men:3,disc:2},l:'你問。車隊話你自己決定。'}]},
+ {id:'f4-20c',t:'合約年尾',p:'經理人叫你開始同其他隊傾，但你仲有一年約。',
+ o:[{t:'傾',s:'後路 +，信任 −',fx:{route:{trust:-8},fame:6},l:'有人知你傾過。'},
+    {t:'唔傾',s:'信任 +，冇後路',fx:{route:{trust:9},disc:3},l:'你專心跑完。'},
+    {t:'叫經理人低調傾',s:'兩邊都保',fx:{cash:-3,route:{trust:3},fame:3},l:'你叫佢唔好露出。'}]}],
+rally:[{id:'ra-20b',t:'副駕想走',p:'副駕話人工太低，有其他隊搵佢。',
+ o:[{t:'加人工',s:'現金 −，默契 +',fx:{cash:-10,route:{matey:12}},l:'你俾多一筆。佢留低。'},
+    {t:'放佢走',s:'默契 −，但省錢',fx:{route:{matey:-16},cash:4},l:'佢走。新副駕未熟。'},
+    {t:'講感情',s:'睇心理',fx:{route:{matey:6},men:3},l:'你講咗好多嘢。佢冇答實。'}]},
+ {id:'ra-20c',t:'車隊想換車手',p:'你成績一般，但車隊有新人等位。',
+ o:[{t:'自費升車',s:'錢 −，競爭力 +',fx:{cash:-14,feel:5},l:'你換咗車。'},
+    {t:'接受',s:'保住位置，速度唔變',fx:{disc:4,men:2},l:'你留低，開舊車。'},
+    {t:'轉去私人隊',s:'自由，但資源少',fx:{route:{matey:-6},nerve:5,drv:3},l:'你去私人隊。車慢但冇人管你。'}]}],
+street:[{id:'st-20b',t:'朋友要你幫手',p:'朋友話有人欠錢，要你揸車接送。',
+ o:[{t:'幫',s:'關係 +，HEAT ++',fx:{route:{gang:12},heat:16},l:'你揸咗。車牌有人抄低。'},
+    {t:'唔幫',s:'關係 −，但唔上身',fx:{route:{gang:-12},men:4},l:'你拒絕。友誼停咗。'},
+    {t:'幫，但唔揸自己車',s:'兩邊都保',fx:{route:{gang:5},heat:8,cash:-3},l:'你租咗架車。'}]},
+ {id:'st-20c',t:'有人想收你',p:'一個車隊經理話想睇你跑正規賽，但要你先清乾淨紀錄。',
+ o:[{t:'即刻收手',s:'HEAT 大減，錢 −',fx:{heat:-20,disc:5,cash:-5},l:'你停晒。有人話你變咗。'},
+    {t:'跑多一季先',s:'錢 +，HEAT +',fx:{cash:8,heat:12},l:'你話再跑一年。經理冇再搵你。'},
+    {t:'叫佢等你',s:'兩邊都拖',fx:{route:{gang:3},heat:4,men:2},l:'你話考慮。'}]}]
+};
+
+const S={};
+let alloc=Array(ACTS.length).fill(0);
+
+function clamp(v,a,b){return Math.max(a,Math.min(b,v))}
+function pick(a){return a[Math.floor(Math.random()*a.length)]}
+function shuf(a){const b=a.slice();for(let i=b.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));const t=b[i];b[i]=b[j];b[j]=t}return b}
+function der(){return{spd:Math.round((S.a.rea+S.a.feel)/2),stb:Math.round((S.a.men+S.a.disc+S.a.feel)/3),atk:Math.round((S.a.drv+S.a.nerve)/2),sta:S.a.sta}}
+function newState(){
+  return {v:3,year:14,bi:0,beats:[],used:[],a:Object.assign({},START),cash:12,fame:0,heat:0,respect:0,
+   rel:{mentor:50,family:60,rival:30},route:null,vals:{trust:0,matey:0,gang:0},licence:null,
+   door:null,doors:[],shame:0,inj:0,transferUsed:false,log:[],over:false,prep:0,gear:null,qok:0,
+   flags:{f3:false,f4Seat:false,debt:0,arrested:false},resolved20:null};
+}
+function save(){try{localStorage.setItem(SAVE,JSON.stringify(S))}catch(e){}}
+function load(){try{const r=localStorage.getItem(SAVE);if(!r)return false;const o=JSON.parse(r);if(!o||o.v!==3)return false;Object.keys(S).forEach(k=>delete S[k]);Object.assign(S,o);return true}catch(e){return false}}
+function wipe(){try{localStorage.removeItem(SAVE)}catch(e){}}
+
+function show(id){document.querySelectorAll('section').forEach(s=>s.classList.remove('on'));$(id).classList.add('on');window.scrollTo(0,0)}
+function paintHud(){
+  const d=der();
+  $('hAge').textContent=S.year+' 歲';
+  $('hStats').innerHTML=
+   '<span class="stat">速度<b>'+d.spd+'</b></span>'+
+   '<span class="stat">穩定<b>'+d.stb+'</b></span>'+
+   '<span class="stat">攻擊<b>'+d.atk+'</b></span>'+
+   '<span class="stat">續航<b>'+d.sta+'</b></span>'+
+   '<span class="stat money">CASH<b>'+S.cash.toFixed(1)+' 萬</b></span>'+
+   '<span class="stat">FAME<b>'+S.fame+'</b></span>'+
+   '<span class="stat'+(S.heat>=40?' hot':'')+'">HEAT<b>'+S.heat+'</b></span>';
+  $('hBar').style.width=Math.min(100,S.heat)+'%';
+}
+function logit(txt){S.log.push('['+S.year+' 歲] '+txt)}
+function applyFx(fx){
+  if(!fx)return;
+  ATTRS.forEach(k=>{if(typeof fx[k]==='number')S.a[k]=clamp(S.a[k]+fx[k],0,100)});
+  if(fx.cash)S.cash=Math.max(0,S.cash+fx.cash);
+  if(fx.fame)S.fame=clamp(S.fame+fx.fame,0,100);
+  if(fx.heat)S.heat=clamp(S.heat+fx.heat,0,100);
+  if(fx.respect)S.respect=clamp(S.respect+fx.respect,0,100);
+  if(fx.rel)Object.keys(fx.rel).forEach(k=>{S.rel[k]=clamp(S.rel[k]+fx.rel[k],0,100)});
+  if(fx.route)Object.keys(fx.route).forEach(k=>{S.vals[k]=clamp(S.vals[k]+fx.route[k],0,100)});
+  if(fx.inj){S.inj+=fx.inj;S.a.nerve=clamp(S.a.nerve-5,0,100);S.a.rea=clamp(S.a.rea-8,0,100)}
+}
+
+function startRun(){
+  Object.assign(S,newState());
+  if(location.search.indexOf('door=')>=0){
+    const forced=(location.search.match(/door=(\w+)/)||[])[1];
+    if(forced)S.forced=forced;
+  }
+  wipe();save();beginYear();
+}
+function beginYear(){
+  const y=S.year;S.bi=0;S.beats=[];
+  S.prep=0;S.gear=null;S.qok=0;
+  if(y<=17){
+    S.beats.push({k:'alloc'});
+    let pool=shuf(CARDS.filter(c=>c.y===y&&S.used.indexOf(c.id)<0));
+    for(let i=0;i<pool.length&&i<4;i++){S.used.push(pool[i].id);S.beats.push({k:'card',card:pool[i]})}
+    while(S.beats.length<5){const c=pick(CARDS.filter(function(x){return x.y===y}));S.beats.push({k:'card',card:c})}
+  }else if(y===18){
+    EXAM.forEach(c=>S.beats.push({k:'card',card:c}));
+    S.beats.push({k:'gear'});
+    S.beats.push({k:'exam'});
+    S.beats.push({k:'examres'});
+  }else if(y===19){
+    const r=S.door||S.forced||'f4';
+    const e=ENTRY[r];
+    S.beats.push({k:'card',card:Object.assign({id:'entry'},e,{t:e.t,p:e.p})});
+    shuf(ROUTE19[r]||ROUTE19.f4).slice(0,2).forEach(c=>S.beats.push({k:'card',card:c}));
+  }else{
+    const r=S.door||S.forced||'f4';
+    S.beats.push({k:'card',card:Object.assign({id:'r20a'},ROUTE20[r]||ROUTE20.f4)});
+    shuf(ROUTE20B[r]||ROUTE20B.f4).slice(0,2).forEach(c=>S.beats.push({k:'card',card:c}));
+    S.beats.push({k:'settle'});
+  }
+  save();nextBeat();
+}
+function nextBeat(){
+  paintHud();
+  if(S.bi>=S.beats.length){
+    if(S.year===17){toDoors();return}
+    if(S.year>=20){settle20();return}
+    S.year++;beginYear();return;
+  }
+  const b=S.beats[S.bi];
+  if(b.k==='alloc'){renderAlloc();return}
+  if(b.k==='card'){renderCard(b.card);return}
+  if(b.k==='gear'){renderGear();return}
+  if(b.k==='exam'){
+    if(S.gear!=='manual'){S.bi++;nextBeat();return}
+    renderExam();return
+  }
+  if(b.k==='examres'){renderExamRes();return}
+  if(b.k==='settle'){settle20();return}
+}
+function renderAlloc(){
+  show('#scAlloc');
+  alloc=Array(ACTS.length).fill(0);
+  $('allocKicker').textContent=S.year+' 歲 · 時間分配';
+  $('allocHint').textContent='每年十點。一定要放棄一樣。';
+  const box=$('allocList');box.innerHTML='';
+  ACTS.forEach(function(act,i){
+    const row=document.createElement('div');row.className='arow';
+    row.innerHTML='<div class="an">'+act.n+'<small>'+act.d+'</small></div>'+
+      '<div class="step"><button data-i="'+i+'" data-d="-1">−</button><span class="n" id="n'+i+'">0</span><button data-i="'+i+'" data-d="1">+</button></div>';
+    box.appendChild(row);
+  });
+  box.querySelectorAll('button').forEach(function(btn){
+    btn.onclick=function(){
+      const i=+btn.dataset.i,d=+btn.dataset.d;
+      const used=alloc.reduce((a,b)=>a+b,0);
+      if(d>0&&used>=10)return;
+      if(d<0&&alloc[i]<=0)return;
+      alloc[i]+=d;
+      $('n'+i).textContent=alloc[i];
+      $('leftPts').textContent=10-alloc.reduce((a,b)=>a+b,0);
+      $('btnAlloc').disabled=alloc.reduce((a,b)=>a+b,0)!==10;
+    };
+  });
+  $('leftPts').textContent='10';
+  $('btnAlloc').disabled=true;
+  $('btnAlloc').onclick=function(){
+    ACTS.forEach(function(act,i){
+      for(let n=0;n<alloc[i];n++){
+        if(act.k==='train'){S.a.rea=clamp(S.a.rea+1,0,100);S.a.feel=clamp(S.a.feel+1,0,100)}
+        if(act.k==='wrench'){S.a.feel=clamp(S.a.feel+1,0,100);S.a.disc=clamp(S.a.disc+1,0,100)}
+        if(act.k==='study'){S.rel.family=clamp(S.rel.family+7,0,100)}
+        if(act.k==='work'){S.cash=Math.round((S.cash+1.5)*10)/10}
+        if(act.k==='race'){S.a.drv=clamp(S.a.drv+1,0,100);S.fame=clamp(S.fame+5,0,100);S.heat=clamp(S.heat+4,0,100)}
+        if(act.k==='people'){
+          const low=Object.keys(S.rel).sort(function(a,b){return S.rel[a]-S.rel[b]})[0];
+          S.rel[low]=clamp(S.rel[low]+9,0,100);S.a.men=clamp(S.a.men+1,0,100);
+        }
+      }
+    });
+    logit('時間分配：'+ACTS.map(function(a,i){return a.n+' '+alloc[i]}).filter(function(x){return !/ 0$/.test(x)}).join('、'));
+    S.bi++;save();nextBeat();
+  };
+}
+function renderCard(card){
+  show('#scCard');
+  $('cardKicker').textContent=S.year+' 歲 · '+String(S.bi===0?1:S.bi)+' / '+S.beats.length;
+  $('cardTitle').textContent=card.t;
+  $('cardPremise').textContent=card.p;
+  const box=$('cardOpts');box.innerHTML='';
+  card.o.forEach(function(o,i){
+    const btn=document.createElement('button');btn.className='opt';
+    btn.innerHTML='<div class="lab">'+o.t+'<small>'+o.s+'</small></div>';
+    btn.onclick=function(){
+      applyFx(o.fx);
+      if(o.prep)S.prep+=o.prep;
+      if(o.gear){S.gear=o.gear;S.licence=o.gear==='auto'?'auto':null}
+      if(o.gamble){
+        if(Math.random()<0.45){S.cash+=18;logit('賭贏：現金 +18 萬');S.fame=clamp(S.fame+10,0,100)}
+        else{S.cash=Math.max(0,S.cash-6);S.heat=clamp(S.heat+14,0,100);S.flags.debt+=8;logit('賭輸：欠債增加')}
+      }
+      logit(o.l);
+      paintHud();save();
+      S.bi++;nextBeat();
+    };
+    box.appendChild(btn);
+  });
+  renderLog();
+}
+function renderLog(){
+  const box=$('cardLog');box.innerHTML='';
+  S.log.slice(-4).forEach(function(t){const d=document.createElement('div');d.textContent=t;box.appendChild(d)});
+}
+function renderGear(){
+  show('#scCard');
+  $('cardKicker').textContent='18 歲 · 考車';
+  $('cardTitle').textContent=GEAR.t;
+  $('cardPremise').textContent=GEAR.p;
+  const box=$('cardOpts');box.innerHTML='';
+  GEAR.o.forEach(function(o){
+    const btn=document.createElement('button');btn.className='opt';
+    btn.innerHTML='<div class="lab">'+o.t+'<small>'+o.s+'</small></div>';
+    btn.onclick=function(){
+      S.gear=o.gear;S.licence=o.gear==='auto'?'auto':null;
+      logit(o.l);save();S.bi++;nextBeat();
+    };
+    box.appendChild(btn);
+  });
+  renderLog();
+}
+function renderExam(){
+  show('#scCard');
+  $('cardKicker').textContent='18 歲 · 考車 · 棍波真題';
+  const idx=S.qok;
+  const q=QS[idx];
+  $('cardTitle').textContent='第 '+(idx+1)+' / 3 題';
+  $('cardPremise').textContent=q.t;
+  const box=$('cardOpts');box.innerHTML='';
+  const order=shuf(q.a);
+  order.forEach(function(a){
+    const btn=document.createElement('button');btn.className='opt';
+    btn.innerHTML='<div class="lab">'+a.t+'</div>';
+    btn.onclick=function(){
+      S.qok++;
+      if(!a.ok)S.wrong=(S.wrong||0)+1;
+      const d=document.createElement('div');d.textContent=(a.ok?'啱。':'錯。')+q.e;
+      S.log.push('[18 歲] '+d.textContent);
+      save();
+      if(S.qok>=3){S.bi++;nextBeat()}else{renderExam()}
+    };
+    box.appendChild(btn);
+  });
+  renderLog();
+}
+function renderExamRes(){
+  const d=der();
+  let p=55+d.stb*0.25+S.a.feel*0.15-S.heat*0.30+S.prep;
+  p+=(S.gear==='manual')?-10:15;
+  if(S.gear==='manual'){
+    const w=S.wrong||0;
+    if(w===0){p+=10;S.a.feel=clamp(S.a.feel+6,0,100);S.respect=clamp(S.respect+8,0,100)}
+    else if(w===1){p-=15;S.gear='auto';S.licence='auto';S.shame=1}
+  }
+  p=clamp(p,5,95);
+  const pass=Math.random()*100<p;
+  show('#scCard');
+  $('cardKicker').textContent='18 歲 · 路試結果';
+  if(pass){
+    S.licence=S.gear;
+    $('cardTitle').textContent='合格';
+    $('cardPremise').textContent='考官簽紙。你手上有一張正式牌照（'+(S.gear==='manual'?'棍波':'自動波')+'）。合格率推算 '+Math.round(p)+'%。';
+    const box=$('cardOpts');box.innerHTML='';
+    const btn=document.createElement('button');btn.className='opt';
+    btn.innerHTML='<div class="lab">繼續</div>';
+    btn.onclick=function(){logit('考車合格（'+S.gear+'）');save();S.bi++;nextBeat()};
+    box.appendChild(btn);
+  }else{
+    spawnFail();
+  }
+  renderLog();
+}
+function spawnFail(){
+  $('cardTitle').textContent='肥佬';
+  $('cardPremise').textContent='考官話你「控制唔穩定」。你可以再考、買牌，或者放棄。';
+  const box=$('cardOpts');box.innerHTML='';
+  const opts=[
+   {t:'再考一次',s:'四萬，準備再升',fx:{cash:-4,men:2},l:'你報咗下一次。'},
+   {t:'走後門買牌',s:'十五萬，HEAT 爆升',fx:{cash:-15,heat:15,disc:-6},l:'你買咗一張。有人知。'},
+   {t:'放棄考牌',s:'這條路收咗',fx:{drv:-6},l:'你把筆記掉咗。'}
+  ];
+  opts.forEach(function(o){
+    const btn=document.createElement('button');btn.className='opt';
+    btn.innerHTML='<div class="lab">'+o.t+'<small>'+o.s+'</small></div>';
+    btn.onclick=function(){
+      applyFx(o.fx);logit(o.l);
+      if(o.t==='再考一次'){S.prep+=8;renderExamRes();return}
+      if(o.t==='走後門買牌'){S.licence='auto';S.shame=1;S.bi++;nextBeat();return}
+      S.over=true;save();ending('你冇再考牌。七年之後，你仲係喺車房做學徒。');
+    };
+    box.appendChild(btn);
+  });
+}
+function toDoors(){
+  const d=der();
+  let open=[];
+  if((d.spd>=60||d.stb>=70)&&(S.cash>=30||S.fame>=40)&&S.rel.family>=50)open.push('f4');
+  if((S.a.feel>=55||S.a.nerve>=65)&&S.rel.mentor>=60)open.push('rally');
+  if(S.heat>=40||S.fame>=50)open.push('street');
+  if(S.forced)open=[S.forced];
+  if(!open.length){
+    const score={f4:(d.spd+d.stb)/2,rally:(S.a.feel+S.a.nerve)/2,street:(S.heat+S.fame)/2};
+    open.push(Object.keys(score).sort(function(a,b){return score[b]-score[a]})[0]);
+  }
+  S.doors=open;save();
+  show('#scDoor');
+  const names={f4:'F4 正規軍',rally:'Rally',street:'街頭'};
+  $('doorWhy').textContent='速度 '+d.spd+'／穩定 '+d.stb+'／車感 '+S.a.feel+'／膽量 '+S.a.nerve+'／HEAT '+S.heat+'／FAME '+S.fame+'／家人 '+S.rel.family+'／師傅 '+S.rel.mentor;
+  const box=$('doorOpts');box.innerHTML='';
+  open.forEach(function(r){
+    const btn=document.createElement('button');btn.className='opt';
+    btn.innerHTML='<div class="lab">'+names[r]+'<small>門開咗，你可以行入去</small></div>';
+    btn.onclick=function(){
+      S.door=r;S.year=18;logit('揀咗'+names[r]);
+      if(r==='rally'){S.a.feel=clamp(S.a.feel+4,0,100)}
+      if(r==='street'){S.heat=clamp(S.heat+6,0,100)}
+      save();beginYear();
+    };
+    box.appendChild(btn);
+  });
+}
+function settle20(){
+  const d=der(),r=S.door||S.forced||'f4';
+  let headline='';
+  if(r==='f4'){
+    if(S.vals.trust>=65&&d.stb>=70){S.flags.f3=true;headline='車隊信任 '+S.vals.trust+'、穩定 '+d.stb+' —— 你升上 F3。'}
+    else if(S.vals.trust<40){S.vals.trust=Math.max(0,S.vals.trust);headline='車隊信任只有 '+S.vals.trust+' —— 你冇位。轉線機會仲喺。';S.flags.f4Seat=false}
+    else{headline='車隊信任 '+S.vals.trust+'、穩定 '+d.stb+' —— 未夠，留 F4 多一年。';S.flags.f4Seat=true}
+  }else if(r==='rally'){
+    const comp=S.a.feel*0.35+S.vals.matey*0.30+S.a.sta*0.20+S.a.nerve*0.15-10;
+    if(comp<45){S.inj+=1;S.a.rea=clamp(S.a.rea-8,0,100);S.a.nerve=clamp(S.a.nerve-5,0,100);headline='賽段完成率推算 '+Math.round(comp)+'% —— 你撞咗。傷患 1。'}
+    else headline='賽段完成率推算 '+Math.round(comp)+'% —— 你完成咗。';
+  }else{
+    if(S.heat>=80){S.flags.arrested=true;headline='HEAT '+S.heat+' —— 你被拉。'}
+    else if(S.heat>=60){S.vals.gang=Math.max(0,S.vals.gang-30);S.cash=Math.max(0,S.cash-10);headline='HEAT '+S.heat+' —— 朋友出賣你。錢同幫會關係冇咗。'}
+    else if(S.heat>=40){headline='HEAT '+S.heat+' —— 警方上門問話。你收手，HEAT −20。';S.heat=Math.max(0,S.heat-20)}
+    else headline='HEAT '+S.heat+' —— 你行得通。';
+  }
+  S.resolved20=headline;S.over=true;save();
+  if(S.flags.arrested){ending('你 20 歲，有案底。');return}
+  if(S.inj>=2){ending('你 20 歲，身體已經唔許可你繼續。');return}
+  const top=ATTRS.slice().sort(function(a,b){return S.a[b]-S.a[a]});
+  const rows=[
+   ['最強',L[top[0]]+' '+S.a[top[0]]+'、'+L[top[1]]+' '+S.a[top[1]]+'、'+L[top[2]]+' '+S.a[top[2]]],
+   ['最弱',L[top[6]]+' '+S.a[top[6]]],
+   ['速度／穩定',d.spd+' ／ '+d.stb],
+   ['路線',({f4:'F4',rally:'Rally',street:'街頭'})[r]],
+   ['牌照',S.licence==='manual'?'棍波':(S.licence==='auto'?'自動波':'未考到')],
+   ['宿敵',S.rel.rival>=50?'同你平手，仲喺你附近':'已經升咗上去，唔再等你'],
+   ['未了事',(S.flags.debt>0?'欠債 '+S.flags.debt+' 萬；':'')+(S.shame?'有人仲笑你唔識棍波':'冇')],
+   ['帶入下一章',(S.flags.f3?'F3 席位':(S.flags.f4Seat?'F4 席位未穩':'未有席位'))+(S.transferUsed?'':'、轉線機會未用')]
+  ];
+  $('endTitle').textContent=S.year+' 歲 · '+(S.flags.f3?'你升咗上去':(r==='street'?'你仲行得':(r==='rally'?'你完成咗':'你仲喺原位')));
+  $('endBody').textContent=headline;
+  $('endTable').innerHTML=rows.map(function(x){return '<tr><td>'+x[0]+'</td><td>'+x[1]+'</td></tr>'}).join('');
+  show('#scEnd');
+  $('endLog').innerHTML='';
+  S.log.forEach(function(t){const d2=document.createElement('div');d2.textContent=t;$('endLog').appendChild(d2)});
+}
+function ending(msg){
+  $('endTitle').textContent='結局';
+  $('endBody').textContent=msg;
+  $('endTable').innerHTML='<tr><td>年齡</td><td>'+S.year+' 歲</td></tr><tr><td>HEAT</td><td>'+S.heat+'</td></tr><tr><td>傷患</td><td>'+S.inj+'</td></tr>';
+  show('#scEnd');
+  $('endLog').innerHTML='';
+  S.log.forEach(function(t){const d2=document.createElement('div');d2.textContent=t;$('endLog').appendChild(d2)});
+}
+
+$('btnStart').onclick=function(){startRun()};
+$('btnAgain').onclick=function(){wipe();Object.assign(S,newState());$('btnResume').hidden=true;show('#scIntro')};
+$('btnReview').onclick=function(){show('#scEnd')};
+$('btnResume').onclick=function(){nextBeat()};
+
+(function boot(){
+  Object.assign(S,newState());
+  paintHud();
+  if(load()){
+    $('btnResume').hidden=false;
+    $('seedLine').textContent='有一局未完成：'+S.year+' 歲，已經行咗 '+S.log.length+' 個決定。';
+    if(S.over){$('btnResume').hidden=true}
+  }else{
+    $('seedLine').textContent='離線可玩 · 單檔 · 冇 seed，每局都唔同';
+  }
+})();
+</script>
+</body>
+</html>
