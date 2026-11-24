@@ -39,7 +39,7 @@
     { id: 'auto_route', cat: '表現', n: '自動波之路', ap: 30, c: '用自動波牌照完成一局', f: function (R) { return R.complete && R.licence === 'auto'; } },
     { id: 'heat80', cat: '表現', n: '滿手鮮血', ap: 40, c: 'HEAT ≥ 80 仍完成一局', f: function (R) { return R.complete && R.heat >= 80; } },
 
-    { id: 'hard_hunter', cat: '技術', n: '高難度獵人', ap: 80, c: '單局 5 次高風險選擇（搏）', f: function (R) { return R.hardChoices >= 5; } },
+    { id: 'hard_hunter', cat: '技術', n: '高難度獵人', ap: 80, c: '單局 5 次成功率 ≤ 45% 而成功', f: function (R) { return R.hardChoices >= 5; } },
     { id: 'ascetic', cat: '技術', n: '苦行', ap: 100, c: '一局完全冇揀過「搏」', f: function (R) { return R.complete && R.tags.bo === 0; } },
     { id: 'gambler', cat: '技術', n: '賭徒', ap: 100, c: '一局 8 次以上「搏」', f: function (R) { return R.tags.bo >= 8; } },
 
