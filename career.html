@@ -218,7 +218,7 @@ const $=function(s){return document.querySelector(s.charAt(0)==='#'?s:'#'+s)};
 const SAVE='career.save.v4';
 const ATTRS=['rea','drv','men','sta','feel','nerve','disc'];
 const L={rea:'反應',drv:'爭勝心',men:'心理',sta:'體力',feel:'車感',nerve:'膽量',disc:'紀律'};
-const START={rea:42,drv:45,men:40,sta:45,feel:38,nerve:45,disc:40};
+const START={rea:48,drv:50,men:46,sta:50,feel:44,nerve:50,disc:46};
 const ACTS=[
  {k:'train',n:'練習',d:'反應 +2，車感 +1'},
  {k:'wrench',n:'整車',d:'車感 +1，紀律 +1'},
@@ -521,7 +521,7 @@ function judgeOf(card,i){
   if(!card||!card.id)return null;
   return JUDGE[card.id+':'+i]||null;
 }
-function dcBase(jd){return jd.dc-(jd.chk==='nerve'?12:6)}
+function dcBase(jd){return clamp(Math.round(40+(jd.dc-40)*0.8),40,58)}
 function dcOf(jd){return dcBase(jd)+(S.mod.world||0)*2}
 function rateOf(jd){
   if(!jd||jd.auto)return null;
