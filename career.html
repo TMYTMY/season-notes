@@ -84,7 +84,7 @@ header.hud{background:#070a10;border-bottom:2px solid var(--px-line)}
 .stat{border:1px solid var(--px-line);border-radius:2px;background:var(--px-panel2)}
 .arow{border:2px solid var(--px-line);border-radius:2px;background:var(--px-panel2)}
 .step button{border-radius:2px;background:var(--px-panel);border:2px solid var(--px-line)}
-.stagewrap{position:relative;margin:0 0 14px;border:2px solid var(--px-line);background:#05080e;box-shadow:4px 4px 0 #000}
+.stagewrap{position:relative;margin:0 auto 14px;max-width:520px;border:2px solid var(--px-line);background:#05080e;box-shadow:4px 4px 0 #000}
 .stagewrap canvas{display:block;width:100%;height:auto;image-rendering:pixelated;image-rendering:crisp-edges}
 .stagelabel{position:absolute;left:8px;top:8px;font-size:10px;letter-spacing:.18em;color:var(--px-amber);background:rgba(5,8,14,.75);padding:4px 6px;border:1px solid var(--px-line);text-transform:uppercase}
 .capsule{position:absolute;left:8px;right:8px;bottom:8px;font-size:11px;line-height:1.5;background:rgba(5,8,14,.88);border:1px solid var(--px-line);padding:5px 8px;color:#dfe6ef;opacity:0;transform:translateY(4px);transition:opacity .16s,transform .16s}
@@ -103,6 +103,19 @@ header.hud{background:#070a10;border-bottom:2px solid var(--px-line)}
 .achbox .ap{float:right;color:var(--px-amber);font-family:ui-monospace,monospace}
 .achbox.got .ap{color:#8fd6ae}
 .tiern{font-size:12px;color:var(--muted)}
+@media (min-width:760px){
+  #scCard.on{display:grid;grid-template-columns:minmax(0,420px) minmax(0,1fr);
+    grid-template-areas:"kick kick" "stage head" "stage prem" "stage opts" "stage log";
+    column-gap:26px;align-items:start}
+  #scCard .kicker{grid-area:kick}
+  #scCard .stagewrap{grid-area:stage;max-width:none;margin:0}
+  #scCard h2{grid-area:head;margin-top:0}
+  #scCard #cardPremise{grid-area:prem}
+  #scCard #cardOpts{grid-area:opts}
+  #scCard #cardLog{grid-area:log}
+  #scCard .stagewrap{align-self:start;position:sticky;top:96px}
+  #scIntro .stagewrap,#scAlloc .stagewrap,#scDoor .stagewrap{max-width:560px}
+}
 @media (max-width:520px){
   h1{font-size:22px}
   h2{font-size:18px}
