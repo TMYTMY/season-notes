@@ -71,6 +71,38 @@ table{border-collapse:collapse;width:100%;margin:12px 0;font-size:var(--fs-14)}
 td{padding:6px 4px;border-bottom:1px solid var(--line);color:var(--slate)}
 td:last-child{text-align:right;color:var(--paper);font-variant-numeric:tabular-nums}
 .seed{font-size:var(--fs-12);color:var(--muted);margin-top:10px}
+/* ---------- pixel layer（2026-11-24：主視覺改為 pixel art） ---------- */
+:root{--px-line:#33415c;--px-panel:#121a26;--px-panel2:#0d141d;--px-amber:#f2c14e;--px-ink:#070a10;}
+body{background:#070a10;background-image:linear-gradient(#0a0f18 1px,transparent 1px),linear-gradient(90deg,#0a0f18 1px,transparent 1px);background-size:16px 16px}
+h1,h2,.brand,.kicker,.age,.stat,.btn,.stagelabel,.capsule,.tiern{font-family:ui-monospace,"SFMono-Regular",Menlo,Consolas,"Courier New",monospace}
+header.hud{background:#070a10;border-bottom:2px solid var(--px-line)}
+.card{background:var(--px-panel);border:2px solid var(--px-line);border-left:2px solid var(--px-line);border-radius:2px;box-shadow:4px 4px 0 #000}
+.opt{border:2px solid var(--px-line);border-radius:2px;background:var(--px-panel2)}
+.opt:hover{border-color:var(--px-amber);background:#16202c}
+.btn{border-radius:2px;border:2px solid var(--px-amber);background:var(--px-amber);color:#0b0f14;box-shadow:3px 3px 0 #000}
+.btn.ghost{background:var(--px-panel2);color:var(--paper);border-color:var(--px-line);box-shadow:3px 3px 0 #000}
+.stat{border:1px solid var(--px-line);border-radius:2px;background:var(--px-panel2)}
+.arow{border:2px solid var(--px-line);border-radius:2px;background:var(--px-panel2)}
+.step button{border-radius:2px;background:var(--px-panel);border:2px solid var(--px-line)}
+.stagewrap{position:relative;margin:0 0 14px;border:2px solid var(--px-line);background:#05080e;box-shadow:4px 4px 0 #000}
+.stagewrap canvas{display:block;width:100%;height:auto;image-rendering:pixelated;image-rendering:crisp-edges}
+.stagelabel{position:absolute;left:8px;top:8px;font-size:10px;letter-spacing:.18em;color:var(--px-amber);background:rgba(5,8,14,.75);padding:4px 6px;border:1px solid var(--px-line);text-transform:uppercase}
+.capsule{position:absolute;left:8px;right:8px;bottom:8px;font-size:11px;line-height:1.5;background:rgba(5,8,14,.88);border:1px solid var(--px-line);padding:5px 8px;color:#dfe6ef;opacity:0;transform:translateY(4px);transition:opacity .16s,transform .16s}
+.capsule.on{opacity:1;transform:none}
+.capsule.good{border-color:#3f7d5d;color:#8fd6ae}
+.capsule.bad{border-color:#8a2a1e;color:#f0a89a}
+.capsule.warn{border-color:#8a6f1e;color:#f0d38a}
+#toast{position:fixed;right:10px;top:10px;z-index:60;display:flex;flex-direction:column;gap:6px;pointer-events:none;max-width:80vw}
+.toast{background:#0d141d;border:2px solid var(--px-amber);padding:7px 10px;font-size:12px;line-height:1.4;color:var(--px-amber);box-shadow:3px 3px 0 #000}
+.toast.tier{border-color:#5b86c9;color:#a9c6ee}
+.achgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:8px;margin-top:12px}
+.achbox{border:2px solid var(--px-line);background:var(--px-panel2);padding:8px 10px;font-size:12px;color:var(--muted);line-height:1.45}
+.achbox b{display:block;color:var(--paper);font-size:13px;margin-bottom:2px;font-family:ui-monospace,monospace}
+.achbox.got{border-color:#3f7d5d;color:#9ed6b7}
+.achbox.got b{color:#8fd6ae}
+.achbox .ap{float:right;color:var(--px-amber);font-family:ui-monospace,monospace}
+.achbox.got .ap{color:#8fd6ae}
+.tiern{font-size:12px;color:var(--muted)}
 @media (max-width:520px){
   h1{font-size:22px}
   h2{font-size:18px}
@@ -88,6 +120,7 @@ td:last-child{text-align:right;color:var(--paper);font-variant-numeric:tabular-n
 <header class="hud">
   <div class="hudrow">
     <div class="brand"><i></i> CAREER NOTES</div>
+    <a class="home" href="index.html" style="font-size:11px;color:var(--muted);text-decoration:none;padding:6px 8px;border:1px solid var(--px-line);min-height:44px;min-width:44px;display:inline-flex;align-items:center">← 主頁</a>
     <div class="age" id="hAge">14 歲</div>
   </div>
   <div class="hudrow">
@@ -99,6 +132,7 @@ td:last-child{text-align:right;color:var(--paper);font-variant-numeric:tabular-n
 <div class="wrap">
   <section id="scIntro" class="on">
     <div class="kicker">第一章 · 14–20</div>
+    <div class="stagewrap"><canvas id="stageIntro" width="160" height="90" aria-hidden="true"></canvas><div class="stagelabel">GARAGE · 14</div></div>
     <h1>你唔會落場揸車。<br>你只會決定自己變成邊種車手。</h1>
     <p>14 歲到 20 歲，七年、二十六個決定。每年十點時間，永遠唔夠分。</p>
     <div class="card">
@@ -114,6 +148,7 @@ td:last-child{text-align:right;color:var(--paper);font-variant-numeric:tabular-n
 
   <section id="scAlloc">
     <div class="kicker" id="allocKicker">14 歲 · 時間分配</div>
+    <div class="stagewrap"><canvas id="stageAlloc" width="160" height="90" aria-hidden="true"></canvas><div class="stagelabel" id="allocScene">GARAGE · 14</div><div class="capsule" id="allocCap"></div></div>
     <h2>今年十點時間，你點分？</h2>
     <p id="allocHint">一定要放棄一樣 —— 呢個係第一個三難。</p>
     <div class="left">剩餘 <b id="leftPts">10</b> 點</div>
@@ -123,6 +158,7 @@ td:last-child{text-align:right;color:var(--paper);font-variant-numeric:tabular-n
 
   <section id="scCard">
     <div class="kicker" id="cardKicker">14 歲</div>
+    <div class="stagewrap"><canvas id="stage" width="160" height="90" aria-hidden="true"></canvas><div class="stagelabel" id="stageLabel">TRACK</div><div class="capsule" id="stageCap"></div></div>
     <h2 id="cardTitle">——</h2>
     <p id="cardPremise">——</p>
     <div class="opts" id="cardOpts"></div>
@@ -131,6 +167,7 @@ td:last-child{text-align:right;color:var(--paper);font-variant-numeric:tabular-n
 
   <section id="scDoor">
     <div class="kicker">17 歲尾</div>
+    <div class="stagewrap"><canvas id="stageDoor" width="160" height="90" aria-hidden="true"></canvas><div class="stagelabel" id="doorScene">DOORS</div><div class="capsule" id="doorCap"></div></div>
     <h2>門唔係揀，係開</h2>
     <p id="doorWhy">——</p>
     <div class="opts" id="doorOpts"></div>
@@ -141,17 +178,23 @@ td:last-child{text-align:right;color:var(--paper);font-variant-numeric:tabular-n
     <h1 id="endTitle">——</h1>
     <p id="endBody">——</p>
     <div class="card"><table id="endTable"></table></div>
+    <div class="card" id="endMetaCard" style="margin-top:12px"><table id="endMetaTable"></table></div>
+    <div id="endAch"></div>
     <div class="btnrow">
       <button class="btn" id="btnAgain">再玩一局</button>
       <button class="btn ghost" id="btnReview">睇返呢七年</button>
+      <a class="btn ghost" href="index.html" id="btnHome" style="text-decoration:none;display:inline-flex;align-items:center;justify-content:center">返主頁</a>
     </div>
     <div class="log" id="endLog"></div>
   </section>
 </div>
+<div id="toast"></div>
 
+<script src="career-meta.js"></script>
+<script src="career-px.js"></script>
 <script>
 const $=function(s){return document.querySelector(s.charAt(0)==='#'?s:'#'+s)};
-const SAVE='career.save.v3';
+const SAVE='career.save.v4';
 const ATTRS=['rea','drv','men','sta','feel','nerve','disc'];
 const L={rea:'反應',drv:'爭勝心',men:'心理',sta:'體力',feel:'車感',nerve:'膽量',disc:'紀律'};
 const START={rea:42,drv:45,men:40,sta:45,feel:38,nerve:45,disc:40};
@@ -349,13 +392,26 @@ function pick(a){return a[Math.floor(Math.random()*a.length)]}
 function shuf(a){const b=a.slice();for(let i=b.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));const t=b[i];b[i]=b[j];b[j]=t}return b}
 function der(){return{spd:Math.round((S.a.rea+S.a.feel)/2),stb:Math.round((S.a.men+S.a.disc+S.a.feel)/3),atk:Math.round((S.a.drv+S.a.nerve)/2),sta:S.a.sta}}
 function newState(){
-  return {v:3,year:14,bi:0,beats:[],used:[],a:Object.assign({},START),cash:12,fame:0,heat:0,respect:0,
+  return {v:4,year:14,bi:0,beats:[],used:[],a:Object.assign({},START),cash:12,fame:0,heat:0,respect:0,
    rel:{mentor:50,family:60,rival:30},route:null,vals:{trust:0,matey:0,gang:0},licence:null,
    door:null,doors:[],shame:0,inj:0,transferUsed:false,log:[],over:false,prep:0,gear:null,qok:0,
-   flags:{f3:false,f4Seat:false,debt:0,arrested:false},resolved20:null};
+   flags:{f3:false,f4Seat:false,debt:0,arrested:false,noDoor:false},resolved20:null,endKind:null,
+   loadout:[],stat:{km:0,events:0,decisions:0,crashes:0,hard:0,tags:{shou:0,bo:0,deng:0,res:0},examFails:0,buyLicence:false},
+   mod:{school:false,usedcar:false,nego:false,rallyBg:false,academy:false,world:0,heatMul:1,negoMul:1}};
 }
 function save(){try{localStorage.setItem(SAVE,JSON.stringify(S))}catch(e){}}
-function load(){try{const r=localStorage.getItem(SAVE);if(!r)return false;const o=JSON.parse(r);if(!o||o.v!==3)return false;Object.keys(S).forEach(k=>delete S[k]);Object.assign(S,o);return true}catch(e){return false}}
+function load(){try{
+  const raw=localStorage.getItem(SAVE)||localStorage.getItem('career.save.v3');
+  if(!raw)return false;
+  const o=JSON.parse(raw);
+  if(!o||(o.v!==3&&o.v!==4))return false;
+  const base=newState();
+  Object.keys(S).forEach(k=>delete S[k]);
+  Object.assign(S,base,o);
+  S.v=4;S.stat=Object.assign(base.stat,o.stat||{});S.stat.tags=Object.assign(base.stat.tags,(o.stat&&o.stat.tags)||{});
+  S.mod=Object.assign(base.mod,o.mod||{});S.flags=Object.assign(base.flags,o.flags||{});
+  return true;
+}catch(e){return false}}
 function wipe(){try{localStorage.removeItem(SAVE)}catch(e){}}
 
 function show(id){document.querySelectorAll('section').forEach(s=>s.classList.remove('on'));$(id).classList.add('on');window.scrollTo(0,0)}
@@ -376,13 +432,190 @@ function logit(txt){S.log.push('['+S.year+' 歲] '+txt)}
 function applyFx(fx){
   if(!fx)return;
   ATTRS.forEach(k=>{if(typeof fx[k]==='number')S.a[k]=clamp(S.a[k]+fx[k],0,100)});
-  if(fx.cash)S.cash=Math.max(0,S.cash+fx.cash);
+  if(fx.cash){
+    let c=fx.cash;
+    if(c>0&&S.mod.negoMul)c=Math.round(c*S.mod.negoMul*10)/10;
+    S.cash=Math.max(0,S.cash+c);
+  }
   if(fx.fame)S.fame=clamp(S.fame+fx.fame,0,100);
-  if(fx.heat)S.heat=clamp(S.heat+fx.heat,0,100);
+  if(fx.heat){
+    let h=fx.heat;
+    if(h>0)h=Math.round(h*S.mod.heatMul);
+    S.heat=clamp(S.heat+h,0,100);
+  }
   if(fx.respect)S.respect=clamp(S.respect+fx.respect,0,100);
-  if(fx.rel)Object.keys(fx.rel).forEach(k=>{S.rel[k]=clamp(S.rel[k]+fx.rel[k],0,100)});
+  if(fx.rel)Object.keys(fx.rel).forEach(k=>{
+    let v=fx.rel[k];
+    if(S.mod.school&&k==='family'&&v<0)v=Math.round(v*0.5);
+    S.rel[k]=clamp(S.rel[k]+v,0,100);
+  });
   if(fx.route)Object.keys(fx.route).forEach(k=>{S.vals[k]=clamp(S.vals[k]+fx.route[k],0,100)});
   if(fx.inj){S.inj+=fx.inj;S.a.nerve=clamp(S.a.nerve-5,0,100);S.a.rea=clamp(S.a.rea-8,0,100)}
+}
+
+/* ---------------- 成就 / 技能 / 局外進度 ---------------- */
+function loadoutFromMeta(){
+  if(typeof Meta==='undefined')return [];
+  const m=Meta.read(), cap=Meta.capacity(m);
+  const list=(m.loadout||[]).filter(id=>m.skills[id]);
+  const ok=[];let w=0;
+  list.forEach(id=>{const s=Meta.skillById(id);if(s&&w+s.w<=cap){w+=s.w;ok.push(id)}});
+  return ok;
+}
+function applyLoadout(list){
+  S.loadout=list.slice();
+  S.mod.world=Meta.worldPenalty(list);
+  list.forEach(function(id){
+    const s=Meta.skillById(id);if(!s)return;
+    if(id==='mech')S.a.feel=clamp(S.a.feel+8,0,100);
+    if(id==='frugal')S.cash+=5;
+    if(id==='school'){S.mod.school=true;S.rel.family=clamp(S.rel.family+5,0,100)}
+    if(id==='usedcar')S.mod.usedcar=true;
+    if(id==='nego'){S.mod.negoMul=1.3}
+    if(id==='street_net'){S.mod.heatMul=0.75}
+    if(id==='rally_bg')S.mod.rallyBg=true;
+    if(id==='academy')S.mod.academy=true;
+  });
+}
+function toast(txt,kind){
+  const box=$('toast');if(!box)return;
+  while(box.children.length>=3)box.removeChild(box.firstChild);
+  const d=document.createElement('div');d.className='toast'+(kind==='tier'?' tier':'');
+  d.textContent=txt;box.appendChild(d);
+  setTimeout(function(){d.style.opacity='0';d.style.transition='opacity .3s';setTimeout(()=>d.remove(),320)},3200);
+}
+function isRaceCard(card){
+  const t=(card&&card.t)||'';
+  return /賽|落場|圈|彎|路試|跑|比賽|排位/.test(t);
+}
+function tagOf(o){
+  const f=o.fx||{};
+  if((f.heat||0)>=8||o.risk)return 'bo';
+  if((f.cash||0)<0||(f.rel&&Object.keys(f.rel).some(k=>f.rel[k]<0))||(f.route&&Object.keys(f.route).some(k=>f.route[k]<0)))return 'res';
+  if((f.disc||0)>0||(f.family||0)>0||(f.men||0)>0&&(f.drv||0)<=0)return 'shou';
+  if((f.drv||0)>=4||(f.nerve||0)>=4)return 'bo';
+  return 'deng';
+}
+function trackDecision(card,o){
+  S.stat.decisions++;
+  const tag=tagOf(o);S.stat.tags[tag]=(S.stat.tags[tag]||0)+1;
+  if(tag==='bo'&&((o.fx&&o.fx.heat)||0)>=6)S.stat.hard++;
+  if(isRaceCard(card)){S.stat.events++;S.stat.km+=12}else{S.stat.km+=2}
+  if(o.fx&&o.fx.inj)S.stat.crashes++;
+}
+function fxText(fx){
+  if(!fx)return '冇即時變化';
+  const out=[];
+  ATTRS.forEach(k=>{if(fx[k])out.push(L[k]+' '+(fx[k]>0?'+':'')+fx[k])});
+  if(fx.cash)out.push('現金 '+(fx.cash>0?'+':'')+fx.cash+' 萬');
+  if(fx.fame)out.push('FAME '+(fx.fame>0?'+':'')+fx.fame);
+  if(fx.heat)out.push('HEAT '+(fx.heat>0?'+':'')+fx.heat);
+  if(fx.inj)out.push('傷患 +'+fx.inj);
+  if(fx.rel)Object.keys(fx.rel).forEach(k=>out.push(RELN[k]+' '+(fx.rel[k]>0?'+':'')+fx.rel[k]));
+  if(fx.route)Object.keys(fx.route).forEach(k=>out.push('車隊'+({trust:'信任',matey:'默契',gang:'關係'})[k]+' '+(fx.route[k]>0?'+':'')+fx.route[k]));
+  return out.join(' · ')||'冇即時變化';
+}
+function summary(){
+  const r=S.door||S.forced||'f4';
+  return {
+    complete:!!S.endKind, settle:S.endKind==='settle', route:r,
+    inj:S.inj, heat:S.heat, family:S.rel.family, rival:S.rel.rival,
+    licence:S.licence, gear:S.gear, wrong:S.wrong||0, examFails:S.stat.examFails,
+    examPass:!!(S.licence&&S.shame===0)||!!S.licence,
+    buyLicence:!!S.stat.buyLicence, arrested:!!S.flags.arrested, noDoor:!!S.flags.noDoor,
+    crashes:S.stat.crashes, decisions:S.stat.decisions, events:S.stat.events, km:Math.round(S.stat.km),
+    tags:S.stat.tags, hardChoices:S.stat.hard
+  };
+}
+function finaliseRun(){
+  if(typeof Meta==='undefined')return {ach:[],tiers:[]};
+  const R=summary();
+  const ach=Meta.evaluateRun(R);
+  const tiers=Meta.addTotals({km:R.km,runs:1,decisions:R.decisions,events:R.events,route:R.complete?R.route:null});
+  const gains=ach.concat(tiers);
+  const apGain=gains.reduce((n,g)=>n+g.ap,0);
+  gains.slice(0,2).forEach(function(g){toast((g.kind==='tier'?'進度 · ':'成就 · ')+g.n+'　+'+g.ap+' AP',g.kind)});
+  if(gains.length>2)toast('其餘 '+(gains.length-2)+' 項　+'+(apGain-gains.slice(0,2).reduce((n,g)=>n+g.ap,0))+' AP','tier');
+  return {ach:ach,tiers:tiers,meta:Meta.read(),apGain:apGain};
+}
+function renderEndMeta(res){
+  const m=(res&&res.meta)||(typeof Meta!=='undefined'?Meta.read():null);
+  const km=Math.round(S.stat.km);
+  const rows=[
+    ['本局里程',km+' 公里'],
+    ['本局決策',S.stat.decisions+' 個'],
+    ['本局賽事',S.stat.events+' 場'],
+    ['本局成就',String((res.ach||[]).length)+' 個　+'+(res.ach||[]).reduce((n,g)=>n+g.ap,0)+' AP'],
+    ['進度獎勵',((res.tiers||[]).length||0)+' 項　+'+((res.tiers||[]).reduce((n,g)=>n+g.ap,0))+' AP'],
+    ['本局 AP 合計','+'+(res.apGain||0)+' AP'],
+    ['累計里程',m?m.km+' 公里':'—'],
+    ['累計局數',m?m.runs+' 局':'—'],
+    ['AP 結餘',m?m.ap+' AP':'—']
+  ];
+  $('endMetaTable').innerHTML=rows.map(x=>'<tr><td>'+x[0]+'</td><td>'+x[1]+'</td></tr>').join('');
+  const got=(res.ach||[]);
+  $('endAch').innerHTML='<div class="kicker" style="margin-top:16px">本局成就</div>'+
+    (got.length?('<div class="achgrid">'+got.map(g=>'<div class="achbox got"><span class="ap">+'+g.ap+'</span><b>'+g.n+'</b></div>').join('')+'</div>')
+              :'<p style="font-size:13px">今局冇新成就。成就只計一次，重複做同一件事唔會再俾 AP。</p>')+
+    '<p style="font-size:12px;margin-top:10px"><a href="index.html" style="color:var(--px-amber)">去主頁睇成就牆同技能店 →</a></p>';
+}
+
+/* ---------------- 像素後果動畫 ---------------- */
+const SCENE_LABEL={track:'TRACK · 賽道',garage:'GARAGE · 車房',home:'HOME · 屋企',street:'STREET · 街',exam:'TEST · 路試',money:'DEAL · 枱面',hospital:'WARD · 醫院'};
+function sceneOf(card,o){
+  const f=o.fx||{},t=(card&&card.t)||'';
+  if(f.inj)return 'track';
+  if(/路試|考車|考官|筆試|牌照|波箱/.test(t))return 'exam';
+  if(/賭|幫會|夜賽|街|警察|收你|跟/.test(t)||card.kind==='street')return 'street';
+  if(/學業|文憑|學校|家人|阿媽|阿爸|屋企|飯|派對/.test(t))return 'home';
+  if(/賽|落場|圈|彎|排位|計時|比賽/.test(t))return 'track';
+  if(/車房|整車|技師|工具|抹車|部車/.test(t))return 'garage';
+  if((f.cash||0)>=6||/贊助|合約|錢|報名費|人工|席位/.test(t))return 'money';
+  if(card.kind==='social')return 'home';
+  if(/車|練習|跑/.test(t))return 'track';
+  return 'garage';
+}
+function toneOf(o){
+  const f=o.fx||{};
+  if(o.tone)return o.tone;
+  if(f.inj)return 'crash';
+  let s=0;
+  ATTRS.forEach(k=>{if(f[k])s+=f[k]*0.8});
+  if(f.fame)s+=f.fame*0.18;
+  if(f.cash)s+=f.cash>0?Math.min(6,f.cash*0.2):f.cash*0.25;
+  if(f.heat)s-=f.heat*0.16;
+  if(f.rel)Object.keys(f.rel).forEach(k=>{s+=f.rel[k]*0.14});
+  if(f.route)Object.keys(f.route).forEach(k=>{s+=f.route[k]*0.1});
+  if(s>=3)return 'good';
+  if(s<=-1.2)return 'bad';
+  return 'neutral';
+}
+function capShow(el,txt,tone){
+  el.textContent=txt;
+  el.className='capsule on'+(tone==='good'?' good':(tone==='bad'||tone==='crash'?' bad':(tone==='warn'?' warn':'')));
+}
+function capHide(el){el.className='capsule'}
+function stageFor(card){
+  const cv=$('stage');if(!cv)return;
+  const type=sceneOf(card,{fx:{}});
+  $('stageLabel').textContent=SCENE_LABEL[type]||'TRACK';
+  try{PX.still(cv,type)}catch(e){}
+}
+function playBeat(card,o,deltaText,cb){
+  const cv=$('stage'),cap=$('stageCap');
+  const type=sceneOf(card,o),tone=toneOf(o);
+  $('stageLabel').textContent=SCENE_LABEL[type]||'TRACK';
+  capHide(cap);
+  let done=false;
+  const finish=function(){
+    if(done)return;done=true;
+    capShow(cap,deltaText,tone==='crash'?'bad':tone);
+    const hold=PX.reduced?350:1000;
+    setTimeout(function(){capHide(cap);cb()},hold);
+  };
+  try{
+    PX.play(cv,{type:type,tone:tone,dur:tone==='crash'?1.1:1.5}).then(finish);
+  }catch(e){finish()}
 }
 
 function startRun(){
@@ -390,6 +623,12 @@ function startRun(){
   if(location.search.indexOf('door=')>=0){
     const forced=(location.search.match(/door=(\w+)/)||[])[1];
     if(forced)S.forced=forced;
+  }
+  const load=loadoutFromMeta();
+  applyLoadout(load);
+  if(load.length){
+    const names=load.map(id=>{const s=Meta.skillById(id);return s?s.n:id}).join('、');
+    logit('帶入技能：'+names);
   }
   wipe();save();beginYear();
 }
@@ -437,11 +676,14 @@ function nextBeat(){
   if(b.k==='examres'){renderExamRes();return}
   if(b.k==='settle'){settle20();return}
 }
-function renderAlloc(){
+function renderAlloc() {
   show('#scAlloc');
   alloc=Array(ACTS.length).fill(0);
   $('allocKicker').textContent=S.year+' 歲 · 時間分配';
   $('allocHint').textContent='每年十點。一定要放棄一樣。';
+  const scn=S.year===14?'GARAGE · 14':(S.year>=16?'TRACK · '+S.year:'GARAGE · '+S.year);
+  $('allocScene').textContent=scn;
+  try{PX.still($('stageAlloc'),S.year>=16?'track':'garage')}catch(e){};
   const box=$('allocList');box.innerHTML='';
   ACTS.forEach(function(act,i){
     const row=document.createElement('div');row.className='arow';
@@ -477,8 +719,21 @@ function renderAlloc(){
         }
       }
     });
-    logit('時間分配：'+ACTS.map(function(a,i){return a.n+' '+alloc[i]}).filter(function(x){return !/ 0$/.test(x)}).join('、'));
-    S.bi++;save();nextBeat();
+    S.stat.km+=alloc[4]*4;
+    const line='時間分配：'+ACTS.map(function(a,i){return a.n+' '+alloc[i]}).filter(function(x){return !/ 0$/.test(x)}).join('、');
+    logit(line);
+    paintHud();save();
+    const btn=$('btnAlloc');btn.disabled=true;
+    const cap=$('allocCap'),cv=$('stageAlloc');
+    const tone=alloc[4]>0?'good':'neutral';
+    const hold=PX.reduced?300:1000;
+    const done=function(){capHide(cap);S.bi++;save();nextBeat()};
+    try{
+      PX.play(cv,{type:S.year>=16?'track':'garage',tone:tone,dur:1.2}).then(function(){
+        capShow(cap,line.replace('時間分配：','今年：'),tone);
+        setTimeout(done,hold);
+      });
+    }catch(e){done()}
   };
 }
 function renderCard(card){
@@ -486,21 +741,39 @@ function renderCard(card){
   $('cardKicker').textContent=S.year+' 歲 · '+String(S.bi===0?1:S.bi)+' / '+S.beats.length;
   $('cardTitle').textContent=card.t;
   $('cardPremise').textContent=card.p;
+  stageFor(card);
   const box=$('cardOpts');box.innerHTML='';
-  card.o.forEach(function(o,i){
+  let optList=card.o.slice();
+  if(card.id==='y14a'&&S.mod.usedcar&&optList.length<4){
+    optList.push({t:'兩部都殺價',s:'二手車專家：兩部都試，壓價',fx:{cash:-10,feel:4,men:2},l:'你用行家眼光壓價。兩部車你都試過，最後揀咗一部。'});
+  }
+  optList.forEach(function(o,i){
     const btn=document.createElement('button');btn.className='opt';
     btn.innerHTML='<div class="lab">'+o.t+'<small>'+o.s+'</small></div>';
     btn.onclick=function(){
-      applyFx(o.fx);
-      if(o.prep)S.prep+=o.prep;
-      if(o.gear){S.gear=o.gear;S.licence=o.gear==='auto'?'auto':null}
-      if(o.gamble){
-        if(Math.random()<0.45){S.cash+=18;logit('賭贏：現金 +18 萬');S.fame=clamp(S.fame+10,0,100)}
-        else{S.cash=Math.max(0,S.cash-6);S.heat=clamp(S.heat+14,0,100);S.flags.debt+=8;logit('賭輸：欠債增加')}
-      }
-      logit(o.l);
-      paintHud();save();
-      S.bi++;nextBeat();
+      if(box.dataset.locked==='1')return;
+      box.dataset.locked='1';
+      box.querySelectorAll('button').forEach(b=>{b.disabled=true;b.classList.add('is-out')});
+      let gambleWin=null;
+      if(o.gamble)gambleWin=Math.random()<0.45;
+      const oo=Object.assign({},o);
+      if(gambleWin!==null)oo.tone=gambleWin?'good':'bad';
+      let delta=fxText(o.fx);
+      if(gambleWin!==null)delta=(gambleWin?'賭贏：現金 +18 萬 · FAME +10':'賭輸：現金 −6 萬 · HEAT +14 · 欠債 +8 萬');
+      playBeat(card,oo,delta,function(){
+        applyFx(o.fx);
+        if(o.prep)S.prep+=o.prep;
+        if(o.gear){S.gear=o.gear;S.licence=o.gear==='auto'?'auto':null}
+        if(gambleWin!==null){
+          if(gambleWin){S.cash+=18;logit('賭贏：現金 +18 萬');S.fame=clamp(S.fame+10,0,100)}
+          else{S.cash=Math.max(0,S.cash-6);S.heat=clamp(S.heat+14,0,100);S.flags.debt+=8;logit('賭輸：欠債增加')}
+        }
+        trackDecision(card,oo);
+        logit(o.l);
+        paintHud();save();
+        box.dataset.locked='0';
+        S.bi++;nextBeat();
+      });
     };
     box.appendChild(btn);
   });
@@ -515,13 +788,19 @@ function renderGear(){
   $('cardKicker').textContent='18 歲 · 考車';
   $('cardTitle').textContent=GEAR.t;
   $('cardPremise').textContent=GEAR.p;
+  stageFor({t:'考車 波箱',kind:'tech'});
   const box=$('cardOpts');box.innerHTML='';
   GEAR.o.forEach(function(o){
     const btn=document.createElement('button');btn.className='opt';
     btn.innerHTML='<div class="lab">'+o.t+'<small>'+o.s+'</small></div>';
     btn.onclick=function(){
-      S.gear=o.gear;S.licence=o.gear==='auto'?'auto':null;
-      logit(o.l);save();S.bi++;nextBeat();
+      if(box.dataset.locked==='1')return;
+      box.dataset.locked='1';box.querySelectorAll('button').forEach(b=>b.disabled=true);
+      playBeat({t:'考車 波箱'},{tone:'neutral'},o.t,function(){
+        S.gear=o.gear;S.licence=o.gear==='auto'?'auto':null;
+        S.stat.decisions++;S.stat.km+=2;
+        logit(o.l);save();box.dataset.locked='0';S.bi++;nextBeat();
+      });
     };
     box.appendChild(btn);
   });
@@ -534,27 +813,34 @@ function renderExam(){
   const q=QS[idx];
   $('cardTitle').textContent='第 '+(idx+1)+' / 3 題';
   $('cardPremise').textContent=q.t;
+  stageFor({t:'路試 筆試',kind:'tech'});
   const box=$('cardOpts');box.innerHTML='';
   const order=shuf(q.a);
   order.forEach(function(a){
     const btn=document.createElement('button');btn.className='opt';
     btn.innerHTML='<div class="lab">'+a.t+'</div>';
     btn.onclick=function(){
-      S.qok++;
-      if(!a.ok)S.wrong=(S.wrong||0)+1;
-      const d=document.createElement('div');d.textContent=(a.ok?'啱。':'錯。')+q.e;
-      S.log.push('[18 歲] '+d.textContent);
-      save();
-      if(S.qok>=3){S.bi++;nextBeat()}else{renderExam()}
+      if(box.dataset.locked==='1')return;
+      box.dataset.locked='1';box.querySelectorAll('button').forEach(b=>b.disabled=true);
+      const line=(a.ok?'啱。':'錯。')+q.e;
+      playBeat({t:'路試 筆試'},{tone:a.ok?'good':'bad'},line,function(){
+        S.qok++;
+        if(!a.ok)S.wrong=(S.wrong||0)+1;
+        S.stat.decisions++;S.stat.km+=2;
+        S.log.push('[18 歲] '+line);
+        save();box.dataset.locked='0';
+        if(S.qok>=3){S.bi++;nextBeat()}else{renderExam()}
+      });
     };
     box.appendChild(btn);
   });
   renderLog();
 }
-function renderExamRes(){
+function renderExamRes() {
   const d=der();
   let p=55+d.stb*0.25+S.a.feel*0.15-S.heat*0.30+S.prep;
   p+=(S.gear==='manual')?-10:15;
+  p-=3*(S.mod.world||0);
   if(S.gear==='manual'){
     const w=S.wrong||0;
     if(w===0){p+=10;S.a.feel=clamp(S.a.feel+6,0,100);S.respect=clamp(S.respect+8,0,100)}
@@ -568,12 +854,17 @@ function renderExamRes(){
     S.licence=S.gear;
     $('cardTitle').textContent='合格';
     $('cardPremise').textContent='考官簽紙。你手上有一張正式牌照（'+(S.gear==='manual'?'棍波':'自動波')+'）。合格率推算 '+Math.round(p)+'%。';
+    stageFor({t:'路試 結果'});
     const box=$('cardOpts');box.innerHTML='';
-    const btn=document.createElement('button');btn.className='opt';
+    const btn=document.createElement('button');btn.className='opt';btn.disabled=true;
     btn.innerHTML='<div class="lab">繼續</div>';
-    btn.onclick=function(){logit('考車合格（'+S.gear+'）');save();S.bi++;nextBeat()};
+    btn.onclick=function(){logit('考車合格（'+S.gear+'）');S.stat.decisions++;save();S.bi++;nextBeat()};
     box.appendChild(btn);
+    playBeat({t:'路試 結果'},{tone:'good'},'合格 · '+(S.gear==='manual'?'棍波':'自動波')+' · 推算 '+Math.round(p)+'%',function(){
+      btn.disabled=false;
+    });
   }else{
+    S.stat.examFails++;
     spawnFail();
   }
   renderLog();
@@ -581,6 +872,7 @@ function renderExamRes(){
 function spawnFail(){
   $('cardTitle').textContent='肥佬';
   $('cardPremise').textContent='考官話你「控制唔穩定」。你可以再考、買牌，或者放棄。';
+  stageFor({t:'路試 肥佬'});
   const box=$('cardOpts');box.innerHTML='';
   const opts=[
    {t:'再考一次',s:'四萬，準備再升',fx:{cash:-4,men:2},l:'你報咗下一次。'},
@@ -591,38 +883,62 @@ function spawnFail(){
     const btn=document.createElement('button');btn.className='opt';
     btn.innerHTML='<div class="lab">'+o.t+'<small>'+o.s+'</small></div>';
     btn.onclick=function(){
-      applyFx(o.fx);logit(o.l);
-      if(o.t==='再考一次'){S.prep+=8;renderExamRes();return}
-      if(o.t==='走後門買牌'){S.licence='auto';S.shame=1;S.bi++;nextBeat();return}
-      S.over=true;save();ending('你冇再考牌。七年之後，你仲係喺車房做學徒。');
+      if(box.dataset.locked==='1')return;
+      box.dataset.locked='1';box.querySelectorAll('button').forEach(b=>b.disabled=true);
+      playBeat({t:'路試 肥佬'},{tone:o.t==='再考一次'?'neutral':'bad'},o.t,function(){
+        applyFx(o.fx);logit(o.l);S.stat.decisions++;
+        if(o.t==='再考一次'){S.prep+=8;save();box.dataset.locked='0';renderExamRes();return}
+        if(o.t==='走後門買牌'){S.licence='auto';S.shame=1;S.stat.buyLicence=true;save();box.dataset.locked='0';S.bi++;nextBeat();return}
+        S.over=true;S.endKind='ending';save();
+        const res=finaliseRun();
+        ending('你冇再考牌。七年之後，你仲係喺車房做學徒。',res);
+      });
     };
     box.appendChild(btn);
   });
 }
 function toDoors(){
   const d=der();
+  const w=(S.mod.world||0)*5, ac=(S.mod.academy?8:0);
   let open=[];
-  if((d.spd>=60||d.stb>=70)&&(S.cash>=30||S.fame>=40)&&S.rel.family>=50)open.push('f4');
-  if((S.a.feel>=55||S.a.nerve>=65)&&S.rel.mentor>=60)open.push('rally');
-  if(S.heat>=40||S.fame>=50)open.push('street');
+  if((d.spd>=60-w||d.stb>=70-w)&&(S.cash>=30-w-ac||S.fame>=40-w-ac)&&S.rel.family>=50)open.push('f4');
+  if(((S.a.feel>=55||S.a.nerve>=65)&&S.rel.mentor>=60&&w<15)||S.mod.rallyBg)open.push('rally');
+  if(S.heat>=40-w||S.fame>=50-w)open.push('street');
   if(S.forced)open=[S.forced];
   if(!open.length){
+    S.flags.noDoor=true;
     const score={f4:(d.spd+d.stb)/2,rally:(S.a.feel+S.a.nerve)/2,street:(S.heat+S.fame)/2};
     open.push(Object.keys(score).sort(function(a,b){return score[b]-score[a]})[0]);
   }
   S.doors=open;save();
   show('#scDoor');
   const names={f4:'F4 正規軍',rally:'Rally',street:'街頭'};
-  $('doorWhy').textContent='速度 '+d.spd+'／穩定 '+d.stb+'／車感 '+S.a.feel+'／膽量 '+S.a.nerve+'／HEAT '+S.heat+'／FAME '+S.fame+'／家人 '+S.rel.family+'／師傅 '+S.rel.mentor;
+  $('doorScene').textContent=S.flags.noDoor?'NO DOOR · 冇門開':'DOORS · '+open.length;
+  try{PX.still($('stageDoor'),open[0]==='street'?'street':(open[0]==='rally'?'exam':'track'))}catch(e){}
+  $('doorWhy').textContent='速度 '+d.spd+'／穩定 '+d.stb+'／車感 '+S.a.feel+'／膽量 '+S.a.nerve+'／HEAT '+S.heat+'／FAME '+S.fame+'／家人 '+S.rel.family+'／師傅 '+S.rel.mentor+((S.mod.world||0)?'　（技能負重令對手＋'+w+'）':'');
   const box=$('doorOpts');box.innerHTML='';
   open.forEach(function(r){
     const btn=document.createElement('button');btn.className='opt';
     btn.innerHTML='<div class="lab">'+names[r]+'<small>門開咗，你可以行入去</small></div>';
     btn.onclick=function(){
-      S.door=r;S.year=18;logit('揀咗'+names[r]);
-      if(r==='rally'){S.a.feel=clamp(S.a.feel+4,0,100)}
-      if(r==='street'){S.heat=clamp(S.heat+6,0,100)}
-      save();beginYear();
+      if(box.dataset.locked==='1')return;
+      box.dataset.locked='1';box.querySelectorAll('button').forEach(b=>b.disabled=true);
+      const type=r==='street'?'street':(r==='rally'?'exam':'track');
+      const tone=r==='street'?'warn':'good';
+      const cap=$('doorCap');
+      const go=function(){
+        S.door=r;S.year=18;logit('揀咗'+names[r]);
+        if(r==='rally'){S.a.feel=clamp(S.a.feel+4,0,100)}
+        if(r==='street'){S.heat=clamp(S.heat+6,0,100)}
+        save();box.dataset.locked='0';beginYear();
+      };
+      $('doorScene').textContent=(r==='f4'?'F4 · 正規':(r==='rally'?'RALLY':'STREET'));
+      try{
+        PX.play($('stageDoor'),{type:type,tone:tone,dur:1.4}).then(function(){
+          capShow(cap,names[r]+' · 行入去',tone==='warn'?'warn':'good');
+          setTimeout(function(){capHide(cap);go()},PX.reduced?350:900);
+        });
+      }catch(e){go()}
     };
     box.appendChild(btn);
   });
@@ -644,9 +960,16 @@ function settle20(){
     else if(S.heat>=40){headline='HEAT '+S.heat+' —— 警方上門問話。你收手，HEAT −20。';S.heat=Math.max(0,S.heat-20)}
     else headline='HEAT '+S.heat+' —— 你行得通。';
   }
-  S.resolved20=headline;S.over=true;save();
-  if(S.flags.arrested){ending('你 20 歲，有案底。');return}
-  if(S.inj>=2){ending('你 20 歲，身體已經唔許可你繼續。');return}
+  S.resolved20=headline;
+  const first=!S.endKind;
+  S.over=true;
+  if(first){
+    if(r==='f4')S.stat.km+=60;else if(r==='rally')S.stat.km+=90;else S.stat.km+=30;
+  }
+  save();
+  if(S.flags.arrested){S.endKind='ending';save();ending('你 20 歲，有案底。');return}
+  if(S.inj>=2){S.endKind='ending';save();ending('你 20 歲，身體已經唔許可你繼續。');return}
+  S.endKind='settle';save();
   const top=ATTRS.slice().sort(function(a,b){return S.a[b]-S.a[a]});
   const rows=[
    ['最強',L[top[0]]+' '+S.a[top[0]]+'、'+L[top[1]]+' '+S.a[top[1]]+'、'+L[top[2]]+' '+S.a[top[2]]],
@@ -662,14 +985,18 @@ function settle20(){
   $('endBody').textContent=headline;
   $('endTable').innerHTML=rows.map(function(x){return '<tr><td>'+x[0]+'</td><td>'+x[1]+'</td></tr>'}).join('');
   show('#scEnd');
+  const res=first?finaliseRun():{ach:[],tiers:[],meta:(typeof Meta!=='undefined'?Meta.read():null)};
+  renderEndMeta(res);
   $('endLog').innerHTML='';
   S.log.forEach(function(t){const d2=document.createElement('div');d2.textContent=t;$('endLog').appendChild(d2)});
 }
-function ending(msg){
+function ending(msg,res){
   $('endTitle').textContent='結局';
   $('endBody').textContent=msg;
   $('endTable').innerHTML='<tr><td>年齡</td><td>'+S.year+' 歲</td></tr><tr><td>HEAT</td><td>'+S.heat+'</td></tr><tr><td>傷患</td><td>'+S.inj+'</td></tr>';
   show('#scEnd');
+  if(!res)res=finaliseRun();
+  renderEndMeta(res);
   $('endLog').innerHTML='';
   S.log.forEach(function(t){const d2=document.createElement('div');d2.textContent=t;$('endLog').appendChild(d2)});
 }
@@ -682,12 +1009,22 @@ $('btnResume').onclick=function(){nextBeat()};
 (function boot(){
   Object.assign(S,newState());
   paintHud();
-  if(load()){
-    $('btnResume').hidden=false;
-    $('seedLine').textContent='有一局未完成：'+S.year+' 歲，已經行咗 '+S.log.length+' 個決定。';
-    if(S.over){$('btnResume').hidden=true}
+  try{PX.still($('stageIntro'),'garage')}catch(e){}
+  let ap=0,bring=[];
+  if(typeof Meta!=='undefined'){
+    const m=Meta.read();ap=m.ap;bring=loadoutFromMeta();
+  }
+  const loadTxt=bring.length?('帶住：'+bring.map(id=>{const s=Meta.skillById(id);return s?s.n:id}).join('、')):'冇帶技能（可以去主頁技能店買）';
+  if(load()) {
+    if(S.over){
+      $('btnResume').hidden=true;
+      $('seedLine').textContent='上一局已完成：'+S.year+' 歲，'+S.log.length+' 個決定。　'+loadTxt;
+    }else{
+      $('btnResume').hidden=false;
+      $('seedLine').textContent='有一局未完成：'+S.year+' 歲，已經行咗 '+S.log.length+' 個決定。　'+loadTxt;
+    }
   }else{
-    $('seedLine').textContent='離線可玩 · 單檔 · 冇 seed，每局都唔同';
+    $('seedLine').textContent='離線可玩 · 單檔 · 每局都唔同　·　AP '+ap+'　·　'+loadTxt;
   }
 })();
 </script>
