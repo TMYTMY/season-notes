@@ -413,6 +413,7 @@ const JUDGE={
 'y14a:0':{chk:'feel',dc:44,f:{feel:1,men:-4,cash:-2},l:'車架問題比想像嚴重，半年後要重買。'},
 'y14a:1':{chk:'disc',dc:40,f:{rea:-1,cash:-2},l:'引擎喺區賽前壞，你要再借錢。'},
 'y14a:2':{auto:1},
+'y14a:3':{chk:'feel',dc:48,f:{feel:2,cash:-4,men:-2},l:'兩部都壓唔到價，仲要重新搵車。'},
 'y14b:0':{chk:'feel',dc:42,f:{feel:2,family:-9,men:-2},l:'成績表出事，屋企人殺上車房。'},
 'y14b:1':{auto:1},
 'y14b:2':{chk:'sta',dc:46,f:{sta:-8,feel:-2,family:-4},l:'你兩邊都病咗一場。'},
@@ -587,11 +588,13 @@ function applyFx(fx){
     S.heat=clamp(S.heat+h,0,100);
   }
   if(fx.respect)S.respect=clamp(S.respect+fx.respect,0,100);
-  if(fx.rel)Object.keys(fx.rel).forEach(k=>{
-    let v=fx.rel[k];
+  const applyRel=function(k,v){
+    if(typeof v!=='number')return;
     if(S.mod.school&&k==='family'&&v<0)v=Math.round(v*0.5);
     S.rel[k]=clamp(S.rel[k]+v,0,100);
-  });
+  };
+  if(fx.rel)Object.keys(fx.rel).forEach(k=>applyRel(k,fx.rel[k]));
+  ['mentor','family','rival'].forEach(k=>applyRel(k,fx[k]));
   if(fx.route)Object.keys(fx.route).forEach(k=>{S.vals[k]=clamp(S.vals[k]+fx.route[k],0,100)});
   if(fx.inj){S.inj+=fx.inj;S.a.nerve=clamp(S.a.nerve-5,0,100);S.a.rea=clamp(S.a.rea-8,0,100)}
 }
@@ -654,6 +657,7 @@ function fxText(fx){
   if(fx.heat)out.push('HEAT '+(fx.heat>0?'+':'')+fx.heat);
   if(fx.inj)out.push('傷患 +'+fx.inj);
   if(fx.rel)Object.keys(fx.rel).forEach(k=>out.push(RELN[k]+' '+(fx.rel[k]>0?'+':'')+fx.rel[k]));
+  ['mentor','family','rival'].forEach(k=>{if(typeof fx[k]==='number')out.push(RELN[k]+' '+(fx[k]>0?'+':'')+fx[k])});
   if(fx.route)Object.keys(fx.route).forEach(k=>out.push('車隊'+({trust:'信任',matey:'默契',gang:'關係'})[k]+' '+(fx.route[k]>0?'+':'')+fx.route[k]));
   return out.join(' · ')||'冇即時變化';
 }
