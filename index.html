@@ -32,11 +32,12 @@ header.top{position:sticky;top:0;z-index:20;background:rgba(7,10,16,.94);border-
 .brand i{width:8px;height:8px;background:var(--amber);display:block;transform:rotate(45deg)}
 .apbox{margin-left:auto;display:flex;gap:6px;align-items:center;border:2px solid var(--amber);padding:4px 10px;font-size:12px;color:var(--amber);background:var(--panel2);min-height:38px}
 .apbox b{font-size:15px;font-variant-numeric:tabular-nums}
-.hero{position:relative;margin-top:16px;border:2px solid var(--line);background:#05080e;box-shadow:5px 5px 0 #000}
+.hero{position:relative;margin-top:16px;border:2px solid var(--line);background:#05080e;box-shadow:5px 5px 0 #000;display:grid;grid-template-columns:1fr}
+.hero .media{position:relative;overflow:hidden;min-width:0}
 .hero canvas{display:block;width:100%;height:auto;image-rendering:pixelated;image-rendering:crisp-edges}
-.hero .veil{position:absolute;inset:0;background:linear-gradient(180deg,rgba(5,8,14,.12) 0%,rgba(5,8,14,.5) 52%,rgba(5,8,14,.93) 100%)}
-.hero .txt{position:absolute;left:0;right:0;bottom:0;padding:14px 16px 16px}
-.hero h1{font-size:clamp(20px,4.6vw,30px)}
+.hero .veil{position:absolute;inset:0;background:linear-gradient(180deg,rgba(5,8,14,0) 55%,rgba(5,8,14,.55) 100%)}
+.hero .txt{padding:14px 16px 16px;min-width:0}
+.hero h1{font-size:clamp(20px,2.4vw,28px)}
 .hero .sub{font-size:12.5px;color:var(--slate);margin:0 0 10px}
 .btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;min-height:46px;padding:10px 18px;
   border:2px solid var(--amber);border-radius:2px;background:var(--amber);color:#0b0f14;font-weight:700;font-size:14px;
@@ -54,6 +55,8 @@ section.blk{margin-top:26px}
 .grid{display:grid;gap:10px}
 .g2{grid-template-columns:repeat(auto-fit,minmax(240px,1fr))}
 .g3{grid-template-columns:repeat(auto-fit,minmax(210px,1fr))}
+#bars{grid-template-columns:repeat(2,minmax(0,1fr))}
+.slot{border:2px dashed var(--line2);min-height:44px;min-width:66px;display:inline-flex;align-items:center;justify-content:center;color:var(--muted);font-size:12px;font-family:ui-monospace,monospace}
 .statline{display:flex;gap:8px;flex-wrap:wrap;margin-top:2px}
 .chip{border:2px solid var(--line2);background:var(--panel2);padding:3px 9px;font-size:12px;color:var(--slate);min-height:32px;display:inline-flex;align-items:center;gap:6px}
 .chip b{color:var(--paper);font-variant-numeric:tabular-nums}
@@ -89,11 +92,16 @@ section.blk{margin-top:26px}
 .links a{border:2px solid var(--line2);background:var(--panel2);padding:12px 11px;min-height:44px;text-decoration:none;color:var(--slate);font-size:12.5px;display:block}
 .links a b{display:block;color:var(--paper);font-size:13.5px;margin-bottom:2px}
 .foot{font-size:11.5px;color:var(--muted);margin-top:26px;border-top:1px solid var(--line2);padding-top:12px}
+@media (min-width:900px){#bars{grid-template-columns:repeat(4,minmax(0,1fr))}}
+@media (min-width:700px){
+  .hero{grid-template-columns:minmax(0,1.5fr) minmax(300px,1fr);align-items:stretch}
+  .hero .txt{display:flex;flex-direction:column;justify-content:center;border-left:2px solid var(--line);background:#080d15;padding:18px}
+  .hero h1{font-size:24px}
+}
 @media (max-width:520px){
   h1{font-size:22px}
   .wrap{padding:0 12px 44px}
-  .hero .veil{display:none}
-  .hero .txt{position:static;background:#080d15;border-top:2px solid var(--line);padding:12px}
+  .hero .txt{padding:12px}
   .hero .sub{font-size:12px}
   .btn{width:100%}
   .btnrow{gap:7px}
@@ -113,8 +121,10 @@ section.blk{margin-top:26px}
 
 <div class="wrap">
   <div class="hero">
-    <canvas id="hero" width="160" height="90" aria-hidden="true"></canvas>
-    <div class="veil"></div>
+    <div class="media">
+      <canvas id="hero" width="160" height="90" aria-hidden="true"></canvas>
+      <div class="veil"></div>
+    </div>
     <div class="txt">
       <h1>14 → 20　造人，然後定方向</h1>
       <p class="sub" id="heroSub">七年、二十六個決定。成就買起點，唔買結果。</p>
@@ -127,6 +137,7 @@ section.blk{margin-top:26px}
 
   <section class="blk">
     <div class="head"><span class="kicker">局外進度</span><span class="right" id="runNote"></span></div>
+    <p style="font-size:12px;color:var(--muted);margin:-2px 0 10px">四條進度各自計，跨過門檻就派 AP；AP 用嚟買技能（買起點，唔買結果）。</p>
     <div class="panel flat">
       <div class="statline" id="totals"></div>
       <div class="grid g2" style="margin-top:14px" id="bars"></div>
@@ -247,7 +258,8 @@ function renderLoadout(){
   const w=Meta.weightOf(M.loadout);
   $('weightNote').textContent='負重 '+w+' / '+cap;
   if(!owned.length){
-    $('loadrow').innerHTML='<span class="chip">未有技能。買第一個技能之後，可以喺呢度揀帶邊幾個。</span>';
+    const slots=[];for(let i=0;i<cap;i++)slots.push('<span class="slot">空</span>');
+    $('loadrow').innerHTML=slots.join('')+'<span class="chip" style="border:none;background:none;color:var(--muted)">買第一個技能之後，可以喺呢度揀帶邊幾個。</span>';
     $('loadNote').textContent='';
     return;
   }
