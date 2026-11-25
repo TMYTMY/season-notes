@@ -1,16 +1,12 @@
-/* Career meta — 成就 / 技能 / 累計進度
-   由 index.html（主頁，局外）同 career.html（局內）共用。
-   規則出自 vault：專案/F1/cards/30_成就與技能.md
-   一次性成就只給一次 AP；只有四條累計進度有長尾。 */
 (function (root) {
   'use strict';
 
   var META_KEY = 'career.meta.v1';
-  var RUN_KEY = 'career.save.v4';
-  var OLD_KEY = 'career.save.v3';
+  var RUN_KEY = 'career.save.v5';
+  var OLD_KEY = 'career.save.v4';
+  var LEGACY_KEY = 'career.save.v3';
 
-  /* ---------- 累計門檻（已按實測「一局里程」校準，見 TIER_UNIT） ---------- */
-  var TIER_UNIT = 266;            // 實測一局中位數公里（12 次自動跑：226 / 266 / 306）
+  var TIER_UNIT = 266;
   var TIERS = {
     km: [266, 798, 2128, 5320, 13300],
     runs: [1, 3, 8, 20, 50],
@@ -21,7 +17,6 @@
   var TIER_LABEL = { km: '總行駛里程', runs: '累計局數', decisions: '累計決策數', events: '累計賽事場數' };
   var TIER_UNITNAME = { km: '公里', runs: '局', decisions: '個決定', events: '場' };
 
-  /* ---------- 一次性成就（23） ---------- */
   var ACH = [
     { id: 'first_run', cat: '里程碑', n: '第一次完成', ap: 50, c: '走完 14→20 一局', f: function (R) { return R.complete; } },
     { id: 'full7', cat: '里程碑', n: '七年全走完', ap: 100, c: '由 14 歲行到 20 歲結算卡', f: function (R) { return R.complete && R.settle; } },
@@ -54,7 +49,6 @@
     { id: 'all_routes', cat: '累計里程碑', n: '三路都玩過', ap: 150, c: '三條路各完成 3 次', f: function (R) { return R.meta.routes.f4 >= 3 && R.meta.routes.rally >= 3 && R.meta.routes.street >= 3; } }
   ];
 
-  /* ---------- 技能店（8） ---------- */
   var SKILLS = [
     { id: 'mech', tier: 1, n: '機械入門', ap: 80, w: 2, d: '車感 +8', note: '只加快起步，不改上限' },
     { id: 'frugal', tier: 1, n: '慳家', ap: 80, w: 2, d: '現金 +5 萬', note: '起始本錢' },
@@ -112,7 +106,6 @@
     return null;
   }
 
-  /* 評估一局：回傳新解鎖嘅成就（並即時寫入 AP） */
   function evaluateRun(R) {
     var m = read(), got = [];
     R.meta = m;
@@ -130,7 +123,6 @@
     return got;
   }
 
-  /* 累計進度：寫入本局數字，跨過門檻就發 AP */
   function addTotals(o) {
     var m = read(), got = [];
     ['km', 'runs', 'decisions', 'events'].forEach(function (k) {
@@ -169,12 +161,15 @@
     m.loadout = clean; write(m);
     return { ok: true };
   }
+  function readRunRaw() {
+    try { return localStorage.getItem(RUN_KEY) || localStorage.getItem(OLD_KEY) || localStorage.getItem(LEGACY_KEY); } catch (e) { return null; }
+  }
   function hasRun() {
-    try { return !!localStorage.getItem(RUN_KEY); } catch (e) { return false; }
+    return !!readRunRaw();
   }
   function runBrief() {
     try {
-      var o = JSON.parse(localStorage.getItem(RUN_KEY) || 'null');
+      var o = JSON.parse(readRunRaw() || 'null');
       if (!o || o.over) return null;
       return { year: o.year, log: (o.log || []).length };
     } catch (e) { return null; }
