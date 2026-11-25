@@ -1,5 +1,58 @@
 # tools/
 
+## play_test.py
+
+真行為測試：開 headless Chromium 載入 `career.html?seed=<n>`，逐個畫面撳真掣行完一局，再驗玩家見到嘅嘢。
+
+```bash
+python3 -m pip install playwright
+python3 -m playwright install chromium
+
+python3 tools/play_test.py --door f4 --seed 11
+python3 tools/play_test.py --door street --seed 11 --shots /tmp/shots
+python3 tools/play_test.py --door rally --seed 11 --twice
+```
+
+每個 run 會 assert：
+
+1. **決策數** — 最少 26 個（正常一局 30 個）。
+2. **Chapter report** — 行到 20 歲，有 band、score、route。
+3. **零 pageerror**。
+4. **Save key** — `localStorage['career.save.v5']` 存在、`v: 5`。
+5. **Save-resume** — 16 歲中途 reload，撳「繼續上一局」，返到同一張卡，`__snapshot()` 同 reload 前完全一樣。
+6. **390×844** — `scrollWidth` 唔超過 390，所有可見 `button`／`a[href]` 最少 44×44，逐個畫面檢查。
+
+`--door` 用現有 `?door=` demo 參數行指定路線；`--shots DIR` 會將 intro／時間分配／卡／門／報告截圖寫入 DIR；`--twice` 另外跑兩次同 seed 加一次 seed+1，證明決策、骰、報告一致，而唔同 seed 會出唔同卡集（多花約 40 秒）。
+
+Harness 用 `prefers-reduced-motion` 加速，但仍然行真 click flow。`PLAYWRIGHT_CHROME_PATH` 可以指定 Chromium binary，冇設就用 Playwright 內置嗰個。
+
+選項 policy 固定，所以 seed 可重現：普通卡輪流揀 option index；18 歲波箱一定揀棍波；路試肥佬會再考，三次之後買牌，唔會揀「放棄考牌」提早收場。
+
+## balance.py
+
+同一個 seam 跑 N 個 seed × 每條路線，出數而唔係感覺：
+
+```bash
+python3 tools/balance.py --runs 3 --out /tmp/balance.json
+python3 tools/balance.py --runs 10 --door f4 --seed 100 --out /tmp/f4.json
+```
+
+每條路線印一個 block：七個屬性 min／median／max、chapter band 分佈、roll 勝率、受傷率、卡池覆蓋（見過幾多個 card id／全池）、決策數分佈；最後印 `all routes` 合計。
+
+```text
+f4 · 3 runs · seeds 11–13
+  attr     min  median  max
+  rea      49      55    62
+  ...
+  bands        B 3
+  rolls        29/42 won (69.0%)
+  injuries     2/3 runs (66.7%)
+  coverage     43/75 card ids (57.3%)
+  decisions    min 30 · median 30 · max 30
+```
+
+JSON 寫去 `--out`，top-level keys：`generated`、`career`、`runs_per_route`、`seeds`、`card_pool`、`routes`、`overall`、`playthroughs`。`playthroughs` 每個 run 一行（seed、band、score、屬性、checks／wins、傷患、見過嘅卡），可以直接 diff 兩次改動。
+
 ## card_audit.py
 
 每次改 `career.html` 或 `career-cards.js` 之後跑一次。任何 agent（Hermes／Cursor／Codex）都可以用，唔需要我喺場。
