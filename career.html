@@ -44,7 +44,7 @@ p{color:var(--slate);margin:0 0 14px}
 .card{background:linear-gradient(160deg,var(--cardlift),var(--card2));border:1px solid var(--line2);border-left:3px solid var(--gold);border-radius:var(--r);padding:16px}
 .opts{display:flex;flex-direction:column;gap:9px;margin-top:16px}
 button{font:inherit;color:inherit;cursor:pointer;border-radius:var(--r);border:1px solid var(--line2);background:var(--card);text-align:left}
-button:focus-visible{outline:2px solid var(--gold2);outline-offset:2px}
+button:focus-visible,a:focus-visible{outline:2px solid var(--gold2);outline-offset:2px}
 .opt{display:flex;align-items:center;gap:10px;padding:13px 14px;min-height:56px;transition:border-color .15s,background .15s}
 .opt:hover{border-color:var(--gold2);background:var(--cardlift)}
 .opt .lab{flex:1}
@@ -53,13 +53,14 @@ button:focus-visible{outline:2px solid var(--gold2);outline-offset:2px}
 .btn{display:inline-block;padding:13px 20px;min-height:48px;background:var(--gold);color:#171307;border:none;border-radius:var(--r);font-weight:600;text-align:center}
 .btn.ghost{background:transparent;color:var(--paper);border:1px solid var(--line2)}
 .btn:disabled{opacity:.4;cursor:default}
+.btn[hidden]{display:none !important}
 .btnrow{display:flex;gap:10px;flex-wrap:wrap;margin-top:18px}
 .alloc{display:flex;flex-direction:column;gap:8px;margin-top:14px}
 .arow{display:flex;align-items:center;gap:10px;background:var(--card);border:1px solid var(--line);border-radius:var(--r);padding:10px 12px;min-height:56px}
 .arow .an{flex:1}
 .arow .an small{display:block;color:var(--muted);font-size:var(--fs-12)}
-.step{display:flex;align-items:center;gap:6px}
-.step button{width:44px;height:44px;display:flex;align-items:center;justify-content:center;font-size:20px;background:var(--card2);border:1px solid var(--line2);border-radius:9px;color:var(--paper);text-align:center}
+.step{display:flex;align-items:center;gap:6px;touch-action:manipulation}
+.step button{width:44px;height:44px;display:flex;align-items:center;justify-content:center;font-size:20px;background:var(--card2);border:1px solid var(--line2);border-radius:9px;color:var(--paper);text-align:center;touch-action:manipulation}
 .step .n{min-width:26px;text-align:center;font-variant-numeric:tabular-nums;color:var(--gold)}
 .left{color:var(--slate);font-size:var(--fs-14)}
 .left b{color:var(--gold);font-variant-numeric:tabular-nums}
@@ -98,7 +99,7 @@ header.hud{background:#070a10;border-bottom:2px solid var(--px-line)}
 .rate.auto{color:var(--muted);border-style:dashed}
 @keyframes pxshake{0%{transform:translate(0)}20%{transform:translate(-3px,1px)}40%{transform:translate(3px,-1px)}60%{transform:translate(-2px,1px)}80%{transform:translate(2px,0)}100%{transform:translate(0)}}
 .stagewrap.shake{animation:pxshake .38s steps(2,end)}
-#toast{position:fixed;right:10px;top:10px;z-index:60;display:flex;flex-direction:column;gap:6px;pointer-events:none;max-width:80vw}
+#toast{position:fixed;right:10px;top:calc(var(--hud-h, 96px) + 8px);z-index:20;display:flex;flex-direction:column;gap:6px;pointer-events:none;max-width:min(280px,calc(100vw - 24px))}
 .toast{background:#0d141d;border:2px solid var(--px-amber);padding:7px 10px;font-size:12px;line-height:1.4;color:var(--px-amber);box-shadow:3px 3px 0 #000}
 .toast.tier{border-color:#5b86c9;color:#a9c6ee}
 .achgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:8px;margin-top:12px}
@@ -132,7 +133,24 @@ header.hud{background:#070a10;border-bottom:2px solid var(--px-line)}
   .btnrow{gap:8px}
   .stat{font-size:11px;padding:2px 7px}
 }
-@media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+.btn:active:not(:disabled),a.btn:active,.opt:active:not(:disabled),.step button:active{transform:translate(3px,3px);box-shadow:0 0 0 #000}
+.opt,.step button{box-shadow:3px 3px 0 #000}
+#lnkAchWall{margin-top:12px}
+@media (max-width:430px){
+  #scAlloc.on{display:flex;flex-direction:column;padding-top:6px}
+  #scAlloc .kicker{order:0;margin-bottom:4px}
+  #scAlloc h2{order:1;font-size:16px;line-height:1.25;margin:0 0 4px}
+  #scAlloc #allocHint{order:2;font-size:13px;line-height:1.35;margin:0 0 4px}
+  #scAlloc .left{order:3;margin:0}
+  #scAlloc .alloc{order:4;gap:4px;margin-top:6px}
+  #scAlloc .arow{min-height:44px;padding:0 8px;gap:6px}
+  #scAlloc .btnrow{order:5;margin-top:6px}
+  #scAlloc .stagewrap{order:6;max-width:160px;margin:8px auto 0}
+}
+@media (prefers-reduced-motion:reduce){
+  *{transition:none!important;animation:none!important}
+  .btn:active:not(:disabled),a.btn:active,.opt:active:not(:disabled),.step button:active{transform:translate(1px,1px);box-shadow:2px 2px 0 #000}
+}
 </style>
 </head>
 <body>
@@ -188,7 +206,7 @@ header.hud{background:#070a10;border-bottom:2px solid var(--px-line)}
   <section id="scDoor">
     <div class="kicker">17 歲尾</div>
     <div class="stagewrap"><canvas id="stageDoor" width="160" height="90" aria-hidden="true"></canvas><div class="stagelabel" id="doorScene">DOORS</div><div class="capsule" id="doorCap"></div></div>
-    <h2>門唔係揀，係開</h2>
+    <h2 id="doorTitle">門唔係揀，係開</h2>
     <p id="doorWhy">——</p>
     <div class="opts" id="doorOpts"></div>
   </section>
@@ -387,7 +405,12 @@ function applyLoadout(list){
     if(id==='academy')S.mod.academy=true;
   });
 }
+function syncHudH(){
+  const hud=document.querySelector('header.hud');if(!hud)return;
+  document.documentElement.style.setProperty('--hud-h', Math.ceil(hud.getBoundingClientRect().height)+'px');
+}
 function toast(txt,kind){
+  syncHudH();
   const box=$('toast');if(!box)return;
   while(box.children.length>=3)box.removeChild(box.firstChild);
   const d=document.createElement('div');d.className='toast'+(kind==='tier'?' tier':'');
@@ -467,7 +490,7 @@ function renderEndMeta(res){
   $('endAch').innerHTML='<div class="kicker" style="margin-top:16px">本局成就</div>'+
     (got.length?('<div class="achgrid">'+got.map(g=>'<div class="achbox got"><span class="ap">+'+g.ap+'</span><b>'+g.n+'</b></div>').join('')+'</div>')
               :'<p style="font-size:13px">今局冇新成就。成就只計一次，重複做同一件事唔會再俾 AP。</p>')+
-    '<p style="font-size:12px;margin-top:10px"><a href="index.html" style="color:var(--px-amber)">去主頁睇成就牆同技能店 →</a></p>';
+    '<a class="btn ghost" id="lnkAchWall" href="index.html">去主頁睇成就牆同技能店 →</a>';
 }
 
 const SCENE_LABEL={track:'TRACK · 賽道',garage:'GARAGE · 車房',home:'HOME · 屋企',street:'STREET · 街',exam:'TEST · 路試',money:'DEAL · 枱面',hospital:'WARD · 醫院'};
@@ -603,7 +626,7 @@ function renderAlloc() {
   ACTS.forEach(function(act,i){
     const row=document.createElement('div');row.className='arow';
     row.innerHTML='<div class="an">'+act.n+'<small>'+act.d+'</small></div>'+
-      '<div class="step"><button data-i="'+i+'" data-d="-1">−</button><span class="n" id="n'+i+'">0</span><button data-i="'+i+'" data-d="1">+</button></div>';
+      '<div class="step"><button type="button" data-i="'+i+'" data-d="-1" aria-label="減少">−</button><span class="n" id="n'+i+'">0</span><button type="button" data-i="'+i+'" data-d="1" aria-label="增加">+</button></div>';
     box.appendChild(row);
   });
   box.querySelectorAll('button').forEach(function(btn){
@@ -845,12 +868,14 @@ function toDoors(){
   show('#scDoor');
   const names={f4:'F4 正規軍',rally:'Rally',street:'街頭'};
   $('doorScene').textContent=S.flags.noDoor?'NO DOOR · 冇門開':'DOORS · '+open.length;
+  $('doorTitle').textContent=S.flags.noDoor?'冇門開':'門唔係揀，係開';
+  const doorSub=S.flags.noDoor?'門未開。呢條係最接近嘅路。':'門開咗，你可以行入去';
   try{PX.still($('stageDoor'),open[0]==='street'?'street':(open[0]==='rally'?'exam':'track'))}catch(e){}
   $('doorWhy').textContent='速度 '+d.spd+'／穩定 '+d.stb+'／車感 '+S.a.feel+'／膽量 '+S.a.nerve+'／HEAT '+S.heat+'／FAME '+S.fame+'／家人 '+S.rel.family+'／師傅 '+S.rel.mentor+((S.mod.world||0)?'　（技能負重令對手＋'+w+'）':'');
   const box=$('doorOpts');box.innerHTML='';
   open.forEach(function(r){
     const btn=document.createElement('button');btn.className='opt';
-    btn.innerHTML='<div class="lab">'+names[r]+'<small>門開咗，你可以行入去</small></div>';
+    btn.innerHTML='<div class="lab">'+names[r]+'<small>'+doorSub+'</small></div>';
     btn.onclick=function(){
       if(box.dataset.locked==='1')return;
       box.dataset.locked='1';box.querySelectorAll('button').forEach(b=>b.disabled=true);
@@ -941,6 +966,9 @@ $('btnResume').onclick=function(){nextBeat()};
   resetState(newState());
   paintHud();
   try{PX.still($('stageIntro'),'garage')}catch(e){}
+  syncHudH();
+  window.addEventListener('resize',syncHudH);
+  if(window.ResizeObserver){const hud=document.querySelector('header.hud');if(hud)new ResizeObserver(syncHudH).observe(hud)}
   let ap=0,bring=[];
   if(typeof Meta!=='undefined'){
     const m=Meta.read();ap=m.ap;bring=loadoutFromMeta();
