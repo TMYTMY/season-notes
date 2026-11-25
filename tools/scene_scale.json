@@ -1,0 +1,650 @@
+{
+  "canvas": {
+    "w": 160,
+    "h": 90
+  },
+  "scale": {
+    "world_px_per_m": 10.6,
+    "track_px_per_m": 6.0,
+    "person_height_m": 1.7,
+    "person_height_px": 18,
+    "person_parts_px": {
+      "head": 4,
+      "torso": 7,
+      "legs": 7
+    }
+  },
+  "rules": {
+    "tolerance": 0.2,
+    "room_furniture_max_px": 12,
+    "room_actor_min_ratio": 0.1667,
+    "room_scenes": [
+      "garage",
+      "home",
+      "hospital",
+      "money"
+    ]
+  },
+  "objects": [
+    {
+      "scene": "home",
+      "object": "person",
+      "kind": "actor",
+      "px_per_m": 10.6,
+      "pixels": [
+        5,
+        18
+      ],
+      "implied_m": [
+        0.47,
+        1.7
+      ],
+      "target_m": [
+        0.45,
+        1.7
+      ],
+      "tolerance": 0.2,
+      "pass": true
+    },
+    {
+      "scene": "home",
+      "object": "table",
+      "kind": "furniture",
+      "px_per_m": 10.6,
+      "pixels": [
+        13,
+        8
+      ],
+      "implied_m": [
+        1.23,
+        0.75
+      ],
+      "target_m": [
+        1.2,
+        0.75
+      ],
+      "tolerance": 0.2,
+      "pass": true
+    },
+    {
+      "scene": "home",
+      "object": "chair",
+      "kind": "furniture",
+      "px_per_m": 10.6,
+      "pixels": [
+        5,
+        9
+      ],
+      "implied_m": [
+        0.47,
+        0.85
+      ],
+      "target_m": [
+        0.45,
+        0.85
+      ],
+      "tolerance": 0.2,
+      "pass": true
+    },
+    {
+      "scene": "home",
+      "object": "chair seat",
+      "kind": "furniture",
+      "px_per_m": 10.6,
+      "pixels": [
+        5,
+        5
+      ],
+      "implied_m": [
+        0.47,
+        0.47
+      ],
+      "target_m": [
+        0.45,
+        0.45
+      ],
+      "tolerance": 0.2,
+      "pass": true
+    },
+    {
+      "scene": "home",
+      "object": "window",
+      "kind": "architecture",
+      "px_per_m": 10.6,
+      "pixels": [
+        13,
+        11
+      ],
+      "implied_m": [
+        1.23,
+        1.04
+      ],
+      "target_m": [
+        1.2,
+        1.0
+      ],
+      "tolerance": 0.2,
+      "pass": true
+    },
+    {
+      "scene": "home",
+      "object": "door",
+      "kind": "architecture",
+      "px_per_m": 10.6,
+      "pixels": [
+        10,
+        21
+      ],
+      "implied_m": [
+        0.94,
+        1.98
+      ],
+      "target_m": [
+        0.9,
+        2.0
+      ],
+      "tolerance": 0.2,
+      "pass": true
+    },
+    {
+      "scene": "garage",
+      "object": "person",
+      "kind": "actor",
+      "px_per_m": 10.6,
+      "pixels": [
+        5,
+        18
+      ],
+      "implied_m": [
+        0.47,
+        1.7
+      ],
+      "target_m": [
+        0.45,
+        1.7
+      ],
+      "tolerance": 0.2,
+      "pass": true
+    },
+    {
+      "scene": "garage",
+      "object": "tool board",
+      "kind": "architecture",
+      "px_per_m": 10.6,
+      "pixels": [
+        21,
+        13
+      ],
+      "implied_m": [
+        1.98,
+        1.23
+      ],
+      "target_m": [
+        2.0,
+        1.2
+      ],
+      "tolerance": 0.2,
+      "pass": true
+    },
+    {
+      "scene": "garage",
+      "object": "oil drum",
+      "kind": "furniture",
+      "px_per_m": 10.6,
+      "pixels": [
+        6,
+        10
+      ],
+      "implied_m": [
+        0.57,
+        0.94
+      ],
+      "target_m": [
+        0.6,
+        0.9
+      ],
+      "tolerance": 0.2,
+      "pass": true
+    },
+    {
+      "scene": "garage",
+      "object": "tyre",
+      "kind": "furniture",
+      "px_per_m": 10.6,
+      "pixels": [
+        6,
+        3
+      ],
+      "implied_m": [
+        0.57,
+        0.28
+      ],
+      "target_m": [
+        0.6,
+        0.28
+      ],
+      "tolerance": 0.2,
+      "pass": true
+    },
+    {
+      "scene": "garage",
+      "object": "car",
+      "kind": "vehicle",
+      "px_per_m": 10.6,
+      "pixels": [
+        59,
+        11
+      ],
+      "implied_m": [
+        5.57,
+        1.04
+      ],
+      "target_m": [
+        5.6,
+        1.0
+      ],
+      "tolerance": 0.2,
+      "pass": true
+    },
+    {
+      "scene": "money",
+      "object": "person",
+      "kind": "actor",
+      "px_per_m": 10.6,
+      "pixels": [
+        5,
+        18
+      ],
+      "implied_m": [
+        0.47,
+        1.7
+      ],
+      "target_m": [
+        0.45,
+        1.7
+      ],
+      "tolerance": 0.2,
+      "pass": true
+    },
+    {
+      "scene": "money",
+      "object": "table",
+      "kind": "furniture",
+      "px_per_m": 10.6,
+      "pixels": [
+        17,
+        8
+      ],
+      "implied_m": [
+        1.6,
+        0.75
+      ],
+      "target_m": [
+        1.6,
+        0.75
+      ],
+      "tolerance": 0.2,
+      "pass": true
+    },
+    {
+      "scene": "money",
+      "object": "chair",
+      "kind": "furniture",
+      "px_per_m": 10.6,
+      "pixels": [
+        5,
+        9
+      ],
+      "implied_m": [
+        0.47,
+        0.85
+      ],
+      "target_m": [
+        0.45,
+        0.85
+      ],
+      "tolerance": 0.2,
+      "pass": true
+    },
+    {
+      "scene": "money",
+      "object": "window",
+      "kind": "architecture",
+      "px_per_m": 10.6,
+      "pixels": [
+        13,
+        11
+      ],
+      "implied_m": [
+        1.23,
+        1.04
+      ],
+      "target_m": [
+        1.2,
+        1.0
+      ],
+      "tolerance": 0.2,
+      "pass": true
+    },
+    {
+      "scene": "money",
+      "object": "door",
+      "kind": "architecture",
+      "px_per_m": 10.6,
+      "pixels": [
+        10,
+        21
+      ],
+      "implied_m": [
+        0.94,
+        1.98
+      ],
+      "target_m": [
+        0.9,
+        2.0
+      ],
+      "tolerance": 0.2,
+      "pass": true
+    },
+    {
+      "scene": "hospital",
+      "object": "person",
+      "kind": "actor",
+      "px_per_m": 10.6,
+      "pixels": [
+        5,
+        18
+      ],
+      "implied_m": [
+        0.47,
+        1.7
+      ],
+      "target_m": [
+        0.45,
+        1.7
+      ],
+      "tolerance": 0.2,
+      "pass": true
+    },
+    {
+      "scene": "hospital",
+      "object": "bed",
+      "kind": "furniture",
+      "px_per_m": 10.6,
+      "pixels": [
+        21,
+        10
+      ],
+      "implied_m": [
+        1.98,
+        0.94
+      ],
+      "target_m": [
+        2.0,
+        0.95
+      ],
+      "tolerance": 0.2,
+      "pass": true
+    },
+    {
+      "scene": "hospital",
+      "object": "bed mattress",
+      "kind": "furniture",
+      "px_per_m": 10.6,
+      "pixels": [
+        21,
+        7
+      ],
+      "implied_m": [
+        1.98,
+        0.66
+      ],
+      "target_m": [
+        2.0,
+        0.65
+      ],
+      "tolerance": 0.2,
+      "pass": true
+    },
+    {
+      "scene": "hospital",
+      "object": "side table",
+      "kind": "furniture",
+      "px_per_m": 10.6,
+      "pixels": [
+        5,
+        7
+      ],
+      "implied_m": [
+        0.47,
+        0.66
+      ],
+      "target_m": [
+        0.5,
+        0.65
+      ],
+      "tolerance": 0.2,
+      "pass": true
+    },
+    {
+      "scene": "hospital",
+      "object": "monitor",
+      "kind": "furniture",
+      "px_per_m": 10.6,
+      "pixels": [
+        7,
+        5
+      ],
+      "implied_m": [
+        0.66,
+        0.47
+      ],
+      "target_m": [
+        0.65,
+        0.5
+      ],
+      "tolerance": 0.2,
+      "pass": true
+    },
+    {
+      "scene": "hospital",
+      "object": "chair",
+      "kind": "furniture",
+      "px_per_m": 10.6,
+      "pixels": [
+        5,
+        9
+      ],
+      "implied_m": [
+        0.47,
+        0.85
+      ],
+      "target_m": [
+        0.45,
+        0.85
+      ],
+      "tolerance": 0.2,
+      "pass": true
+    },
+    {
+      "scene": "street",
+      "object": "person",
+      "kind": "actor",
+      "px_per_m": 10.6,
+      "pixels": [
+        5,
+        18
+      ],
+      "implied_m": [
+        0.47,
+        1.7
+      ],
+      "target_m": [
+        0.45,
+        1.7
+      ],
+      "tolerance": 0.2,
+      "pass": true
+    },
+    {
+      "scene": "street",
+      "object": "lamp post",
+      "kind": "architecture",
+      "px_per_m": 10.6,
+      "pixels": [
+        2,
+        85
+      ],
+      "implied_m": [
+        0.19,
+        8.02
+      ],
+      "target_m": [
+        0.18,
+        8.0
+      ],
+      "tolerance": 0.2,
+      "pass": true
+    },
+    {
+      "scene": "street",
+      "object": "car",
+      "kind": "vehicle",
+      "px_per_m": 10.6,
+      "pixels": [
+        59,
+        11
+      ],
+      "implied_m": [
+        5.57,
+        1.04
+      ],
+      "target_m": [
+        5.6,
+        1.0
+      ],
+      "tolerance": 0.2,
+      "pass": true
+    },
+    {
+      "scene": "exam",
+      "object": "person",
+      "kind": "actor",
+      "px_per_m": 10.6,
+      "pixels": [
+        5,
+        18
+      ],
+      "implied_m": [
+        0.47,
+        1.7
+      ],
+      "target_m": [
+        0.45,
+        1.7
+      ],
+      "tolerance": 0.2,
+      "pass": true
+    },
+    {
+      "scene": "exam",
+      "object": "cone",
+      "kind": "prop",
+      "px_per_m": 10.6,
+      "pixels": [
+        5,
+        8
+      ],
+      "implied_m": [
+        0.47,
+        0.75
+      ],
+      "target_m": [
+        0.5,
+        0.8
+      ],
+      "tolerance": 0.2,
+      "pass": true
+    },
+    {
+      "scene": "exam",
+      "object": "car",
+      "kind": "vehicle",
+      "px_per_m": 10.6,
+      "pixels": [
+        59,
+        11
+      ],
+      "implied_m": [
+        5.57,
+        1.04
+      ],
+      "target_m": [
+        5.6,
+        1.0
+      ],
+      "tolerance": 0.2,
+      "pass": true
+    },
+    {
+      "scene": "exam",
+      "object": "signal post",
+      "kind": "architecture",
+      "px_per_m": 10.6,
+      "pixels": [
+        2,
+        37
+      ],
+      "implied_m": [
+        0.19,
+        3.49
+      ],
+      "target_m": [
+        0.18,
+        3.5
+      ],
+      "tolerance": 0.2,
+      "pass": true
+    },
+    {
+      "scene": "track",
+      "object": "car",
+      "kind": "vehicle",
+      "px_per_m": 6.0,
+      "pixels": [
+        34,
+        6
+      ],
+      "implied_m": [
+        5.67,
+        1.0
+      ],
+      "target_m": [
+        5.6,
+        1.0
+      ],
+      "tolerance": 0.2,
+      "pass": true
+    },
+    {
+      "scene": "track",
+      "object": "lamp post",
+      "kind": "architecture",
+      "px_per_m": 6.0,
+      "pixels": [
+        1,
+        48
+      ],
+      "implied_m": [
+        0.17,
+        8.0
+      ],
+      "target_m": [
+        0.18,
+        8.0
+      ],
+      "tolerance": 0.2,
+      "pass": true
+    }
+  ]
+}
