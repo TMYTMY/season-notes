@@ -50,7 +50,8 @@ series.forEach(function(key,si){
   }
   inv[key]=v;
 });
-const ex=[0.18,0.40,0.62,0.90].map(function(p){return E.raceDerive({prog:p,feature:'彎',distBand:5000},'f4')});
+const S20={key:'f4',form:'lap',name:'F4',limit:20,distance:5000,corners:0,cornerBased:false};
+const ex=[0.18,0.40,0.62,0.90].map(function(p){return E.raceDerive({prog:p,feature:'彎',distBand:5000},S20)});
 const exOk=ex.map(function(x){return x.lap}).join(',')==='4,8,13,18'&&
   ex.map(function(x){return x.toGo}).join(',')==='4100,3000,1900,500'&&
   ex.map(function(x){return x.dist}).join(',')==='2450,1800,1150,300';
@@ -59,7 +60,7 @@ const fin={draws:1000,count:0,notOne:0,notLast:0,notLimit:0};
 for(let d=0;d<1000;d++){
   const list=draw(fr,2+Math.floor(fr()*3));
   list.splice(Math.floor(fr()*(list.length+1)),0,{prog:0.9+fr()*0.1,feature:'終點',distBand:bands[Math.floor(fr()*bands.length)]});
-  const out=E.raceLineup(list,'f4');
+  const out=E.raceLineup(list,{key:'f4',form:'lap',name:'F4',limit:20,distance:5000,corners:0,cornerBased:false});
   const fins=out.filter(function(x){return x.finish});
   fin.count+=fins.length;
   if(fins.length!==1)fin.notOne++;

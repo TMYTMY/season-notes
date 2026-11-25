@@ -344,7 +344,7 @@ function pick(a){return a[Math.floor(rng()*a.length)]}
 function shuf(a){const b=a.slice();for(let i=b.length-1;i>0;i--){const j=Math.floor(rng()*(i+1));const t=b[i];b[i]=b[j];b[j]=t}return b}
 var RACE_SERIES={
  kart:{key:'kart',form:'lap',name:'卡丁',limit:20,distance:1200,corners:0,cornerBased:false},
- f4:{key:'f4',form:'lap',name:'F4',limit:20,distance:5000,corners:0,cornerBased:false},
+ f4:{key:'f4',form:'lap',name:'F4',limit:14,distance:5000,corners:0,cornerBased:false},
  rally:{key:'rally',form:'stage',name:'拉力',limit:6,distance:72000,corners:0,cornerBased:false},
  mountain:{key:'mountain',form:'km',name:'山路',limit:0,distance:24000,corners:72,cornerBased:true}
 };
