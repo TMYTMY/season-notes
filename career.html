@@ -97,9 +97,10 @@ header.hud{background:#070a10;border-bottom:2px solid var(--px-line)}
 .stat{border:1px solid var(--px-line);border-radius:2px;background:var(--px-panel2)}
 .arow{border:2px solid var(--px-line);border-radius:2px;background:var(--px-panel2)}
 .step button{border-radius:2px;background:var(--px-panel);border:2px solid var(--px-line)}
-.stagewrap{position:relative;margin:0 auto 14px;max-width:520px;border:2px solid var(--px-line);background:#05080e;box-shadow:4px 4px 0 #000}
+.stagewrap{position:relative;margin:0 auto 14px;max-width:520px;border:1px solid #2b3a54;background:#0b1120;box-shadow:none}
 .stagewrap canvas{display:block;width:100%;height:auto;image-rendering:pixelated;image-rendering:crisp-edges}
-.stagelabel{position:absolute;left:8px;top:8px;font-size:10px;letter-spacing:.18em;color:var(--px-amber);background:rgba(5,8,14,.75);padding:4px 6px;border:1px solid var(--px-line);text-transform:uppercase}
+.stagelabel{position:absolute;left:0;top:0;font-size:9px;letter-spacing:.2em;color:var(--px-amber);background:rgba(11,17,32,.82);padding:3px 7px;border-right:1px solid #2b3a54;border-bottom:1px solid #2b3a54;text-transform:uppercase}
+.stagelabel::before{content:"";display:inline-block;width:4px;height:4px;background:#e5484d;border-radius:50%;margin-right:5px;vertical-align:middle}
 .capsule{position:absolute;left:8px;right:8px;bottom:8px;font-size:11px;line-height:1.5;background:rgba(5,8,14,.88);border:1px solid var(--px-line);padding:5px 8px;color:#dfe6ef;opacity:0;transform:translateY(4px);transition:opacity .16s,transform .16s}
 .capsule.on{opacity:1;transform:none}
 .capsule.good{border-color:#3f7d5d;color:#8fd6ae}
@@ -197,7 +198,7 @@ header.hud{background:#070a10;border-bottom:2px solid var(--px-line)}
 <div class="wrap">
   <section id="scIntro" class="on">
     <div class="kicker">第一章 · 14–20</div>
-    <div class="stagewrap"><canvas id="stageIntro" width="160" height="90" aria-hidden="true"></canvas><div class="stagelabel">GARAGE · 14</div></div>
+    <div class="stagewrap"><canvas id="stageIntro" width="160" height="90" aria-hidden="true"></canvas><div class="stagelabel">LIVE · 車房</div></div>
     <h1>你唔會落場揸車。<br>你只會決定自己變成邊種車手。</h1>
     <p>14 歲到 20 歲，七年。每年十點時間，永遠唔夠分。</p>
     <p>每次選擇都計成功率：<b>50 ＋（屬性 − 難度）× 2</b>。骰唔過就食失敗分支 —— 唔會乜都冇，會留低傷痕。</p>
@@ -218,7 +219,7 @@ header.hud{background:#070a10;border-bottom:2px solid var(--px-line)}
 
   <section id="scAlloc">
     <div class="kicker" id="allocKicker">14 歲 · 時間分配</div>
-    <div class="stagewrap"><canvas id="stageAlloc" width="160" height="90" aria-hidden="true"></canvas><div class="stagelabel" id="allocScene">GARAGE · 14</div><div class="capsule" id="allocCap"></div></div>
+    <div class="stagewrap"><canvas id="stageAlloc" width="160" height="90" aria-hidden="true"></canvas><div class="stagelabel" id="allocScene">LIVE · 車房</div><div class="capsule" id="allocCap"></div></div>
     <h2>今年十點時間，你點分？</h2>
     <p id="allocHint">一定要放棄一樣 —— 呢個係第一個三難。</p>
     <div class="left">剩餘 <b id="leftPts">10</b> 點</div>
@@ -228,7 +229,7 @@ header.hud{background:#070a10;border-bottom:2px solid var(--px-line)}
 
   <section id="scCard">
     <div class="kicker" id="cardKicker">14 歲</div>
-    <div class="stagewrap"><canvas id="stage" width="160" height="90" aria-hidden="true"></canvas><div class="stagelabel" id="stageLabel">TRACK</div><div class="capsule" id="stageCap"></div></div>
+    <div class="stagewrap"><canvas id="stage" width="160" height="90" aria-hidden="true"></canvas><div class="stagelabel" id="stageLabel">LIVE · 賽道</div><div class="capsule" id="stageCap"></div></div>
     <h2 id="cardTitle">——</h2>
     <p id="cardPremise">——</p>
     <p id="cardLine" class="evline"></p>
@@ -238,7 +239,7 @@ header.hud{background:#070a10;border-bottom:2px solid var(--px-line)}
 
   <section id="scDoor">
     <div class="kicker">17 歲尾</div>
-    <div class="stagewrap"><canvas id="stageDoor" width="160" height="90" aria-hidden="true"></canvas><div class="stagelabel" id="doorScene">DOORS</div><div class="capsule" id="doorCap"></div></div>
+    <div class="stagewrap"><canvas id="stageDoor" width="160" height="90" aria-hidden="true"></canvas><div class="stagelabel" id="doorScene">LIVE · 車房</div><div class="capsule" id="doorCap"></div></div>
     <h2 id="doorTitle">門唔係揀，係開</h2>
     <p id="doorWhy">——</p>
     <div class="opts" id="doorOpts"></div>
@@ -671,19 +672,42 @@ function renderEndMeta(res){
     '<a class="btn ghost" id="lnkAchWall" href="index.html">去主頁睇成就牆同技能店 →</a>';
 }
 
-const SCENE_LABEL={track:'TRACK · 賽道',garage:'GARAGE · 車房',home:'HOME · 屋企',street:'STREET · 街',exam:'TEST · 路試',money:'DEAL · 枱面',hospital:'WARD · 醫院'};
+const SCENE_LABEL={track:'LIVE · 賽道',rally:'LIVE · 拉力',garage:'LIVE · 車房',home:'LIVE · 屋企',street:'LIVE · 街',exam:'LIVE · 路試',money:'LIVE · 合約',hospital:'LIVE · 醫院'};
 function sceneOf(card,o){
-  const f=o.fx||{},t=(card&&card.t)||'';
+  const f=o.fx||{},t=(card&&card.t)||'',id=(card&&card.id)||'';
   if(f.inj)return 'track';
+  if(/^rc-/.test(id)){const r=raceSeriesForYear(S.year);return r==='rally'?'rally':(r==='mountain'?'street':'track')}
   if(/路試|考車|考官|筆試|牌照|波箱/.test(t))return 'exam';
   if(/賭|幫會|夜賽|街|警察|收你|跟/.test(t)||card.kind==='street')return 'street';
   if(/學業|文憑|學校|家人|阿媽|阿爸|屋企|飯|派對/.test(t))return 'home';
+  if(S.year>=19&&raceSeriesForYear(S.year)==='rally'&&!/合約|贊助|晚宴|價|錢|簽|經理人/.test(t))return 'rally';
   if(/賽|落場|圈|彎|排位|計時|比賽/.test(t))return 'track';
   if(/車房|整車|技師|工具|抹車|部車/.test(t))return 'garage';
   if((f.cash||0)>=6||/贊助|合約|錢|報名費|人工|席位/.test(t))return 'money';
   if(card.kind==='social')return 'home';
   if(/車|練習|跑/.test(t))return 'track';
   return 'garage';
+}
+function vehOf(card,type){
+  const t=(card&&card.t)||'',id=(card&&card.id)||'';
+  const series=S.year>=19?raceSeriesForYear(S.year):'kart';
+  if(type==='rally')return 'rally';
+  if(type==='exam')return 'street';
+  if(type==='track'||type==='garage'){
+    if(S.year<=17)return 'kart';
+    return series==='rally'?'rally':(series==='mountain'?'streetRace':'f4');
+  }
+  if(type==='street')return (/^rc-/.test(id)||/夜賽|山路|開盤|落場|賭|追|封路/.test(t))?'streetRace':'street';
+  return 'kart';
+}
+function sitOf(card,type){
+  const t=(card&&card.t)||'';
+  if(type==='exam')return 'exam';
+  if(/濕|雨|水氹|落雨/.test(t))return 'wet';
+  if(type==='garage')return 'mechanical';
+  if(/引擎|縮缸|機油|波箱|機件|胎|煞|剎車|機械|煙|油壓|水溫/.test(t))return 'mechanical';
+  if(/過|並排|前車|套圈|追|超|尾|貨車|慢車/.test(t))return 'overtake';
+  return 'corner';
 }
 function toneOf(o){
   const f=o.fx||{};
@@ -708,13 +732,15 @@ function capHide(el){el.className='capsule'}
 function stageFor(card){
   const cv=$('stage');if(!cv)return;
   const type=sceneOf(card,{fx:{}});
-  $('stageLabel').textContent=SCENE_LABEL[type]||'TRACK';
-  try{PX.still(cv,type)}catch(e){}
+  $('stageLabel').textContent=SCENE_LABEL[type]||'LIVE · 賽道';
+  try{PX.still(cv,type,{veh:vehOf(card,type),sit:sitOf(card,type)})}catch(e){}
 }
 function playBeat(card,o,deltaText,cb){
   const cv=$('stage'),cap=$('stageCap');
   const type=sceneOf(card,o),tone=toneOf(o);
-  $('stageLabel').textContent=SCENE_LABEL[type]||'TRACK';
+  const result=(tone==='bad'||tone==='crash')?'fail':'ok';
+  const veh=vehOf(card,type),sit=sitOf(card,type);
+  $('stageLabel').textContent=SCENE_LABEL[type]||'LIVE · 賽道';
   capHide(cap);
   let done=false;
   const finish=function(){
@@ -729,7 +755,7 @@ function playBeat(card,o,deltaText,cb){
     setTimeout(function(){capHide(cap);cb()},hold);
   };
   try{
-    PX.play(cv,{type:type,tone:tone,dur:tone==='crash'?1.1:1.5}).then(finish);
+    PX.play(cv,{type:type,tone:tone,dur:tone==='crash'?1.1:1.5,veh:veh,sit:sit,result:result}).then(finish);
   }catch(e){finish()}
 }
 
@@ -850,9 +876,9 @@ function renderAlloc() {
   alloc=Array(ACTS.length).fill(0);
   $('allocKicker').textContent=S.year+' 歲 · 時間分配';
   $('allocHint').textContent='每年十點。一定要放棄一樣。';
-  const scn=S.year===14?'GARAGE · 14':(S.year>=16?'TRACK · '+S.year:'GARAGE · '+S.year);
+  const scn=S.year===14?'LIVE · 車房':(S.year>=16?'LIVE · 賽道 '+S.year:'LIVE · 車房 '+S.year);
   $('allocScene').textContent=scn;
-  try{PX.still($('stageAlloc'),S.year>=16?'track':'garage')}catch(e){};
+  try{PX.still($('stageAlloc'),S.year>=16?'track':'garage',{veh:vehOf(null,S.year>=16?'track':'garage')})}catch(e){}
   const box=$('allocList');box.innerHTML='';
   ACTS.forEach(function(act,i){
     const row=document.createElement('div');row.className='arow';
@@ -898,7 +924,7 @@ function renderAlloc() {
     const hold=PX.reduced?300:1000;
     const done=function(){capHide(cap);S.bi++;save();nextBeat()};
     try{
-      PX.play(cv,{type:S.year>=16?'track':'garage',tone:tone,dur:1.2}).then(function(){
+      PX.play(cv,{type:S.year>=16?'track':'garage',tone:tone,dur:1.2,veh:vehOf(null,S.year>=16?'track':'garage'),sit:'corner',result:tone==='bad'?'fail':'ok'}).then(function(){
         capShow(cap,line.replace('時間分配：','今年：'),tone);
         setTimeout(done,hold);
       });
@@ -1189,13 +1215,13 @@ function toDoors(){
   }
   S.doors=open.map(function(x){return x.r});save();
   show('#scDoor');
-  $('doorScene').textContent=S.flags.noDoor?'NO DOOR · 自己敲':'DOORS · '+open.length;
+  $('doorScene').textContent=S.flags.noDoor?'LIVE · 冇門':'LIVE · 開門';
   $('doorTitle').textContent=S.flags.noDoor?'冇門自己開':'門唔係揀，係開';
   $('doorWhy').textContent=open.map(function(x){
     const o=doorOffer(x.r);
     return x.why+' → '+DOOR_NAMES[x.r]+' · '+o.band.n+'（'+o.at+'）';
   }).join('；');
-  try{PX.still($('stageDoor'),open[0].r==='street'?'street':(open[0].r==='rally'?'exam':'track'))}catch(e){}
+  try{PX.still($('stageDoor'),open[0].r==='street'?'street':(open[0].r==='rally'?'rally':'track'),{veh:open[0].r==='street'?'streetRace':(open[0].r==='rally'?'rally':'f4')})}catch(e){}
   const box=$('doorOpts');box.innerHTML='';
   open.forEach(function(x){
     const r=x.r,o=doorOffer(r);
@@ -1204,7 +1230,8 @@ function toDoors(){
     btn.onclick=function(){
       if(box.dataset.locked==='1')return;
       box.dataset.locked='1';box.querySelectorAll('button').forEach(b=>b.disabled=true);
-      const type=r==='street'?'street':(r==='rally'?'exam':'track');
+      const type=r==='street'?'street':(r==='rally'?'rally':'track');
+      const veh=r==='street'?'streetRace':(r==='rally'?'rally':'f4');
       const tone=r==='street'?'warn':'good';
       const cap=$('doorCap');
       const go=function(){
@@ -1212,9 +1239,9 @@ function toDoors(){
         if(r==='rally'){S.a.feel=clamp(S.a.feel+4,0,100)}
         save();box.dataset.locked='0';beginYear();
       };
-      $('doorScene').textContent=(r==='f4'?'F4 · 正規':(r==='rally'?'RALLY':'STREET'));
+      $('doorScene').textContent=(r==='f4'?'LIVE · F4':(r==='rally'?'LIVE · 拉力':'LIVE · 山路'));
       try{
-        PX.play($('stageDoor'),{type:type,tone:tone,dur:1.4}).then(function(){
+        PX.play($('stageDoor'),{type:type,tone:tone,dur:1.4,veh:veh,sit:r==='street'?'overtake':'corner',result:tone==='warn'?'ok':'ok'}).then(function(){
           capShow(cap,DOOR_NAMES[r]+' · 行入去',tone==='warn'?'warn':'good');
           setTimeout(function(){capHide(cap);go()},PX.reduced?350:900);
         });

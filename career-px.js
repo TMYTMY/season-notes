@@ -3,12 +3,10 @@
 
   var W = 160, H = 90;
   var PX_PER_M = 10.6;
-  var TRACK_PX_PER_M = 6.0;
   var PERSON_H_M = 1.7;
   var PERSON_W_M = 0.45;
   var DIM = {
     person: { w: PERSON_W_M, h: PERSON_H_M, head: 0.38, torso: 0.66, legs: 0.66 },
-    car: { w: 5.6, h: 1.0, wheel: 0.66 },
     homeTable: { w: 1.2, h: 0.75 },
     moneyTable: { w: 1.6, h: 0.75 },
     chair: { w: 0.45, h: 0.85, seat: 0.45 },
@@ -26,6 +24,16 @@
     signalBox: { w: 0.6, h: 1.0 },
     adBoard: { w: 4.0, h: 0.85 }
   };
+  var VEH = {
+    kart: { n: 'kart', len: 2.5, wid: 1.4, h: 0.6, wheel: 0.28, ride: 0.10 },
+    street: { n: 'street', len: 4.2, wid: 1.8, h: 1.5, wheel: 0.62, ride: 0.30 },
+    streetRace: { n: 'street-race', len: 4.4, wid: 1.8, h: 1.2, wheel: 0.60, ride: 0.22 },
+    f4: { n: 'f4', len: 4.6, wid: 1.9, h: 1.0, wheel: 0.60, ride: 0.16 },
+    f3: { n: 'f3', len: 5.0, wid: 1.9, h: 1.0, wheel: 0.62, ride: 0.14 },
+    f2: { n: 'f2', len: 5.0, wid: 1.9, h: 1.0, wheel: 0.62, ride: 0.12 },
+    f1: { n: 'f1', len: 5.6, wid: 2.0, h: 1.0, wheel: 0.66, ride: 0.10 },
+    rally: { n: 'rally', len: 4.2, wid: 1.8, h: 1.4, wheel: 0.68, ride: 0.42 }
+  };
   var C = {
     sky: '#0a0f1c', sky2: '#111c30', star: '#cfd8e6', moon: '#f4f1e8',
     stand: '#0f1725', standLit: '#1b273c', board: '#1a2436',
@@ -34,7 +42,9 @@
     red: '#c8402f', redD: '#8a2a1e', blue: '#5b86c9', blueD: '#33598f',
     white: '#f4f1e8', dark: '#0a0d13', wall: '#141c29', floor: '#1a2130',
     panel: '#1d2637', steel: '#5c6b82', green: '#4f9a72', amber: '#e0a83c',
-    skin: '#c9a07a', skinD: '#8f6b4a', lamp: '#ffd98a'
+    skin: '#c9a07a', skinD: '#8f6b4a', lamp: '#ffd98a', rubber: '#26303f',
+    rim: '#9aa8bd', glass: '#22304a', mud: '#6b4a2a', gravel: '#6e6a63',
+    smoke: '#8b94a3', spray: '#cfe0f0'
   };
   var reduced = false;
   if (root.matchMedia) {
@@ -45,6 +55,26 @@
   var PERSON_W = m(DIM.person.w);
   var PERSON_H = m(DIM.person.h);
 
+  var VEHP = {};
+  Object.keys(VEH).forEach(function (k) {
+    var v = VEH[k];
+    VEHP[k] = {
+      key: k, n: v.n, len_m: v.len, wid_m: v.wid, h_m: v.h, wheel_m: v.wheel, ride_m: v.ride,
+      L: m(v.len), H: m(v.h), WH: m(v.wheel), RD: m(v.ride), halfW: Math.max(1, Math.round(m(v.wid) * 0.08))
+    };
+  });
+
+  var PAL = {
+    kart: { body: '#c8402f', dark: '#7a2418', trim: C.gold },
+    street: { body: '#5b86c9', dark: '#33598f', trim: '#8fa4bd' },
+    streetRace: { body: '#3a4d70', dark: '#1a2436', trim: C.gold },
+    f4: { body: C.gold, dark: C.goldD, trim: C.white },
+    f3: { body: C.blue, dark: C.blueD, trim: C.white },
+    f2: { body: C.red, dark: C.redD, trim: C.white },
+    f1: { body: C.red, dark: C.redD, trim: C.gold },
+    rally: { body: '#dfe6ef', dark: '#93a4bb', trim: C.blue }
+  };
+
   function ctxOf(canvas) {
     canvas.width = W; canvas.height = H;
     var ctx = canvas.getContext('2d');
@@ -53,6 +83,7 @@
   }
   function rect(ctx, x, y, w, h, c) { ctx.fillStyle = c; ctx.fillRect(x | 0, y | 0, w | 0, h | 0); }
   function rnd(i) { var x = Math.sin(i * 127.1 + 311.7) * 43758.5453; return x - Math.floor(x); }
+  function clamp(v, a, b) { return v < a ? a : (v > b ? b : v); }
 
   function lightCone(ctx, cx, topY, topW, botW, height, alpha) {
     var bands = 5;
@@ -66,52 +97,185 @@
     ctx.globalAlpha = 1;
   }
 
-  function car(ctx, x, y, body, dark, scale, tilt) {
-    var s = scale || PX_PER_M;
-    var w = m(DIM.car.w, s);
-    var h = m(DIM.car.h, s);
-    x = Math.round(x); y = Math.round(y);
-    if (tilt) {
+  function drawVehicle(ctx, key, x, gy, o) {
+    o = o || {};
+    var v = VEHP[key] || VEHP.kart;
+    var pal = PAL[v.key] || PAL.kart;
+    var body = o.body || pal.body, dark = o.dark || pal.dark, trim = o.trim || pal.trim;
+    var L = v.L, HH = v.H, WH = v.WH;
+    x = Math.round(x); gy = Math.round(gy);
+    var tilt = o.tilt || 0;
+    if (Math.abs(tilt) > 0.05) {
       ctx.save();
-      ctx.translate(x + w / 2, y + h / 2);
+      ctx.translate(x + L / 2, gy);
       ctx.rotate(tilt);
-      ctx.translate(-w / 2, -h / 2);
-      ctx.globalAlpha = 0.95;
-      car(ctx, 0, 0, body, dark, s, 0);
+      ctx.globalAlpha = 0.96;
+      body0(ctx, v, -L / 2, 0, body, dark, trim, o);
+      ctx.globalAlpha = 1;
       ctx.restore();
       return;
     }
-    var wh = m(DIM.car.wheel, s);
-    var wy = y + h - wh;
-    var rwX = x + Math.round(w * 0.11);
-    var fwX = x + Math.round(w * 0.74);
-    var bodyY = y + Math.round(h * 0.42);
-    var bodyH = Math.max(2, Math.round(h * 0.38));
-    var noseY = y + Math.round(h * 0.54);
-    var noseH = Math.max(1, Math.round(h * 0.24));
-    rect(ctx, x + 1, y + h, w - 2, 1, 'rgba(0,0,0,.55)');
-    rect(ctx, x, y + Math.round(h * 0.14), Math.max(2, Math.round(w * 0.09)), Math.max(2, Math.round(h * 0.34)), dark);
-    rect(ctx, x + Math.round(w * 0.05), y + Math.round(h * 0.44), Math.max(1, Math.round(w * 0.04)), Math.max(1, Math.round(h * 0.28)), dark);
-    rect(ctx, x + Math.round(w * 0.16), y + Math.round(h * 0.16), Math.round(w * 0.24), Math.max(2, Math.round(h * 0.52)), body);
-    rect(ctx, x + Math.round(w * 0.40), y + Math.round(h * 0.20), Math.round(w * 0.16), Math.max(2, Math.round(h * 0.34)), dark);
-    rect(ctx, x + Math.round(w * 0.45), y + Math.round(h * 0.14), Math.max(2, Math.round(w * 0.06)), Math.max(1, Math.round(h * 0.22)), C.white);
-    rect(ctx, x + Math.round(w * 0.12), bodyY, Math.round(w * 0.62), bodyH, body);
-    rect(ctx, x + Math.round(w * 0.22), y + Math.round(h * 0.56), Math.round(w * 0.24), Math.max(1, Math.round(h * 0.20)), dark);
-    rect(ctx, x + Math.round(w * 0.72), noseY, Math.round(w * 0.22), noseH, body);
-    rect(ctx, x + Math.round(w * 0.88), y + Math.round(h * 0.72), Math.max(2, Math.round(w * 0.12)), Math.max(1, Math.round(h * 0.20)), dark);
-    rect(ctx, x + Math.round(w * 0.14), bodyY, Math.round(w * 0.56), 1, 'rgba(255,255,255,.28)');
-    rect(ctx, x + w - 2, noseY, 2, 1, C.lamp);
-    rect(ctx, x, bodyY + 1, 1, 1, C.red);
-    rect(ctx, rwX, wy, wh, wh, C.dark);
-    rect(ctx, fwX, wy, wh, wh, C.dark);
-    if (wh >= 4) {
-      rect(ctx, rwX + 1, wy + 1, wh - 2, wh - 2, '#8b9bb4');
-      rect(ctx, fwX + 1, wy + 1, wh - 2, wh - 2, '#8b9bb4');
-      if (wh >= 6) {
-        rect(ctx, rwX + 2, wy + 2, wh - 4, wh - 4, C.dark);
-        rect(ctx, fwX + 2, wy + 2, wh - 4, wh - 4, C.dark);
+    body0(ctx, v, x, gy, body, dark, trim, o);
+  }
+
+  function body0(ctx, v, x, gy, body, dark, trim, o) {
+    var key = v.key, L = v.L, HH = v.H, WH = v.WH, hw = v.halfW;
+    function q(dx, top, w, h, c) { if (w > 0 && h > 0) rect(ctx, x + dx, gy - top, w, h, c); }
+    function wheel(dx, chunky) {
+      q(dx, WH, WH, WH, C.rubber);
+      q(dx + 1, WH - 1, WH - 2, WH - 2, C.rim);
+      q(dx + 2, 2, 1, 1, '#3a465c');
+      if (chunky) {
+        q(dx, Math.round(WH * 0.55), WH, 1, '#0f1521');
+        q(dx, WH - 1, 1, 1, '#4f5b6e');
+        q(dx + WH - 1, 2, 1, 1, '#4f5b6e');
       }
     }
+    function archX(dx) { q(dx - 1, WH + 1, WH + 2, WH + 1, dark); }
+    function driver(hx, hy, w) {
+      if (o.driver === false) return;
+      q(hx, hy, w || 3, 2, o.helmet || C.white);
+      q(hx + (w || 3) - 1, hy - 1, 1, 1, dark);
+      q(hx, hy - 1, 1, 1, o.helmet || C.white);
+    }
+
+    if (key === 'kart') {
+      wheel(1); wheel(L - 3);
+      q(0, 4, 1, 2, dark);
+      q(1, 4, L - 2, 1, '#3a4256');
+      q(2, 3, L - 5, 1, '#232b3a');
+      q(L - 3, 4, 1, 2, dark);
+      q(4, 6, 4, 3, '#39445a');
+      q(4, 6, 4, 1, '#4d5b73');
+      q(8, 6, 3, 4, dark);
+      q(8, 6, 3, 1, '#2b3446');
+      q(13, 5, 2, 1, '#7a879c');
+      q(14, 4, 1, 2, '#4a5872');
+      q(15, 3, L - 18, 2, body);
+      q(15, 4, L - 18, 1, trim);
+      q(L - 5, 3, 2, 1, dark);
+      if (o.driver !== false) {
+        q(9, 8, 3, 2, o.helmet || C.white);
+        q(11, 7, 1, 1, dark);
+        q(5, 7, 1, 1, C.skin);
+        q(16, 7, 1, 1, C.skin);
+      }
+    } else if (key === 'street') {
+      q(1, 10, L - 2, 7, body);
+      q(1, 4, L - 2, hw, 'rgba(0,0,0,.16)');
+      q(1, 4, L - 2, 1, dark);
+      q(1, 11, 9, 2, body);
+      q(L - 12, 11, 12, 2, body);
+      q(9, 16, 25, 6, body);
+      q(10, 15, 6, 4, C.glass);
+      q(19, 15, 12, 4, C.glass);
+      q(18, 15, 1, 4, body);
+      q(31, 15, 1, 4, body);
+      q(21, 14, 4, 1, 'rgba(255,255,255,.24)');
+      q(29, 14, 2, 1, 'rgba(255,255,255,.14)');
+      q(9, 16, 25, 1, 'rgba(255,255,255,.10)');
+      q(2, 5, 2, 1, '#8a5a32');
+      q(L - 14, 5, 2, 1, '#8a5a32');
+      q(19, 9, 1, 5, 'rgba(0,0,0,.30)');
+      q(20, 8, 2, 1, dark);
+      q(33, 12, 1, 1, dark);
+      q(L - 2, 7, 1, 2, C.lamp);
+      q(0, 7, 1, 2, C.red);
+      archX(4); archX(L - 12); wheel(4); wheel(L - 12);
+    } else if (key === 'streetRace') {
+      q(1, 8, L - 2, 5, body);
+      q(1, 4, L - 2, hw, 'rgba(0,0,0,.16)');
+      q(1, 3, L - 2, 1, dark);
+      q(L - 13, 8, 12, 2, body);
+      q(8, 12, 20, 4, body);
+      q(10, 11, 17, 3, C.glass);
+      q(8, 12, 20, 1, 'rgba(255,255,255,.12)');
+      q(1, 13, 9, 1, trim);
+      q(2, 11, 1, 2, dark);
+      q(7, 11, 1, 2, dark);
+      q(13, 7, 3, 1, trim);
+      q(19, 6, 5, 1, trim);
+      q(4, 2, L - 8, 1, 'rgba(96,200,255,.55)');
+      q(L - 1, 6, 1, 1, C.lamp);
+      q(0, 6, 1, 1, C.red);
+      q(9, 11, 2, 1, C.dark);
+      archX(4); archX(L - 12); wheel(4); wheel(L - 12);
+    } else if (key === 'rally') {
+      q(1, 11, L - 2, 6, body);
+      q(1, 6, L - 2, hw, 'rgba(0,0,0,.14)');
+      q(1, 6, L - 2, 1, '#3a4356');
+      q(9, 14, 26, 3, body);
+      q(11, 13, 9, 2, C.glass);
+      q(22, 13, 11, 2, C.glass);
+      q(9, 14, 26, 1, 'rgba(255,255,255,.14)');
+      q(13, 15, 10, 1, '#1a2130');
+      q(13, 14, 10, 1, '#232c3a');
+      q(14, 15, 1, 1, C.lamp);
+      q(16, 15, 1, 1, C.lamp);
+      q(18, 15, 1, 1, C.lamp);
+      q(20, 15, 1, 1, C.lamp);
+      q(6, 15, 4, 1, dark);
+      q(9, 15, 1, 1, '#8a97ab');
+      q(15, 9, 4, 3, C.white);
+      q(16, 9, 1, 1, C.dark);
+      q(18, 8, 1, 1, C.dark);
+      q(2, 6, 3, 1, C.mud);
+      q(L - 10, 6, 2, 1, C.mud);
+      q(2, 3, 1, 3, dark);
+      q(L - 1, 8, 1, 1, C.lamp);
+      q(0, 8, 1, 1, C.red);
+      q(25, 9, 1, 4, 'rgba(0,0,0,.22)');
+      q(28, 8, 2, 1, dark);
+      archX(3); archX(L - 12); wheel(3, true); wheel(L - 12, true);
+    } else {
+      var f3 = key === 'f3', f2 = key === 'f2', f1 = key === 'f1';
+      var podTop = f2 ? 6 : 7;
+      var sideEnd = f1 ? L - 21 : (f3 || f2 ? L - 17 : L - 15);
+      q(4, 4, 7, 1, '#2b3446');
+      q(sideEnd - 3, 4, 7, 1, '#2b3446');
+      q(9, podTop, sideEnd - 9, podTop - 2, body);
+      q(9, 3, sideEnd - 9, 1, dark);
+      q(9, podTop, sideEnd - 9, 1, 'rgba(255,255,255,.12)');
+      if (f1) { q(9, 2, sideEnd - 9, 1, '#2c3648'); q(27, 4, 1, 3, dark); }
+      if (f2) { q(9, 2, sideEnd - 9, 1, '#2c3648'); }
+      q(6, 9, 8, 2, body);
+      q(6, 9, 8, 1, 'rgba(255,255,255,.14)');
+      if (f1) { q(11, 10, 3, 1, body); q(12, 9, 1, 1, dark); }
+      q(18, podTop - 1, f1 ? 9 : 7, 2, C.dark);
+      driver(19, podTop + 1, 3);
+      if (f3 || f2 || f1) {
+        q(18, 9, 1, 2, '#5c6b82');
+        q(18, 10, 7, 1, '#5c6b82');
+        q(24, 9, 1, 2, '#5c6b82');
+      }
+      var nx = sideEnd - 2;
+      if (f1) {
+        q(nx, 5, 6, 2, body);
+        q(nx + 6, 4, 6, 2, body);
+        q(nx + 12, 3, L - nx - 12, 1, body);
+      } else if (f2) {
+        q(nx, 5, 5, 3, body);
+        q(nx + 5, 4, 5, 1, body);
+        q(nx + 10, 3, L - nx - 10, 1, body);
+      } else {
+        q(nx, 6, 5, 3, body);
+        q(nx + 5, 5, 5, 2, body);
+        q(nx + 10, 4, L - nx - 10, 1, body);
+      }
+      q(L - 6, 2, 6, 1, trim);
+      q(L - 7, 3, 1, 3, dark);
+      if (f3 || f2) { q(L - 8, 3, 4, 1, trim); }
+      if (f1) { q(L - 11, 4, 7, 1, trim); q(L - 10, 3, 1, 1, dark); q(L - 3, 4, 3, 1, trim); }
+      var wingW = f1 ? 10 : (f3 || f2 ? 8 : 6);
+      q(1, 11, wingW, 1, trim);
+      if (f3 || f2 || f1) q(1, 10, wingW, 1, trim);
+      q(1, 9, 1, 2, dark);
+      q(3, 9, 1, 2, dark);
+      q(1 + wingW - 2, 9, 1, 2, dark);
+      if (f2 || f1) { q(9, 11, 9, 1, body); q(9, 10, 9, 1, 'rgba(255,255,255,.10)'); }
+      wheel(2); wheel(L - 15);
+    }
+    rect(ctx, x + 1, gy + 1, L - 2, 1, 'rgba(0,0,0,.5)');
   }
 
   function person(ctx, x, y, shirt, pants) {
@@ -194,11 +358,11 @@
   }
 
   function bgTrack(ctx, st) {
-    var s = TRACK_PX_PER_M;
-    var lampH = m(DIM.lampPost.h, s);
-    var lampW = m(DIM.lampPost.w, s);
-    var boardW = m(DIM.adBoard.w, s);
-    var boardH = m(DIM.adBoard.h, s);
+    var dirt = st.veh === 'rally';
+    var lampH = m(DIM.lampPost.h, 6.0);
+    var lampW = m(DIM.lampPost.w, 6.0);
+    var boardW = m(DIM.adBoard.w, 6.0);
+    var boardH = m(DIM.adBoard.h, 6.0);
     rect(ctx, 0, 0, W, 32, C.sky);
     rect(ctx, 0, 20, W, 12, C.sky2);
     for (var i = 0; i < 30; i++) {
@@ -206,6 +370,28 @@
     }
     rect(ctx, 136, 6, 5, 5, C.moon);
     rect(ctx, 139, 6, 2, 3, C.sky);
+    if (dirt) {
+      rect(ctx, 0, 32, W, 14, '#12221a');
+      for (var tr = 0; tr < 9; tr++) {
+        var tx = 4 + tr * 18 + ((rnd(tr) * 6) | 0);
+        var th2 = 7 + ((rnd(tr + 5) * 7) | 0);
+        rect(ctx, tx, 46 - th2, 1, th2, '#1d3326');
+        rect(ctx, tx - 2, 46 - th2 + 2, 5, 3, '#173024');
+        rect(ctx, tx - 1, 46 - th2 + 1, 3, 2, '#1c3a29');
+      }
+      rect(ctx, 0, 45, W, boardH + 2, '#22301f');
+      for (var bx2 = 0; bx2 < W; bx2 += 22) {
+        rect(ctx, bx2 + 2, 46, 14, 3, bx2 % 44 ? C.amber : C.white);
+      }
+      rect(ctx, 0, 48, W, 18, '#3a3226');
+      rect(ctx, 0, 66, W, 20, '#463c2c');
+      for (var dp = 0; dp < 26; dp++) {
+        rect(ctx, (rnd(dp + 21) * W) | 0, 62 + ((rnd(dp + 3) * 22) | 0), 2, 1, '#57492f');
+      }
+      rect(ctx, 0, 83, W, 3, '#2a2419');
+      rect(ctx, 0, 86, W, 4, '#16281d');
+      return;
+    }
     rect(ctx, 0, 32, W, 11, C.stand);
     for (var j = 0; j < 56; j++) {
       rect(ctx, (rnd(j + 7) * W) | 0, 33 + ((rnd(j + 3) * 9) | 0), 1, 1, j % 4 ? C.standLit : C.goldD);
@@ -309,7 +495,6 @@
     rect(ctx, 0, 54, W, 30, C.road2);
     rect(ctx, 0, 84, W, 1, '#3a465c');
     rect(ctx, 0, 85, W, 5, '#1d2534');
-    for (var d = 0; d < W; d += 14) rect(ctx, d, 69, 7, 1, 'rgba(244,241,232,.28)');
     var postBase = 87;
     var postTop = postBase - lampH;
     rect(ctx, 9, postBase - 1, 4, 2, C.panel);
@@ -335,23 +520,22 @@
     rect(ctx, 0, 57, W, 29, C.road);
     for (var d = 0; d < W; d += 16) rect(ctx, d, 72, 8, 1, 'rgba(244,241,232,.45)');
     rect(ctx, 0, 86, W, 4, C.grass2);
-    for (var c = 0; c < 4; c++) {
-      var cx = 56 + c * 24;
-      var cy = 66 - coneH;
-      rect(ctx, cx, 66, coneW, 1, 'rgba(0,0,0,.45)');
+    [46, 102].forEach(function (cx) {
+      var cy = 74 - coneH;
+      rect(ctx, cx, 74, coneW, 1, 'rgba(0,0,0,.45)');
       rect(ctx, cx + 2, cy, 1, 2, C.red);
       rect(ctx, cx + 1, cy + 2, 3, 3, C.red);
       rect(ctx, cx + 1, cy + 4, 3, 1, C.white);
       rect(ctx, cx, cy + 5, coneW, coneH - 5, C.red);
-    }
-    var postX = 146;
+    });
+    var postX = 128;
     var postTop = 54 - postH;
     rect(ctx, postX - 1, 52, postW + 2, 2, C.panel);
     rect(ctx, postX, postTop, postW, postH, C.steel);
     rect(ctx, postX - 2, postTop - 3, boxW, boxH, C.panel);
-    rect(ctx, postX - 1, postTop - 2, boxW - 2, 2, st.tone === 'bad' ? C.red : '#3b2020');
-    rect(ctx, postX - 1, postTop + 1, boxW - 2, 2, st.tone === 'neutral' ? C.amber : '#3d331d');
-    rect(ctx, postX - 1, postTop + 4, boxW - 2, 2, st.tone === 'bad' ? '#1c3326' : C.green);
+    rect(ctx, postX - 1, postTop - 2, boxW - 2, 2, st.result === 'fail' ? C.red : '#3b2020');
+    rect(ctx, postX - 1, postTop + 1, boxW - 2, 2, st.result === 'fail' ? '#3d331d' : C.amber);
+    rect(ctx, postX - 1, postTop + 4, boxW - 2, 2, st.result === 'fail' ? '#1c3326' : C.green);
   }
 
   function bgMoney(ctx, st) {
@@ -418,100 +602,447 @@
     }
   }
 
-  function actors(ctx, type, st) {
-    var p = st.prog || 0;
-    var tone = st.tone || 'neutral';
-    var carW = m(DIM.car.w, TRACK_PX_PER_M);
-    var carH = m(DIM.car.h);
-    var floorY = 72;
-    if (type === 'track') {
-      var r1 = 66 + (tone === 'good' ? 10 * p : 0) + (tone === 'bad' ? -6 * p : 0);
-      var r2 = 98 + (tone === 'good' ? 12 * p : 0);
-      car(ctx, r1, 57, C.red, C.redD, TRACK_PX_PER_M);
-      car(ctx, r2, 73, C.blue, C.blueD, TRACK_PX_PER_M);
-      var px = tone === 'good' ? 18 + 56 * p : (tone === 'bad' ? 66 - 34 * p : 26 + 4 * Math.sin(p * 3));
-      if (tone === 'crash') {
-        car(ctx, 50 + 12 * p, 64, C.gold, C.goldD, TRACK_PX_PER_M, p * 2.2);
-        ctx.globalAlpha = Math.max(0, 0.6 - p * 0.6);
-        rect(ctx, 50, 56, 36, 18, C.red);
+  var POSE0 = {
+    pdx: 0, pdy: 0, ptilt: 0, rdx: 0, rdy: 0, rtilt: 0,
+    spray: 0, smoke: 0, dust: 0, gravel: 0, spark: 0, brake: 0, tail: 0,
+    flag: 0, nod: 0, shake: 0, cone: 0, stall: 0, flash: 0
+  };
+
+  var SEQ = {
+    overtake_ok: [
+      { at: 0.00 },
+      { at: 0.14, pdx: 0.08, pdy: 6, ptilt: -0.03, dust: 0.5 },
+      { at: 0.34, pdx: 0.34, pdy: 6, dust: 0.4, ptilt: -0.01 },
+      { at: 0.58, pdx: 0.62, pdy: 6, rdx: -0.22, dust: 0.3 },
+      { at: 0.78, pdx: 0.86, pdy: 3, rdx: -0.52, tail: 0.7 },
+      { at: 1.00, pdx: 1.02, pdy: 0, rdx: -0.80, tail: 1, dust: 0.35 }
+    ],
+    overtake_fail: [
+      { at: 0.00 },
+      { at: 0.12, pdx: 0.12, pdy: 6, ptilt: -0.03, dust: 0.5 },
+      { at: 0.28, pdx: 0.28, pdy: 6, rdx: 0.05, rdy: 5, dust: 0.45 },
+      { at: 0.44, pdx: 0.30, pdy: 5, rdx: 0.07, rdy: 6, ptilt: 0.09, brake: 1, spark: 0.8, dust: 0.9, smoke: 0.25 },
+      { at: 0.58, pdx: 0.16, pdy: 3, brake: 1, smoke: 0.55, rdx: 0.11, rdy: 3, ptilt: 0.04 },
+      { at: 0.76, pdx: 0.05, pdy: 1, brake: 1, smoke: 0.6, rdx: 0.15, rdy: 0 },
+      { at: 1.00, pdx: 0.00, pdy: 0, brake: 0.7, smoke: 0.4, rdx: 0.18, rdy: 0 }
+    ],
+    corner_ok: [
+      { at: 0.00, pdx: 0.04, ptilt: 0.02 },
+      { at: 0.20, pdx: 0.20, pdy: -2, ptilt: -0.05, dust: 0.3 },
+      { at: 0.40, pdx: 0.36, pdy: -3, ptilt: -0.09, brake: 0.5, spark: 0.3 },
+      { at: 0.60, pdx: 0.54, pdy: -2, ptilt: -0.04, dust: 0.5 },
+      { at: 0.80, pdx: 0.74, pdy: 0, ptilt: 0, dust: 0.3 },
+      { at: 1.00, pdx: 0.96, pdy: 0, ptilt: 0, dust: 0.15 }
+    ],
+    corner_fail: [
+      { at: 0.00, pdx: 0.04, ptilt: 0.02 },
+      { at: 0.18, pdx: 0.18, pdy: -1, ptilt: -0.04, brake: 0.8 },
+      { at: 0.34, pdx: 0.30, pdy: -3, ptilt: 0.07, dust: 0.4, brake: 0.4 },
+      { at: 0.50, pdx: 0.40, pdy: -8, ptilt: 0.11, gravel: 0.7 },
+      { at: 0.66, pdx: 0.46, pdy: -12, ptilt: 0.15, gravel: 1, dust: 1 },
+      { at: 0.82, pdx: 0.48, pdy: -13, ptilt: 0.04, flash: 0.9, smoke: 0.35, gravel: 0.8 },
+      { at: 1.00, pdx: 0.48, pdy: -13, ptilt: 0.00, smoke: 0.55, brake: 1, flash: 0.15, gravel: 0.4 }
+    ],
+    wet_ok: [
+      { at: 0.00, pdx: 0.05, spray: 0.35 },
+      { at: 0.20, pdx: 0.24, spray: 0.8, ptilt: -0.02 },
+      { at: 0.44, pdx: 0.44, spray: 1, rdx: -0.04 },
+      { at: 0.68, pdx: 0.64, spray: 0.95, rdx: -0.34, tail: 0.4 },
+      { at: 0.86, pdx: 0.82, spray: 0.8, rdx: -0.58, tail: 0.8 },
+      { at: 1.00, pdx: 0.94, spray: 0.7, rdx: -0.76, tail: 1 }
+    ],
+    wet_fail: [
+      { at: 0.00, pdx: 0.05, spray: 0.4 },
+      { at: 0.16, pdx: 0.20, spray: 0.85, ptilt: -0.03 },
+      { at: 0.32, pdx: 0.30, ptilt: 0.12, spray: 1 },
+      { at: 0.48, pdx: 0.34, ptilt: 0.48, pdy: -2, spray: 0.8, dust: 0.2 },
+      { at: 0.64, pdx: 0.36, ptilt: 0.92, pdy: -6, spray: 0.5 },
+      { at: 0.80, pdx: 0.38, ptilt: 1.18, pdy: -12, flash: 1, spray: 0.3, smoke: 0.25 },
+      { at: 1.00, pdx: 0.38, ptilt: 1.08, pdy: -12, flash: 0.1, spray: 0.15, brake: 1 }
+    ],
+    mechanical_ok: [
+      { at: 0.00, pdx: 0.04 },
+      { at: 0.24, pdx: 0.28 },
+      { at: 0.48, pdx: 0.50, flag: 0.3 },
+      { at: 0.72, pdx: 0.72, flag: 0.8 },
+      { at: 0.90, pdx: 0.88, flag: 1, brake: 0.2 },
+      { at: 1.00, pdx: 0.94, flag: 1, brake: 0.5 }
+    ],
+    mechanical_fail: [
+      { at: 0.00, pdx: 0.04 },
+      { at: 0.20, pdx: 0.24, smoke: 0.25 },
+      { at: 0.42, pdx: 0.36, smoke: 0.6, ptilt: 0.02 },
+      { at: 0.62, pdx: 0.40, pdy: -5, smoke: 0.9 },
+      { at: 0.80, pdx: 0.33, pdy: -9, smoke: 1, brake: 1 },
+      { at: 1.00, pdx: 0.30, pdy: -9, smoke: 0.85, brake: 1, stall: 1 }
+    ],
+    exam_ok: [
+      { at: 0.00, pdx: 0.00, brake: 0.4 },
+      { at: 0.18, pdx: 0.28, brake: 0.6 },
+      { at: 0.38, pdx: 0.55, brake: 1 },
+      { at: 0.50, pdx: 0.58, brake: 1, nod: 0.5 },
+      { at: 0.66, pdx: 0.58, brake: 1, nod: 0.85, flag: 0.3 },
+      { at: 0.82, pdx: 0.58, brake: 1, nod: 1, flag: 0.7 },
+      { at: 1.00, pdx: 0.58, brake: 1, nod: 1, flag: 1 }
+    ],
+    exam_fail: [
+      { at: 0.00, pdx: 0.00 },
+      { at: 0.18, pdx: 0.20, stall: 0.4 },
+      { at: 0.34, pdx: 0.34, stall: 1, ptilt: 0.04 },
+      { at: 0.50, pdx: 0.62, stall: 0.9, cone: 1, brake: 1 },
+      { at: 0.68, pdx: 0.64, stall: 0.6, cone: 1, shake: 0.5, brake: 1 },
+      { at: 1.00, pdx: 0.64, stall: 0.4, cone: 1, shake: 1, brake: 1 }
+    ]
+  };
+
+  function poseOf(sit, res, p) {
+    var key = (sit || 'corner') + '_' + (res === 'fail' ? 'fail' : 'ok');
+    var seq = SEQ[key] || SEQ.corner_ok;
+    var frames = [];
+    var cur = {};
+    Object.keys(POSE0).forEach(function (k) { cur[k] = POSE0[k]; });
+    for (var i = 0; i < seq.length; i++) {
+      var f = seq[i];
+      Object.keys(f).forEach(function (k) { if (k !== 'at') cur[k] = f[k]; });
+      var snap = {};
+      Object.keys(cur).forEach(function (k) { snap[k] = cur[k]; });
+      frames.push({ at: f.at, p: snap });
+    }
+    p = clamp(p == null ? 0.5 : p, 0, 1);
+    var a = frames[0], b = frames[frames.length - 1];
+    for (var j = 0; j < frames.length - 1; j++) {
+      if (p >= frames[j].at && p <= frames[j + 1].at) { a = frames[j]; b = frames[j + 1]; break; }
+    }
+    var span = b.at - a.at;
+    var u = span > 0 ? clamp((p - a.at) / span, 0, 1) : 1;
+    u = u * u * (3 - 2 * u);
+    var out = {};
+    Object.keys(POSE0).forEach(function (k) {
+      out[k] = a.p[k] + (b.p[k] - a.p[k]) * u;
+    });
+    out.key = key;
+    return out;
+  }
+
+  function fxSmoke(ctx, x, y, amount, t, col) {
+    if (amount <= 0.02) return;
+    var n = Math.round(3 + amount * 6);
+    for (var i = 0; i < n; i++) {
+      var ph = (t * 22 + i * 7) % 26;
+      var sx = x - 2 - i * 2 - (rnd(i + 2) * 3);
+      var sy = y - 3 - i * 2 - ph * 0.5;
+      ctx.globalAlpha = clamp(amount * (0.75 - i * 0.07), 0.1, 0.8);
+      rect(ctx, sx, sy, 2 + (i % 2), 2 + (i % 3 === 0 ? 1 : 0), col || C.smoke);
+    }
+    ctx.globalAlpha = 1;
+  }
+
+  function fxSpray(ctx, x, y, amount, t) {
+    if (amount <= 0.02) return;
+    var n = Math.round(5 + amount * 12);
+    for (var i = 0; i < n; i++) {
+      var fly = (t * 60 + i * 11) % 24;
+      var sx = x - 2 - fly * (0.6 + rnd(i) * 0.8);
+      var sy = y - 1 - (i % 4) * 2 + rnd(i + 8) * 3;
+      ctx.globalAlpha = clamp(amount * (0.85 - fly * 0.028), 0.08, 0.85);
+      rect(ctx, sx, sy, 2, 1, i % 3 ? C.spray : '#eef5fc');
+    }
+    ctx.globalAlpha = 1;
+  }
+
+  function fxDust(ctx, x, y, amount, t) {
+    if (amount <= 0.02) return;
+    var n = Math.round(3 + amount * 7);
+    for (var i = 0; i < n; i++) {
+      var fly = (t * 34 + i * 9) % 20;
+      ctx.globalAlpha = clamp(amount * (0.75 - fly * 0.025), 0.08, 0.7);
+      rect(ctx, x - 2 - fly, y - 1 - (i % 3), 2, 1, i % 3 ? '#8b7f63' : '#a8977a');
+    }
+    ctx.globalAlpha = 1;
+  }
+
+  function fxGravel(ctx, x, y, amount, t) {
+    if (amount <= 0.02) return;
+    var n = Math.round(3 + amount * 9);
+    for (var i = 0; i < n; i++) {
+      var gx = x + 4 + rnd(i + 30) * 30 * amount;
+      var gy = y + 2 + rnd(i + 60) * 10;
+      ctx.globalAlpha = clamp(amount * 0.8, 0.1, 0.9);
+      rect(ctx, gx, gy - (t * 20 + i * 3) % 6, 1, 1, i % 3 ? C.gravel : '#8d887c');
+    }
+    ctx.globalAlpha = 1;
+  }
+
+  function fxSpark(ctx, x, y, amount, t) {
+    if (amount <= 0.02) return;
+    var n = Math.round(1 + amount * 4);
+    for (var i = 0; i < n; i++) {
+      var sx = x - i * 3 - (t * 40 + i * 5) % 8;
+      ctx.globalAlpha = clamp(amount * 0.9, 0.1, 0.95);
+      rect(ctx, sx, y - (i % 3) - (t * 12 + i) % 4, 1, 1, i % 2 ? C.lamp : '#fff6d8');
+    }
+    ctx.globalAlpha = 1;
+  }
+
+  function fxRain(ctx, t, amount) {
+    if (amount <= 0.02) return;
+    for (var i = 0; i < 46; i++) {
+      var rx = ((rnd(i) * W) + t * 26 * (0.5 + rnd(i + 4))) % W;
+      var ry = ((rnd(i + 9) * H) + t * 96) % H;
+      ctx.globalAlpha = 0.28 + rnd(i + 2) * 0.26;
+      rect(ctx, rx, ry, 1, 3, '#cfdcec');
+    }
+    ctx.globalAlpha = 1;
+  }
+
+  function drawTail(ctx, x, gy, h, strength) {
+    if (strength <= 0.1) return;
+    ctx.globalAlpha = clamp(strength * 0.55, 0, 0.55);
+    rect(ctx, x - 6, gy - h + 1, 6, 2, C.red);
+    ctx.globalAlpha = 1;
+    rect(ctx, x, gy - Math.round(h * 0.55), 1, 2, strength > 0.5 ? '#ff5a48' : C.redD);
+    rect(ctx, x, gy - Math.round(h * 0.35), 1, 1, strength > 0.5 ? '#ff5a48' : C.redD);
+  }
+
+  function drawBarrier(ctx, x, y, w) {
+    for (var i = 0; i < w; i += 2) {
+      rect(ctx, x + i, y, 2, 3, i % 4 ? C.white : C.red);
+    }
+    rect(ctx, x, y + 3, w, 1, C.steel);
+  }
+
+  function drawFlag(ctx, x, y, phase) {
+    rect(ctx, x, y - 12, 1, 13, C.steel);
+    var f = Math.sin(phase * 6) > 0 ? 0 : 1;
+    for (var r = 0; r < 4; r++) {
+      for (var c2 = 0; c2 < 5; c2++) {
+        var ox = (r % 2 === 0 ? 0 : 1) + (f && c2 === 2 ? 1 : 0);
+        rect(ctx, x + 1 + c2 * 2 + ox, y - 12 + r * 2, 2, 2, (r + c2) % 2 ? C.white : C.dark);
+      }
+    }
+  }
+
+  function drawCone(ctx, x, gy, tipped) {
+    if (tipped > 0.5) {
+      rect(ctx, x, gy - 2, 5, 2, C.red);
+      rect(ctx, x, gy - 3, 2, 1, C.white);
+      rect(ctx, x + 4, gy - 3, 1, 1, C.red);
+      return;
+    }
+    rect(ctx, x, gy, 4, 1, 'rgba(0,0,0,.45)');
+    rect(ctx, x + 1, gy - 5, 2, 5, C.red);
+    rect(ctx, x + 1, gy - 3, 2, 1, C.white);
+  }
+
+  function drawTrackScene(ctx, st) {
+    var pose = st.pose;
+    var v = VEHP[st.veh] || VEHP.kart;
+    var L = v.L, HH = v.H;
+    var gap = Math.max(8, Math.round(L * 0.32));
+    var span = 2 * L + gap;
+    var bx = Math.max(6, Math.round((W - span) / 2));
+    var rally = st.veh === 'rally';
+    var gyP = 74 + Math.round(pose.pdy) + (rally ? 2 : 0);
+    var gyR = 62 + Math.round(pose.rdy);
+    var px = bx + Math.round(pose.pdx * L);
+    var rx = bx + L + gap + Math.round(pose.rdx * L);
+    var pal = PAL[st.veh] || PAL.kart;
+
+    if (pose.gravel > 0.05) {
+      ctx.globalAlpha = clamp(pose.gravel * 1.4, 0, 1);
+      rect(ctx, 0, 44, W, 10, '#4b4740');
+      for (var g = 0; g < 60; g++) {
+        rect(ctx, (rnd(g + 12) * W) | 0, 45 + ((rnd(g + 40) * 8) | 0), 1, 1, g % 3 ? C.gravel : '#8d887c');
+      }
+      drawBarrier(ctx, 0, 44, W);
+      ctx.globalAlpha = 1;
+    }
+
+    function rival() {
+      drawVehicle(ctx, st.veh, rx, gyR, { body: C.blue, dark: C.blueD, driver: true });
+      drawTail(ctx, rx, gyR, HH, pose.tail);
+    }
+    function player() {
+      var opts = { body: pal.body, dark: pal.dark, trim: pal.trim, tilt: pose.ptilt, driver: true };
+      drawVehicle(ctx, st.veh, px, gyP, opts);
+      if (pose.spray > 0.02) fxSpray(ctx, px + 2, gyP, pose.spray, st.t);
+      if (pose.smoke > 0.02) fxSmoke(ctx, px + 2, gyP, pose.smoke, st.t);
+      if (pose.dust > 0.02) fxDust(ctx, px + 2, gyP, pose.dust, st.t);
+      if (pose.spark > 0.02) fxSpark(ctx, px + Math.round(L * 0.72), gyP - 1, pose.spark, st.t);
+      if (pose.gravel > 0.05) fxGravel(ctx, px + Math.round(L * 0.3), gyP, pose.gravel, st.t);
+      if (pose.brake > 0.5) {
+        var by = gyP - Math.round(HH * 0.55);
+        ctx.globalAlpha = 0.30;
+        rect(ctx, px - 4, by - 1, 5, 4, C.red);
         ctx.globalAlpha = 1;
-      } else {
-        car(ctx, px, 65, C.gold, C.goldD, TRACK_PX_PER_M);
+        rect(ctx, px, by, 2, 2, '#ff6a52');
+        rect(ctx, px + 3, by, 2, 2, '#ff6a52');
       }
-      if (tone !== 'bad' && tone !== 'crash') {
-        for (var i = 0; i < 4; i++) {
-          var sx = 12 + ((i * 23 + p * 44) % 136);
-          rect(ctx, sx, 62 + (i % 3) * 6, 6, 1, 'rgba(242,193,78,.35)');
-        }
+      if (pose.brake > 0.8) fxSmoke(ctx, px + L - 11, gyP, 0.3, st.t, '#c9d2df');
+      if (pose.flag > 0.05) drawFlag(ctx, Math.min(W - 12, px + L + 8), 62, pose.flag * 4 + st.t);
+      if (pose.stall > 0.1 && Math.round(st.t * 8) % 2) {
+        rect(ctx, px + 2, gyP - HH - 3, 2, 1, C.amber);
+        rect(ctx, px + L - 4, gyP - HH - 3, 2, 1, C.amber);
       }
-      if (tone !== 'crash') {
-        var lx = Math.round(px + carW / 2 - 3);
-        rect(ctx, lx, 61, 6, 1, C.gold);
-        rect(ctx, lx + 2, 62, 2, 1, C.gold);
+    }
+    if (!rally && gyR <= gyP) { rival(); player(); }
+    else if (!rally) { player(); rival(); }
+    else { player(); }
+
+    if (pose.dust < 0.05 && pose.spray < 0.05) {
+      for (var i = 0; i < 4; i++) {
+        var sx = 12 + ((i * 23 + st.t * 44) % 136);
+        rect(ctx, sx, 58 + (i % 3) * 6, 5, 1, 'rgba(242,193,78,.28)');
       }
-    } else if (type === 'garage') {
-      car(ctx, 40, floorY + 1 - carH, C.gold, C.goldD, PX_PER_M);
-      var mx = 24 + (tone === 'good' ? Math.round(3 * p) : (tone === 'bad' ? Math.round(-4 * p) : 0));
-      person(ctx, mx, floorY + 1 - PERSON_H, C.blue, '#1e2533');
-      var sx = 64 + Math.sin(st.t * 9) * 2;
-      if (tone === 'good') {
-        rect(ctx, sx, 62, 1, 1, C.white);
-        rect(ctx, sx + 2, 64, 1, 1, C.amber);
-        rect(ctx, sx - 2, 65, 1, 1, C.white);
-      }
-      if (tone === 'bad') {
-        rect(ctx, 64, 70, 3, 2, C.red);
-        rect(ctx, 68, 72, 2, 1, C.redD);
-      }
-    } else if (type === 'home') {
+    }
+    if (st.sit === 'wet') {
+      for (var wq = 0; wq < 6; wq++) rect(ctx, 6 + wq * 26, 76, 12, 1, 'rgba(180,205,230,.20)');
+      fxRain(ctx, st.t, 1);
+    }
+  }
+
+  function drawGarageScene(ctx, st) {
+    var pose = st.pose;
+    var v = VEHP[st.veh] || VEHP.kart;
+    var gy = 72;
+    var x = 40 + Math.round(pose.pdx * v.L * 0.6);
+    var pal = PAL[st.veh] || PAL.kart;
+    drawVehicle(ctx, st.veh, x, gy, { body: pal.body, dark: pal.dark, trim: pal.trim, driver: true, tilt: pose.ptilt });
+    if (pose.smoke > 0.02) fxSmoke(ctx, x + Math.round(v.L * 0.2), gy, pose.smoke + 0.2, st.t);
+    if (pose.spark > 0.02) fxSpark(ctx, x + Math.round(v.L * 0.55), gy - 1, pose.spark, st.t);
+    if (pose.brake > 0.5) {
+      rect(ctx, x + 1, gy - Math.round(v.H * 0.5), 1, 2, '#ff5a48');
+    }
+    person(ctx, 22 + Math.round(pose.pdx * 4), gy + 1 - PERSON_H, C.blue, '#1e2533');
+    if (st.result !== 'fail' && pose.smoke < 0.4) {
+      var sx = x + Math.round(v.L * 0.5) + Math.sin(st.t * 9) * 2;
+      rect(ctx, sx, gy - 12, 1, 1, C.white);
+      rect(ctx, sx + 2, gy - 10, 1, 1, C.amber);
+      rect(ctx, sx - 2, gy - 9, 1, 1, C.white);
+    }
+  }
+
+  function drawStreetScene(ctx, st) {
+    var pose = st.pose;
+    var v = VEHP[st.veh] || VEHP.street;
+    var race = st.veh === 'streetRace';
+    var gy = 80;
+    var px = 8 + Math.round(pose.pdx * (W - v.L - 16));
+    var copX = Math.min(W - 4, 96 + Math.round(pose.rdx * v.L));
+    var pal = race ? PAL.streetRace : PAL.street;
+    drawVehicle(ctx, 'street', copX, 68, { body: '#4c5a73', dark: '#2a3446', driver: true });
+    drawVehicle(ctx, st.veh, px, gy, {
+      body: pal.body, dark: pal.dark, trim: pal.trim, tilt: pose.ptilt, driver: true
+    });
+    if (pose.spray > 0.02) fxSpray(ctx, px + Math.round(v.L * 0.2), gy, pose.spray, st.t);
+    if (pose.smoke > 0.02) fxSmoke(ctx, px + Math.round(v.L * 0.2), gy, pose.smoke, st.t);
+    if (pose.spark > 0.02) fxSpark(ctx, px + Math.round(v.L * 0.75), gy - 1, pose.spark, st.t);
+    if (pose.brake > 0.5) {
+      rect(ctx, px + 1, gy - Math.round(v.H * 0.5), 1, 2, '#ff5a48');
+    }
+    if (st.result === 'fail' && st.sit !== 'wet') {
+      var f = Math.floor(st.t * 6) % 2;
+      rect(ctx, copX + Math.round(v.L * 0.5), 66, 4, 2, f ? C.red : C.blue);
+      rect(ctx, copX + Math.round(v.L * 0.5) + 4, 66, 4, 2, f ? C.blue : C.red);
+      ctx.globalAlpha = 0.1 + 0.06 * f;
+      rect(ctx, copX + Math.round(v.L * 0.35), 60, 26, 14, f ? C.red : C.blue);
+      ctx.globalAlpha = 1;
+    }
+    person(ctx, 134, 54 - PERSON_H, '#5b6d87', '#1a2130');
+    if (st.sit === 'wet') fxRain(ctx, st.t, 1);
+  }
+
+  function drawExamScene(ctx, st) {
+    var pose = st.pose;
+    var v = VEHP.street;
+    var gy = 74;
+    var x = 14 + Math.round(pose.pdx * 62);
+    if (pose.stall > 0.3 && Math.round(st.t * 10) % 2) x -= 1;
+    drawVehicle(ctx, 'street', x, gy, {
+      body: '#8a6f2e', dark: '#5a4718', trim: C.white, tilt: pose.ptilt, driver: true
+    });
+    if (pose.brake > 0.5) {
+      rect(ctx, x + 1, gy - 8, 1, 2, '#ff5a48');
+      rect(ctx, x + 3, gy - 8, 1, 2, '#ff5a48');
+    }
+    drawCone(ctx, 100, gy, pose.cone);
+    if (pose.cone > 0.5) {
+      rect(ctx, 97, gy - 1, 3, 1, C.red);
+      rect(ctx, 96, gy - 2, 2, 1, C.redD);
+    }
+    var ex = 112;
+    var nodY = pose.nod > 0.5 ? 1 : 0;
+    var shakeX = pose.shake > 0.2 ? (Math.floor(st.t * 14) % 2 ? 1 : -1) : 0;
+    person(ctx, ex + shakeX, 54 - PERSON_H + nodY, '#4d617a', '#1e2736');
+    if (pose.nod > 0.4) {
+      rect(ctx, ex + 5, 35 + nodY, 1, 7, '#4d617a');
+      rect(ctx, ex + 5, 33 + nodY, 1, 2, C.skin);
+      rect(ctx, ex + 6, 30 + nodY, 3, 4, C.white);
+      rect(ctx, ex + 7, 31 + nodY, 1, 1, C.steel);
+      rect(ctx, ex + 7, 32 + nodY, 1, 1, C.green);
+      rect(ctx, ex + 7, 33 + nodY, 2, 1, C.green);
+    }
+    if (pose.shake > 0.2) {
+      var k = Math.floor(st.t * 12) % 2;
+      rect(ctx, ex + 1, 29 + k, 1, 1, C.red);
+      rect(ctx, ex + 3, 29 + k, 1, 1, C.red);
+      rect(ctx, ex + 2, 30 + k, 1, 1, C.red);
+      rect(ctx, ex + 1, 31 + k, 1, 1, C.red);
+      rect(ctx, ex + 3, 31 + k, 1, 1, C.red);
+      rect(ctx, ex + 5, 41, 3, 1, '#4d617a');
+      rect(ctx, ex + 8, 39, 1, 3, C.skin);
+    }
+    if (pose.flag > 0.2) drawFlag(ctx, 142, 74, pose.flag * 4 + st.t);
+  }
+
+  function actors(ctx, type, st) {
+    if (type === 'track' || type === 'rally') drawTrackScene(ctx, st);
+    else if (type === 'garage') drawGarageScene(ctx, st);
+    else if (type === 'street') drawStreetScene(ctx, st);
+    else if (type === 'exam') drawExamScene(ctx, st);
+    else if (type === 'home') {
+      var p = st.prog || 0, tone = st.tone;
+      var floorY = 72;
       person(ctx, 52, floorY - PERSON_H, C.gold, '#2a2f3a');
       var gap = tone === 'good' ? 12 - 4 * p : (tone === 'bad' ? 14 + 10 * p : 12);
       person(ctx, 52 + gap, floorY - PERSON_H, '#7d8ea6', '#2a2f3a');
       person(ctx, 60 + gap, floorY - PERSON_H, '#8f7da6', '#2a2f3a');
       if (tone === 'bad') rect(ctx, 52, floorY - PERSON_H - 4, 5, 1, C.red);
-    } else if (type === 'street') {
-      var pcx = tone === 'good' ? 18 + 42 * p : 18;
-      var copX = 92 - (tone === 'bad' ? 14 * p : 0);
-      car(ctx, pcx, 67 - carH, tone === 'bad' ? C.blue : C.gold, C.goldD, PX_PER_M);
-      car(ctx, copX, 82 - carH, '#4c5a73', '#2a3446', PX_PER_M);
-      if (tone === 'bad') {
-        var f = Math.floor(st.t * 6) % 2;
-        rect(ctx, copX + 24, 82 - carH - 2, 4, 2, f ? C.red : C.blue);
-        rect(ctx, copX + 28, 82 - carH - 2, 4, 2, f ? C.blue : C.red);
-        ctx.globalAlpha = 0.10 + 0.06 * f;
-        rect(ctx, copX + 16, 82 - carH - 6, 24, 14, f ? C.red : C.blue);
-        ctx.globalAlpha = 1;
-      }
-      person(ctx, 134, 52 - PERSON_H, '#5b6d87', '#1a2130');
-    } else if (type === 'exam') {
-      car(ctx, tone === 'good' ? 12 + 44 * p : 12, 81 - carH, C.gold, C.goldD, PX_PER_M);
-      person(ctx, 24, 52 - PERSON_H, '#4d617a', '#1e2736');
-      rect(ctx, 29, 43, 3, 4, C.white);
-      if (tone === 'bad') {
-        rect(ctx, 24, 52 - PERSON_H - 4, 5, 1, C.red);
-        rect(ctx, 26, 52 - PERSON_H - 6, 1, 5, C.red);
-      }
     } else if (type === 'money') {
-      var grow = tone === 'good' ? p : (tone === 'bad' ? 1 - p * 0.8 : 0.5);
+      var p2 = st.prog || 0, tone2 = st.tone;
+      var grow = tone2 === 'good' ? p2 : (tone2 === 'bad' ? 1 - p2 * 0.8 : 0.5);
       var bills = Math.max(1, Math.round(grow * 5));
       for (var k = 0; k < bills; k++) {
         rect(ctx, 81, 63 - k, 3, 1, k % 2 ? C.green : '#3f7d5d');
         if (k < bills - 1) rect(ctx, 85, 63 - k, 3, 1, k % 2 ? '#3f7d5d' : C.green);
       }
-      var step = tone === 'good' ? Math.round(3 * p) : (tone === 'bad' ? Math.round(-4 * p) : 0);
-      person(ctx, 54 + step, floorY - PERSON_H, C.gold, '#2a2f3a');
-      person(ctx, 102 - step, floorY - PERSON_H, '#4d617a', '#1a2130');
+      var step = tone2 === 'good' ? Math.round(3 * p2) : (tone2 === 'bad' ? Math.round(-4 * p2) : 0);
+      person(ctx, 54 + step, 72 - PERSON_H, C.gold, '#2a2f3a');
+      person(ctx, 102 - step, 72 - PERSON_H, '#4d617a', '#1a2130');
     } else if (type === 'hospital') {
-      var vx = 80 + (tone === 'bad' ? Math.round(6 * p) : Math.round(-3 * p));
-      person(ctx, vx, floorY - PERSON_H, '#dfe6ef', '#2f3a4a');
+      var p3 = st.prog || 0;
+      var vx = 80 + (st.tone === 'bad' ? Math.round(6 * p3) : Math.round(-3 * p3));
+      person(ctx, vx, 72 - PERSON_H, '#dfe6ef', '#2f3a4a');
     }
   }
 
-  function paint(canvas, type, tone, t, prog) {
+  function paint(canvas, type, tone, t, prog, cfg) {
+    cfg = cfg || {};
     var ctx = ctxOf(canvas);
-    var st = { t: t, tone: tone, prog: prog };
-    getBg(type)(ctx, st);
+    var sit = cfg.sit || (type === 'exam' ? 'exam' : (type === 'garage' ? 'mechanical' : 'corner'));
+    var result = cfg.result || ((tone === 'bad' || tone === 'crash') ? 'fail' : 'ok');
+    var veh = cfg.veh || (type === 'rally' ? 'rally' : (type === 'track' ? 'kart' : (type === 'street' ? 'street' : (type === 'exam' ? 'street' : 'kart'))));
+    var st = {
+      t: t || 0, tone: tone, prog: prog, veh: veh, sit: sit, result: result,
+      pose: poseOf(sit, result, prog)
+    };
+    getBg(type === 'rally' ? 'track' : type)(ctx, st);
     actors(ctx, type, st);
+    if (st.pose.flash > 0.05) {
+      ctx.globalAlpha = clamp(st.pose.flash * 0.55, 0, 0.55);
+      rect(ctx, 0, 0, W, H, C.white);
+      ctx.globalAlpha = 1;
+    }
     if (tone === 'bad' && prog > 0.15) {
       ctx.globalAlpha = Math.max(0, 0.22 * (1 - prog));
       rect(ctx, 0, 0, W, H, C.red);
@@ -528,15 +1059,18 @@
     cfg = cfg || {};
     var type = cfg.type || 'track';
     var tone = cfg.tone || 'neutral';
-    var dur = cfg.dur || 1.6;
-    if (reduced || cfg.instant) { paint(canvas, type, tone, 0, tone === 'bad' ? 1 : 0.6); return Promise.resolve(); }
+    var dur = cfg.dur || 1.5;
+    if (reduced || cfg.instant) {
+      paint(canvas, type, tone, 0, cfg.p == null ? (tone === 'bad' ? 1 : 0.62) : cfg.p, cfg);
+      return Promise.resolve();
+    }
     return new Promise(function (resolve) {
       var t0 = 0;
       function frame(ts) {
         if (!t0) t0 = ts;
         var el = (ts - t0) / 1000;
         var p = Math.min(1, el / dur);
-        paint(canvas, type, tone, el, easeInOut(p));
+        paint(canvas, type, tone, el, easeInOut(p), cfg);
         if (p < 1) requestAnimationFrame(frame); else resolve();
       }
       requestAnimationFrame(frame);
@@ -549,13 +1083,45 @@
       if (!alive) return;
       if (!start) start = ts;
       var el = (ts - start) / 1000;
-      paint(canvas, 'track', 'good', el, (el % 3.4) / 3.4);
+      paint(canvas, 'track', 'good', el, (el % 3.6) / 3.6, { veh: 'f4', sit: 'overtake', result: 'ok' });
       raf = requestAnimationFrame(loop);
     }
-    if (reduced) { paint(canvas, 'track', 'good', 0, 0.55); return function () {}; }
+    if (reduced) { paint(canvas, 'track', 'good', 0, 0.55, { veh: 'f4', sit: 'overtake', result: 'ok' }); return function () {}; }
     raf = requestAnimationFrame(loop);
     return function () { alive = false; if (raf) cancelAnimationFrame(raf); };
   }
 
-  root.PX = { W: W, H: H, play: play, still: function (c, t) { paint(c, t || 'track', 'neutral', 0, 0.5); }, hero: hero, reduced: reduced };
+  function still(canvas, type, opts) {
+    opts = opts || {};
+    paint(canvas, type || 'track', opts.tone || 'neutral', 0, opts.p == null ? 0.5 : opts.p, opts);
+  }
+
+  function render(canvas, cfg) {
+    cfg = cfg || {};
+    paint(canvas, cfg.type || 'track', cfg.tone || 'neutral', cfg.t || 0, cfg.p == null ? 0.5 : cfg.p, cfg);
+  }
+
+  function gallery(canvas, key, opts) {
+    opts = opts || {};
+    var ctx = ctxOf(canvas);
+    rect(ctx, 0, 0, W, H, '#000');
+    var gy = 78;
+    if (opts.ground) { rect(ctx, 0, gy + 1, W, 1, '#1a2130'); }
+    if (opts.person) person(ctx, W - 26, gy - PERSON_H + 1, C.blue, '#1e2533');
+    var pal = PAL[key] || PAL.kart;
+    drawVehicle(ctx, key, opts.x == null ? 6 : opts.x, gy, {
+      body: pal.body, dark: pal.dark, trim: pal.trim,
+      driver: opts.driver !== false, tilt: opts.tilt || 0
+    });
+  }
+
+  var list = Object.keys(VEHP).map(function (k) {
+    var v = VEHP[k];
+    return { key: k, name: v.n, len_m: v.len_m, wid_m: v.wid_m, h_m: v.h_m, wheel_m: v.wheel_m, len_px: v.L, h_px: v.H, wheel_px: v.WH };
+  });
+
+  root.PX = {
+    W: W, H: H, play: play, still: still, hero: hero, reduced: reduced,
+    render: render, gallery: gallery, vehicles: list, pxPerM: PX_PER_M
+  };
 })(typeof window !== 'undefined' ? window : this);
