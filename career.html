@@ -288,10 +288,16 @@ function judgeOf(card,i){
   return JUDGE[card.id+':'+i]||null;
 }
 function dcBase(jd){return clamp(Math.round(40+(jd.dc-40)*0.8),40,58)}
-function dcOf(jd){return dcBase(jd)+(S.mod.world||0)*2}
-function rateOf(jd){
+function stageDc(card){
+  if(!card)return 0;
+  if(card.year)return Math.max(0,card.year-14)*2+1;
+  if(String(card.id||'').indexOf('rc-')===0)return 4;
+  return 6;
+}
+function dcOf(jd,card){return dcBase(jd)+(S.mod.world||0)*2+stageDc(card)}
+function rateOf(jd,card){
   if(!jd||jd.auto)return null;
-  return clamp(Math.round(50+(S.a[jd.chk]-dcOf(jd))*2),5,95);
+  return clamp(Math.round(50+(S.a[jd.chk]-dcOf(jd,card))*2),5,95);
 }
 
 function parseSeed(raw){
@@ -373,7 +379,7 @@ function raceSetToGo(d,sp,toGo){
 function raceBuild(sit,sp,p,finish){
   const band=Number(sit&&sit.distBand);
   const pos=finish?{lap:sp.form==='lap'?sp.limit:null,stage:sp.form==='stage'?sp.limit:null,corner:null,cornersLeft:null,place:'終點'}:racePlaceOf(sp,p);
-  const d={series:sp.key,form:sp.form,prog:p,finish:finish,lap:pos.lap,stage:pos.stage,corner:pos.corner,
+  const d={id:(sit&&sit.id)||null,series:sp.key,form:sp.form,prog:p,finish:finish,lap:pos.lap,stage:pos.stage,corner:pos.corner,
     cornersLeft:pos.cornersLeft,place:pos.place,limit:sp.limit,distance:sp.distance,
     band:(isFinite(band)&&band>0)?band:sp.distance,toGo:0,dist:0,remain:'',line:''};
   return raceSetToGo(d,sp,raceRound10((1-p)*sp.distance));
@@ -536,9 +542,13 @@ function applyFx(fx){
 }
 function injure(sev){
   const n=Math.max(1,Math.round(sev||1));
-  S.inj=clamp(S.inj+n,0,9);
-  S.a.rea=clamp(S.a.rea-(6+n*3),0,100);
-  S.a.nerve=clamp(S.a.nerve-(2+n*3),0,100);
+  const room=Math.max(0,3-S.inj);
+  const add=Math.min(n,room);
+  const spill=n-add;
+  S.inj=clamp(S.inj+add,0,3);
+  S.a.rea=clamp(S.a.rea-(add*4+spill*2),0,100);
+  S.a.nerve=clamp(S.a.nerve-(add*2+spill),0,100);
+  S.a.sta=clamp(S.a.sta-spill*3,0,100);
   S.injAt=S.year;
 }
 
@@ -738,6 +748,29 @@ function startRun(){
   }
   wipe();save();beginYear();
 }
+function raceSeriesForYear(y){
+  if(y>=19){const r=S.door||S.forced||'f4';return r==='rally'?'rally':(r==='street'?'mountain':'f4');}
+  return 'kart';
+}
+function raceYear(y){return y===15||y===16||y===17||y===19||y===20;}
+function pushRace(){
+  const series=raceSeriesForYear(S.year);
+  const pool=(typeof RACE_CARDS!=='undefined'&&RACE_CARDS[series])||[];
+  const avail=shuf(pool.filter(function(c){return S.used.indexOf(c.id)<0}));
+  const draw=avail.slice(0,2);
+  if(!draw.length)return;
+  draw.forEach(function(c){S.used.push(c.id)});
+  const lineup=raceLineup(draw.map(function(c){return {id:c.id,prog:c.prog,feature:c.feature,distBand:c.distBand}}),series);
+  const byId={};
+  draw.forEach(function(c){byId[c.id]=c});
+  lineup.forEach(function(d){
+    const src=byId[d.id];
+    if(!src)return;
+    const card=Object.assign({},src);
+    card.p=d.line+'　'+card.p;
+    S.beats.push({k:'card',card:card});
+  });
+}
 function beginYear(){
   const y=S.year;S.bi=0;S.beats=[];
   S.prep=0;S.gear=null;S.qok=0;
@@ -751,7 +784,8 @@ function beginYear(){
     });
     pool.forEach(function(c){if(chosen.length<4&&chosen.indexOf(c)<0)chosen.push(c)});
     chosen.forEach(function(c){S.used.push(c.id);S.beats.push({k:'card',card:c})});
-    while(S.beats.length<5){const c=pick(CARDS.filter(function(x){return x.y===y}));S.beats.push({k:'card',card:c})}
+    while(S.beats.length<5&&!raceYear(y)){const c=pick(CARDS.filter(function(x){return x.y===y}));S.beats.push({k:'card',card:c})}
+    if(raceYear(y))pushRace();
   }else if(y===18){
     EXAM.forEach(c=>S.beats.push({k:'card',card:c}));
     S.beats.push({k:'gear'});
@@ -762,10 +796,12 @@ function beginYear(){
     const e=ENTRY[r];
     S.beats.push({k:'card',card:Object.assign({},e,{t:e.t,p:e.p})});
     shuf(ROUTE19[r]||ROUTE19.f4).slice(0,2).forEach(c=>S.beats.push({k:'card',card:c}));
+    pushRace();
   }else{
     const r=S.door||S.forced||'f4';
     S.beats.push({k:'card',card:Object.assign({id:'r20a'},ROUTE20[r]||ROUTE20.f4)});
     shuf(ROUTE20B[r]||ROUTE20B.f4).slice(0,2).forEach(c=>S.beats.push({k:'card',card:c}));
+    pushRace();
     S.beats.push({k:'settle'});
   }
   save();nextBeat();
@@ -861,14 +897,14 @@ function renderCard(card){
   }
   optList.forEach(function(o,i){
     const jd=judgeOf(card,i);
-    const rate=rateOf(jd);
+    const rate=rateOf(jd,card);
     const band=rate===null?'none':(rate>=70?'hi':(rate>=40?'mid':'lo'));
     const btn=document.createElement('button');
     btn.className='opt risk-'+band;
     btn.dataset.rate=rate===null?'':String(rate);
     let badge='';
     if(rate!==null){
-      badge='<span class="rate '+band+'">'+L[jd.chk]+' '+S.a[jd.chk]+' · 難度 '+dcOf(jd)+' · 成功率 '+rate+'%</span>';
+      badge='<span class="rate '+band+'">'+L[jd.chk]+' '+S.a[jd.chk]+' · 難度 '+dcOf(jd,card)+' · 成功率 '+rate+'%</span>';
     }else if(jd){
       badge='<span class="rate auto">無風險</span>';
     }
@@ -881,6 +917,12 @@ function renderCard(card){
       if(o.gamble)gambleWin=rng()<0.45;
       const win=(rate===null)?true:(rng()*100<rate);
       const branch=win?{fx:o.fx,l:o.l,tone:toneOf(o)}:{fx:jd?jd.f:o.fx,l:jd?jd.l:o.l,tone:'bad'};
+      if(!win&&branch.fx&&branch.fx.inj&&rate!==null&&rate>35){
+        const soft=Object.assign({},branch.fx);
+        delete soft.inj;
+        soft.sta=(soft.sta||0)-3;
+        branch.fx=soft;
+      }
       const oo=Object.assign({},o);
       if(gambleWin!==null)oo.tone=gambleWin?'good':'bad';
       else oo.tone=branch.tone;
@@ -1140,9 +1182,9 @@ const STREET_BANDS=[
 ];
 const REPORT_BANDS=[
  {at:0,b:'C',n:'未成形',t:'你有車，但未有人記得你。'},
- {at:30,b:'B',n:'站穩了',t:'有人肯俾機會你，但仲未輪到你講。'},
- {at:44,b:'A',n:'有人等你',t:'車隊、副駕、對手都知你係邊個。'},
- {at:54,b:'S',n:'七年一線',t:'你唔再係等人俾機會嘅人。'}
+ {at:28,b:'B',n:'站穩了',t:'有人肯俾機會你，但仲未輪到你講。'},
+ {at:40,b:'A',n:'有人等你',t:'車隊、副駕、對手都知你係邊個。'},
+ {at:48,b:'S',n:'七年一線',t:'你唔再係等人俾機會嘅人。'}
 ];
 const RIVAL_BANDS=[
  {at:0,n:'已經升咗上去，唔再等你'},
