@@ -65,6 +65,9 @@ DATA_JS = r"""() => {
     if(Array.isArray(t)) t.forEach(c=>add(c,'r20',r)); else add(t,'r20',r);
     (ROUTE20B[r]||[]).forEach(c=>add(c,'r20b',r));
   });
+  Object.keys(typeof RACE_CARDS==='object'&&RACE_CARDS?RACE_CARDS:{}).forEach(r=>{
+    (RACE_CARDS[r]||[]).forEach(c=>add(c,'race',null));
+  });
   entries.forEach(e=>{
     const c=e.c, y=(c.year!=null?c.year:c.y);
     if(c.kind!=='event' && y>=14 && y<=17) yearCounts[y]=(yearCounts[y]||0)+1;
