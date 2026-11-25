@@ -153,11 +153,11 @@ header.hud{background:#070a10;border-bottom:2px solid var(--px-line)}
     <div class="kicker">第一章 · 14–20</div>
     <div class="stagewrap"><canvas id="stageIntro" width="160" height="90" aria-hidden="true"></canvas><div class="stagelabel">GARAGE · 14</div></div>
     <h1>你唔會落場揸車。<br>你只會決定自己變成邊種車手。</h1>
-    <p>14 歲到 20 歲，七年、二十六個決定。每年十點時間，永遠唔夠分。</p>
+    <p>14 歲到 20 歲，七年。每年十點時間，永遠唔夠分。</p>
     <p>每次選擇都計成功率：<b>50 ＋（屬性 − 難度）× 2</b>。骰唔過就食失敗分支 —— 唔會乜都冇，會留低傷痕。</p>
     <div class="card">
       <h2>由 14 歲開始</h2>
-      <p style="margin:0">每次決定都會留低嘢：屬性、現金、名聲、HEAT、同三個人對你嘅睇法。</p>
+      <p style="margin:0">每次決定都會留低嘢：屬性、現金、名聲、紀錄、同三個人對你嘅睇法。</p>
       <div class="btnrow">
         <button class="btn" id="btnStart">開始</button>
         <button class="btn ghost" id="btnResume" hidden>繼續上一局</button>
@@ -224,7 +224,7 @@ const ACTS=[
  {k:'wrench',n:'整車',d:'車感 +1，紀律 +1'},
  {k:'study',n:'學業',d:'家人 +7'},
  {k:'work',n:'打工',d:'現金 +1.5 萬'},
- {k:'race',n:'比賽',d:'爭勝心 +1，名聲 +5，HEAT +4'},
+ {k:'race',n:'比賽',d:'爭勝心 +1，名聲 +5'},
  {k:'people',n:'陪人',d:'最弱嗰段關係 +9，心理 +1'}
 ];
 const RELN={mentor:'師傅',family:'家人',rival:'宿敵'};
@@ -283,12 +283,12 @@ function deepClone(v){
 }
 window.__snapshot=function(){return deepClone(S)};
 function newState(){
-  return {v:5,year:14,bi:0,beats:[],used:[],a:Object.assign({},START),cash:12,fame:0,heat:0,respect:0,
+  return {v:5,year:14,bi:0,beats:[],used:[],a:Object.assign({},START),cash:12,fame:0,record:0,respect:0,
    rel:{mentor:50,family:60,rival:30},route:null,vals:{trust:0,matey:0,gang:0},licence:null,
    door:null,doors:[],shame:0,inj:0,transferUsed:false,log:[],over:false,prep:0,gear:null,qok:0,
    flags:{f3:false,f4Seat:false,debt:0,arrested:false,noDoor:false},resolved20:null,endKind:null,
    loadout:[],stat:{km:0,events:0,decisions:0,crashes:0,hard:0,hardWin:0,checks:0,wins:0,fails:0,tags:{shou:0,bo:0,deng:0,res:0},examFails:0,buyLicence:false},
-   mod:{school:false,usedcar:false,nego:false,rallyBg:false,academy:false,world:0,heatMul:1,negoMul:1}};
+   mod:{school:false,usedcar:false,nego:false,rallyBg:false,academy:false,world:0,negoMul:1}};
 }
 function resetState(next){
   Object.keys(S).forEach(k=>delete S[k]);
@@ -297,6 +297,9 @@ function resetState(next){
 function migrateSave(o){
   const base=newState();
   const out=Object.assign({},base,o);
+  const legacyRec=typeof o['he'+'at']==='number'?o['he'+'at']:0;
+  delete out['he'+'at'];
+  out.record=typeof o.record==='number'?clamp(Math.round(o.record),0,3):(legacyRec>=60?1:0);
   out.v=5;
   out.a=Object.assign({},base.a,o.a||{});
   out.rel=Object.assign({},base.rel,o.rel||{});
@@ -334,8 +337,8 @@ function paintHud(){
    '<span class="stat">續航<b>'+d.sta+'</b></span>'+
    '<span class="stat money">CASH<b>'+S.cash.toFixed(1)+' 萬</b></span>'+
    '<span class="stat">FAME<b>'+S.fame+'</b></span>'+
-   '<span class="stat'+(S.heat>=40?' hot':'')+'">HEAT<b>'+S.heat+'</b></span>';
-  $('hBar').style.width=Math.min(100,S.heat)+'%';
+   '<span class="stat'+(S.record>=2?' hot':'')+'">紀錄<b>'+S.record+'</b></span>';
+  $('hBar').style.width=Math.min(100,S.record/3*100)+'%';
 }
 function logit(txt){S.log.push('['+S.year+' 歲] '+txt)}
 function applyFx(fx){
@@ -347,11 +350,7 @@ function applyFx(fx){
     S.cash=Math.max(0,S.cash+c);
   }
   if(fx.fame)S.fame=clamp(S.fame+fx.fame,0,100);
-  if(fx.heat){
-    let h=fx.heat;
-    if(h>0)h=Math.round(h*S.mod.heatMul);
-    S.heat=clamp(S.heat+h,0,100);
-  }
+  if(fx.record)S.record=clamp(S.record+fx.record,0,3);
   if(fx.respect)S.respect=clamp(S.respect+fx.respect,0,100);
   const applyRel=function(k,v){
     if(typeof v!=='number')return;
@@ -382,7 +381,7 @@ function applyLoadout(list){
     if(id==='school'){S.mod.school=true;S.rel.family=clamp(S.rel.family+5,0,100)}
     if(id==='usedcar')S.mod.usedcar=true;
     if(id==='nego'){S.mod.negoMul=1.3}
-    if(id==='street_net'){S.mod.heatMul=0.75}
+    if(id==='street_net')S.fame=clamp(S.fame+10,0,100);
     if(id==='rally_bg')S.mod.rallyBg=true;
     if(id==='academy')S.mod.academy=true;
   });
@@ -400,7 +399,7 @@ function isRaceCard(card){
 }
 function tagOf(o){
   const f=o.fx||{};
-  if((f.heat||0)>=8||o.risk)return 'bo';
+  if(f.record||o.risk)return 'bo';
   if((f.cash||0)<0||(f.rel&&Object.keys(f.rel).some(k=>f.rel[k]<0))||(f.route&&Object.keys(f.route).some(k=>f.route[k]<0)))return 'res';
   if((f.disc||0)>0||(f.family||0)>0||(f.men||0)>0&&(f.drv||0)<=0)return 'shou';
   if((f.drv||0)>=4||(f.nerve||0)>=4)return 'bo';
@@ -418,7 +417,7 @@ function fxText(fx){
   ATTRS.forEach(k=>{if(fx[k])out.push(L[k]+' '+(fx[k]>0?'+':'')+fx[k])});
   if(fx.cash)out.push('現金 '+(fx.cash>0?'+':'')+fx.cash+' 萬');
   if(fx.fame)out.push('FAME '+(fx.fame>0?'+':'')+fx.fame);
-  if(fx.heat)out.push('HEAT '+(fx.heat>0?'+':'')+fx.heat);
+  if(fx.record)out.push('紀錄 +'+fx.record);
   if(fx.inj)out.push('傷患 +'+fx.inj);
   if(fx.rel)Object.keys(fx.rel).forEach(k=>out.push(RELN[k]+' '+(fx.rel[k]>0?'+':'')+fx.rel[k]));
   ['mentor','family','rival'].forEach(k=>{if(typeof fx[k]==='number')out.push(RELN[k]+' '+(fx[k]>0?'+':'')+fx[k])});
@@ -429,7 +428,7 @@ function summary(){
   const r=S.door||S.forced||'f4';
   return {
     complete:!!S.endKind, settle:S.endKind==='settle', route:r,
-    inj:S.inj, heat:S.heat, family:S.rel.family, rival:S.rel.rival,
+    inj:S.inj, record:S.record, family:S.rel.family, rival:S.rel.rival,
     licence:S.licence, gear:S.gear, wrong:S.wrong||0, examFails:S.stat.examFails,
     examPass:!!(S.licence&&S.shame===0)||!!S.licence,
     buyLicence:!!S.stat.buyLicence, arrested:!!S.flags.arrested, noDoor:!!S.flags.noDoor,
@@ -454,6 +453,7 @@ function renderEndMeta(res){
   const rows=[
     ['本局里程',km+' 公里'],
     ['本局決策',S.stat.decisions+' 個'],
+    ['本局紀錄',S.record+' ／ 3'],
     ['本局賽事',S.stat.events+' 場'],
     ['本局成就',String((res.ach||[]).length)+' 個　+'+(res.ach||[]).reduce((n,g)=>n+g.ap,0)+' AP'],
     ['進度獎勵',((res.tiers||[]).length||0)+' 項　+'+((res.tiers||[]).reduce((n,g)=>n+g.ap,0))+' AP'],
@@ -492,7 +492,7 @@ function toneOf(o){
   ATTRS.forEach(k=>{if(f[k])s+=f[k]*0.8});
   if(f.fame)s+=f.fame*0.18;
   if(f.cash)s+=f.cash>0?Math.min(6,f.cash*0.2):f.cash*0.25;
-  if(f.heat)s-=f.heat*0.16;
+  if(f.record)s-=f.record*2.4;
   if(f.rel)Object.keys(f.rel).forEach(k=>{s+=f.rel[k]*0.14});
   if(f.route)Object.keys(f.route).forEach(k=>{s+=f.route[k]*0.1});
   if(s>=3)return 'good';
@@ -627,7 +627,7 @@ function renderAlloc() {
         if(act.k==='wrench'){S.a.feel=clamp(S.a.feel+1,0,100);S.a.disc=clamp(S.a.disc+1,0,100)}
         if(act.k==='study'){S.rel.family=clamp(S.rel.family+7,0,100)}
         if(act.k==='work'){S.cash=Math.round((S.cash+1.5)*10)/10}
-        if(act.k==='race'){S.a.drv=clamp(S.a.drv+1,0,100);S.fame=clamp(S.fame+5,0,100);S.heat=clamp(S.heat+4,0,100)}
+        if(act.k==='race'){S.a.drv=clamp(S.a.drv+1,0,100);S.fame=clamp(S.fame+5,0,100)}
         if(act.k==='people'){
           const low=Object.keys(S.rel).sort(function(a,b){return S.rel[a]-S.rel[b]})[0];
           S.rel[low]=clamp(S.rel[low]+9,0,100);S.a.men=clamp(S.a.men+1,0,100);
@@ -686,14 +686,14 @@ function renderCard(card){
       if(gambleWin!==null)oo.tone=gambleWin?'good':'bad';
       else oo.tone=branch.tone;
       let delta=(win?'成功　':'失敗　')+fxText(branch.fx);
-      if(gambleWin!==null)delta=(gambleWin?'賭贏：現金 +18 萬 · FAME +10':'賭輸：現金 −6 萬 · HEAT +14 · 欠債 +8 萬');
+      if(gambleWin!==null)delta=(gambleWin?'賭贏：現金 +18 萬 · FAME +10':'賭輸：現金 −6 萬 · 紀錄 +1 · 欠債 +8 萬');
       playBeat(card,oo,delta,function(){
         applyFx(branch.fx);
         if(o.prep)S.prep+=o.prep;
         if(o.gear){S.gear=o.gear;S.licence=o.gear==='auto'?'auto':null}
         if(gambleWin!==null){
           if(gambleWin){S.cash+=18;logit('賭贏：現金 +18 萬');S.fame=clamp(S.fame+10,0,100)}
-          else{S.cash=Math.max(0,S.cash-6);S.heat=clamp(S.heat+14,0,100);S.flags.debt+=8;logit('賭輸：欠債增加')}
+          else{S.cash=Math.max(0,S.cash-6);S.record=clamp(S.record+1,0,3);S.flags.debt+=8;logit('賭輸：欠債增加')}
         }
         if(rate!==null)S.stat.checks++;
         if(rate!==null&&win)S.stat.wins++;
@@ -769,7 +769,7 @@ function renderExam(){
 }
 function renderExamRes() {
   const d=der();
-  let p=55+d.stb*0.25+S.a.feel*0.15-S.heat*0.30+S.prep;
+  let p=55+d.stb*0.25+S.a.feel*0.15+S.prep;
   p+=(S.gear==='manual')?-10:15;
   p-=3*(S.mod.world||0);
   if(S.gear==='manual'){
@@ -807,7 +807,7 @@ function spawnFail(){
   const box=$('cardOpts');box.innerHTML='';
   const opts=[
    {t:'再考一次',s:'四萬，準備再升',fx:{cash:-4,men:2},l:'你報咗下一次。'},
-   {t:'走後門買牌',s:'十五萬，HEAT 爆升',fx:{cash:-15,heat:15,disc:-6},l:'你買咗一張。有人知。'},
+   {t:'走後門買牌',s:'十五萬，留低紀錄',fx:{cash:-15,record:1,disc:-6},l:'你買咗一張。有人知。'},
    {t:'放棄考牌',s:'這條路收咗',fx:{drv:-6},l:'你把筆記掉咗。'}
   ];
   opts.forEach(function(o){
@@ -834,11 +834,11 @@ function toDoors(){
   let open=[];
   if((d.spd>=60-w||d.stb>=70-w)&&(S.cash>=30-w-ac||S.fame>=40-w-ac)&&S.rel.family>=50)open.push('f4');
   if(((S.a.feel>=55||S.a.nerve>=65)&&S.rel.mentor>=60&&w<15)||S.mod.rallyBg)open.push('rally');
-  if(S.heat>=40-w||S.fame>=50-w)open.push('street');
+  if(S.fame>=50-w)open.push('street');
   if(S.forced)open=[S.forced];
   if(!open.length){
     S.flags.noDoor=true;
-    const score={f4:(d.spd+d.stb)/2,rally:(S.a.feel+S.a.nerve)/2,street:(S.heat+S.fame)/2};
+    const score={f4:(d.spd+d.stb)/2,rally:(S.a.feel+S.a.nerve)/2,street:S.fame};
     open.push(Object.keys(score).sort(function(a,b){return score[b]-score[a]})[0]);
   }
   S.doors=open;save();
@@ -846,7 +846,7 @@ function toDoors(){
   const names={f4:'F4 正規軍',rally:'Rally',street:'街頭'};
   $('doorScene').textContent=S.flags.noDoor?'NO DOOR · 冇門開':'DOORS · '+open.length;
   try{PX.still($('stageDoor'),open[0]==='street'?'street':(open[0]==='rally'?'exam':'track'))}catch(e){}
-  $('doorWhy').textContent='速度 '+d.spd+'／穩定 '+d.stb+'／車感 '+S.a.feel+'／膽量 '+S.a.nerve+'／HEAT '+S.heat+'／FAME '+S.fame+'／家人 '+S.rel.family+'／師傅 '+S.rel.mentor+((S.mod.world||0)?'　（技能負重令對手＋'+w+'）':'');
+  $('doorWhy').textContent='速度 '+d.spd+'／穩定 '+d.stb+'／車感 '+S.a.feel+'／膽量 '+S.a.nerve+'／紀錄 '+S.record+'／FAME '+S.fame+'／家人 '+S.rel.family+'／師傅 '+S.rel.mentor+((S.mod.world||0)?'　（技能負重令對手＋'+w+'）':'');
   const box=$('doorOpts');box.innerHTML='';
   open.forEach(function(r){
     const btn=document.createElement('button');btn.className='opt';
@@ -860,7 +860,6 @@ function toDoors(){
       const go=function(){
         S.door=r;S.year=18;logit('揀咗'+names[r]);
         if(r==='rally'){S.a.feel=clamp(S.a.feel+4,0,100)}
-        if(r==='street'){S.heat=clamp(S.heat+6,0,100)}
         save();box.dataset.locked='0';beginYear();
       };
       $('doorScene').textContent=(r==='f4'?'F4 · 正規':(r==='rally'?'RALLY':'STREET'));
@@ -886,10 +885,10 @@ function settle20(){
     if(comp<45){S.inj+=1;S.a.rea=clamp(S.a.rea-8,0,100);S.a.nerve=clamp(S.a.nerve-5,0,100);headline='賽段完成率推算 '+Math.round(comp)+'% —— 你撞咗。傷患 1。'}
     else headline='賽段完成率推算 '+Math.round(comp)+'% —— 你完成咗。';
   }else{
-    if(S.heat>=80){S.flags.arrested=true;headline='HEAT '+S.heat+' —— 你被拉。'}
-    else if(S.heat>=60){S.vals.gang=Math.max(0,S.vals.gang-30);S.cash=Math.max(0,S.cash-10);headline='HEAT '+S.heat+' —— 朋友出賣你。錢同幫會關係冇咗。'}
-    else if(S.heat>=40){headline='HEAT '+S.heat+' —— 警方上門問話。你收手，HEAT −20。';S.heat=Math.max(0,S.heat-20)}
-    else headline='HEAT '+S.heat+' —— 你行得通。';
+    if(S.record>=3){S.flags.arrested=true;headline='紀錄三格全滿 —— 有人指認你，你喺山路被拉。'}
+    else if(S.fame>=60)headline='FAME '+S.fame+' —— 車場以外嘅人都識你。你出人頭地。'
+    else if(S.fame>=40)headline='FAME '+S.fame+' —— 有人識你，但冇人肯出錢。'
+    else headline='FAME '+S.fame+' —— 七年之後，沒有人記得你。';
   }
   S.resolved20=headline;
   const first=!S.endKind;
@@ -907,12 +906,13 @@ function settle20(){
    ['最弱',L[top[6]]+' '+S.a[top[6]]],
    ['速度／穩定',d.spd+' ／ '+d.stb],
    ['路線',({f4:'F4',rally:'Rally',street:'街頭'})[r]],
+   ['紀錄',S.record+' ／ 3'],
    ['牌照',S.licence==='manual'?'棍波':(S.licence==='auto'?'自動波':'未考到')],
    ['宿敵',S.rel.rival>=50?'同你平手，仲喺你附近':'已經升咗上去，唔再等你'],
    ['未了事',(S.flags.debt>0?'欠債 '+S.flags.debt+' 萬；':'')+(S.shame?'有人仲笑你唔識棍波':'冇')],
    ['帶入下一章',(S.flags.f3?'F3 席位':(S.flags.f4Seat?'F4 席位未穩':'未有席位'))+(S.transferUsed?'':'、轉線機會未用')]
   ];
-  $('endTitle').textContent=S.year+' 歲 · '+(S.flags.f3?'你升咗上去':(r==='street'?'你仲行得':(r==='rally'?'你完成咗':'你仲喺原位')));
+  $('endTitle').textContent=S.year+' 歲 · '+(S.flags.f3?'你升咗上去':(r==='street'?(S.fame>=60?'你出咗名':(S.fame>=40?'有人識你':'你冇人記得')):(r==='rally'?'你完成咗':'你仲喺原位')));
   $('endBody').textContent=headline;
   $('endTable').innerHTML=rows.map(function(x){return '<tr><td>'+x[0]+'</td><td>'+x[1]+'</td></tr>'}).join('');
   show('#scEnd');
@@ -924,7 +924,7 @@ function settle20(){
 function ending(msg,res){
   $('endTitle').textContent='結局';
   $('endBody').textContent=msg;
-  $('endTable').innerHTML='<tr><td>年齡</td><td>'+S.year+' 歲</td></tr><tr><td>HEAT</td><td>'+S.heat+'</td></tr><tr><td>傷患</td><td>'+S.inj+'</td></tr>';
+  $('endTable').innerHTML='<tr><td>年齡</td><td>'+S.year+' 歲</td></tr><tr><td>紀錄</td><td>'+S.record+' ／ 3</td></tr><tr><td>傷患</td><td>'+S.inj+'</td></tr>';
   show('#scEnd');
   if(!res)res=finaliseRun();
   renderEndMeta(res);
