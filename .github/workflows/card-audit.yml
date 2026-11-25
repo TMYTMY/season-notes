@@ -2,7 +2,6 @@ name: card-audit
 
 on:
   push:
-    branches: [main]
   pull_request:
 
 jobs:
@@ -20,3 +19,5 @@ jobs:
           python -m playwright install --with-deps chromium
       - name: Audit every card option
         run: python3 tools/card_audit.py --file career.html
+      - name: Prove the audit catches each defect
+        run: python3 tools/run_fixtures.py

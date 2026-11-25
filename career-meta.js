@@ -24,7 +24,7 @@
     { id: 'route_f4', cat: '路線', n: '正規出身', ap: 80, c: '以 F4 出口完成', f: function (R) { return R.settle && R.route === 'f4'; } },
     { id: 'route_rally', cat: '路線', n: '拉力出身', ap: 80, c: '以 Rally 出口完成', f: function (R) { return R.settle && R.route === 'rally'; } },
     { id: 'route_street', cat: '路線', n: '街頭出身', ap: 80, c: '以街頭出口完成', f: function (R) { return R.settle && R.route === 'street'; } },
-    { id: 'clean_street', cat: '路線', n: '洗白', ap: 150, c: '街頭出身、冇被拉、HEAT < 40 收場', f: function (R) { return R.settle && R.route === 'street' && !R.arrested && R.heat < 40; } },
+    { id: 'clean_street', cat: '路線', n: '洗白', ap: 150, c: '街頭出身、冇被拉、紀錄乾淨完場', f: function (R) { return R.settle && R.route === 'street' && !R.arrested && R.record === 0; } },
     { id: 'no_door', cat: '路線', n: '冇門開', ap: 40, c: '17 歲時三道門都開不到', f: function (R) { return R.noDoor; } },
 
     { id: 'no_injury', cat: '表現', n: '零傷患', ap: 60, c: '一局完成而傷患為 0', f: function (R) { return R.complete && R.inj === 0; } },
@@ -32,7 +32,7 @@
     { id: 'exam_first', cat: '表現', n: '一次過', ap: 50, c: '考車筆試路試一次合格', f: function (R) { return R.examPass && R.examFails === 0; } },
     { id: 'manual_all', cat: '表現', n: '識棍波', ap: 70, c: '棍波三題全對並合格', f: function (R) { return R.gear === 'manual' && R.wrong === 0 && R.licence === 'manual'; } },
     { id: 'auto_route', cat: '表現', n: '自動波之路', ap: 30, c: '用自動波牌照完成一局', f: function (R) { return R.complete && R.licence === 'auto'; } },
-    { id: 'heat80', cat: '表現', n: '滿手鮮血', ap: 40, c: 'HEAT ≥ 80 仍完成一局', f: function (R) { return R.complete && R.heat >= 80; } },
+    { id: 'blood_hands', cat: '表現', n: '滿手鮮血', ap: 40, c: '紀錄 ≥ 2 仍完成一局', f: function (R) { return R.complete && R.record >= 2; } },
 
     { id: 'hard_hunter', cat: '技術', n: '高難度獵人', ap: 80, c: '單局 5 次成功率 ≤ 45% 而成功', f: function (R) { return R.hardChoices >= 5; } },
     { id: 'ascetic', cat: '技術', n: '苦行', ap: 100, c: '一局完全冇揀過「搏」', f: function (R) { return R.complete && R.tags.bo === 0; } },
@@ -55,7 +55,7 @@
     { id: 'school', tier: 1, n: '學校底子', ap: 70, w: 2, d: '家人扣減減半', note: '學業類選擇冇咁傷家人' },
     { id: 'usedcar', tier: 2, n: '二手車專家', ap: 150, w: 3, d: '買車多一個選項', note: '多一個第三部車' },
     { id: 'nego', tier: 2, n: '談判', ap: 180, w: 3, d: '所有現金收入 +30%', note: '贊助條件升一級' },
-    { id: 'street_net', tier: 3, n: '街頭人脈', ap: 280, w: 4, d: 'HEAT 增長 −25%', note: '起手乾淨' },
+    { id: 'street_net', tier: 3, n: '街頭人脈', ap: 280, w: 4, d: 'FAME 起手 +10', note: '車場以外都有人識你' },
     { id: 'rally_bg', tier: 3, n: '拉力背景', ap: 300, w: 4, d: 'Rally 門一定開', note: '師傅肯帶你入拉力' },
     { id: 'academy', tier: 3, n: '青訓推薦', ap: 320, w: 4, d: 'F4 門檻 −8', note: '有人幫你講一句' }
   ];
@@ -67,7 +67,7 @@
       ach: {}, skills: {}, loadout: [],
       routes: { f4: 0, rally: 0, street: 0 },
       tiers: { km: 0, runs: 0, decisions: 0, events: 0 },
-      best: { km: 0, fam: 0, heat: 0 }
+      best: { km: 0, fam: 0 }
     };
   }
   function read() {
