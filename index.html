@@ -45,6 +45,7 @@ header.top{position:sticky;top:0;z-index:20;background:rgba(7,10,16,.94);border-
 .btn:active{transform:translate(2px,2px);box-shadow:1px 1px 0 #000}
 .btn.ghost{background:var(--panel2);color:var(--paper);border-color:var(--line);font-weight:600}
 .btn[disabled],.btn.off{opacity:.42;pointer-events:none}
+.btn[hidden]{display:none !important}
 .btnrow{display:flex;gap:8px;flex-wrap:wrap}
 section.blk{margin-top:26px}
 .head{display:flex;align-items:baseline;gap:10px;flex-wrap:wrap;margin-bottom:10px}
@@ -132,6 +133,8 @@ section.blk{margin-top:26px}
         <a class="btn" href="career.html" id="btnRun">開始新一局</a>
         <a class="btn ghost" href="career.html" id="btnContinue" hidden>繼續上一局</a>
       </div>
+      <div class="statline" id="runState" hidden></div>
+      <div class="note" id="runUnresolved" hidden></div>
     </div>
   </div>
 
@@ -147,7 +150,7 @@ section.blk{margin-top:26px}
   <section class="blk">
     <div class="head"><span class="kicker">出賽名單</span><span class="right" id="weightNote">負重 0 / 2</span></div>
     <div class="panel">
-      <p style="margin:0 0 10px;font-size:13px">每局開局只可以帶咁多負重。帶得越多，世界要求越高（每 4 點負重 → 對手 +5／F4 門檻 +5）。</p>
+      <p style="margin:0 0 10px;font-size:13px">每局開局只可以帶咁多負重。帶得越多，對手越強（每 4 點負重 → 對手難度 +2）；門檻、門嘅級數同考車難度一律唔變。</p>
       <div class="loadrow" id="loadrow"></div>
       <div class="note" id="loadNote"></div>
     </div>
@@ -184,22 +187,35 @@ section.blk{margin-top:26px}
 <script>
 const $=s=>document.querySelector(s.charAt(0)==='#'?s:'#'+s);
 let M=Meta.read();
+const HERO_SUB=$('heroSub').textContent;
 
 function fmt(n){return (n||0).toLocaleString('en-US')}
 
 function renderTop(){
   $('apVal').textContent=fmt(M.ap);
-  const brief=Meta.runBrief();
-  if(brief){
-    $('btnContinue').hidden=false;
-    $('btnContinue').textContent='繼續（'+brief.year+' 歲）';
-    $('btnRun').textContent='開新一局';
-    $('runNote').textContent='有一局未完成：'+brief.year+' 歲，'+brief.log+' 個決定';
-    $('heroSub').textContent='有一局未完成。繼續，或者開新一局（開新一局會覆蓋舊進度）。';
-  }else{
+  const b=Meta.runBrief();
+  const state=$('runState'),un=$('runUnresolved');
+  $('btnRun').textContent=b?'開新一局':'開始新一局';
+  if(!b){
     $('btnContinue').hidden=true;
     $('runNote').textContent='';
+    state.hidden=true;un.hidden=true;
+    $('heroSub').textContent=HERO_SUB;
+    return;
   }
+  $('btnContinue').hidden=!!b.over;
+  $('btnContinue').textContent='繼續（'+b.year+' 歲）';
+  $('runNote').textContent=(b.over?'上一局已完成：':'有一局未完成：')+b.year+' 歲，'+b.log+' 個決定';
+  $('heroSub').textContent=b.over?'上一局已完結。開新一局，換一個起點。':'有一局未完成。繼續，或者開新一局（開新一局會覆蓋舊進度）。';
+  const rows=[
+    ['歲數',b.year],
+    ['評級',(b.band||'—')+(b.bandName?' · '+b.bandName:'')],
+    ['紀錄',b.record+' ／ 3']
+  ];
+  state.innerHTML=rows.map(r=>'<span class="chip">'+r[0]+' <b>'+r[1]+'</b></span>').join('');
+  state.hidden=false;
+  un.textContent=b.unresolved?('未了事：'+b.unresolved.join('；')):'';
+  un.hidden=!b.unresolved;
 }
 
 function renderTotals(){
@@ -284,8 +300,8 @@ function renderLoadout(){
       M=Meta.read();renderLoadout();renderShop();
     };
   });
-  const pen=Meta.worldPenalty(M.loadout);
-  $('loadNote').textContent=pen?('帶住 '+w+' 點負重：對手速度 +'+(pen*5)+'、F4/F3 門檻 +'+(pen*5)+'。'):'負重 0–3：世界難度冇變。';
+  const pen=Meta.oppDc(M.loadout);
+  $('loadNote').textContent=pen?('帶住 '+w+' 點負重：對手難度 +'+pen+'（成功率 −'+(pen*2)+'%）；門檻同考車難度不變。'):'負重 0–3：對手難度冇變，門檻亦都唔受影響。';
 }
 
 function renderAch(){

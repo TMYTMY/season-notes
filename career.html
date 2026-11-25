@@ -444,7 +444,9 @@ function migrateSave(o){
   if(!Array.isArray(out.loadout))out.loadout=[];
   return out;
 }
-function save(){try{localStorage.setItem(SAVE,JSON.stringify(S))}catch(e){}}
+function save(){
+  S.brief=runStanding();
+  try{localStorage.setItem(SAVE,JSON.stringify(S))}catch(e){}}
 function load(){try{
   const raw=localStorage.getItem(SAVE)||localStorage.getItem('career.save.v4')||localStorage.getItem('career.save.v3');
   if(!raw)return false;
@@ -519,7 +521,7 @@ function applyLoadout(list){
     if(id==='nego'){S.mod.negoMul=1.3}
     if(id==='street_net')S.fame=clamp(S.fame+10,0,100);
     if(id==='rally_bg')S.mod.rallyBg=true;
-    if(id==='academy')S.mod.academy=true;
+    if(id==='academy'){S.a.men=clamp(S.a.men+4,0,100);S.a.disc=clamp(S.a.disc+2,0,100)}
   });
 }
 function syncHudH(){
@@ -919,7 +921,6 @@ function renderExamRes() {
   const d=der();
   let p=55+d.stb*0.25+S.a.feel*0.15+S.prep;
   p+=(S.gear==='manual')?-10:15;
-  p-=3*(S.mod.world||0);
   if(S.gear==='manual'){
     const w=S.wrong||0;
     if(w===0){p+=10;S.a.feel=clamp(S.a.feel+6,0,100);S.respect=clamp(S.respect+8,0,100)}
@@ -1143,6 +1144,21 @@ function nextChapterText(r){
   if(r==='rally')return '拉力賽季';
   return S.flags.arrested?'冇牌嘅日子':'街頭';
 }
+function unresolvedList(){
+  const u=[];
+  if(S.flags.debt>0)u.push('欠債 '+(Math.round(S.flags.debt*10)/10)+' 萬');
+  if(S.shame)u.push('有人仲笑你唔識棍波');
+  if(S.record>0)u.push('紀錄 '+S.record+' ／ 3');
+  if(S.inj>0)u.push('傷患 '+S.inj+' 級');
+  if(S.flags.arrested)u.push('被拉過，有人指認你');
+  if(!u.length)u.push('冇');
+  return u;
+}
+function runStanding(){
+  const r=S.door||S.forced||'f4';
+  const band=S.endKind==='ending'?{b:'—',n:'未計分'}:bandAt(REPORT_BANDS,reportScore(r));
+  return {y:S.year,n:S.log.length,b:band.b,bn:band.n,rec:S.record,un:unresolvedList(),done:!!S.over};
+}
 function buildReport(){
   const r=S.door||S.forced||'f4';
   const score=reportScore(r);
@@ -1150,13 +1166,7 @@ function buildReport(){
   const order=ATTRS.slice().sort(function(a,b){return S.a[b]-S.a[a]});
   const top=order.slice(0,3).map(function(k){return L[k]+' '+S.a[k]});
   const weak=order[order.length-1];
-  const unresolved=[];
-  if(S.flags.debt>0)unresolved.push('欠債 '+(Math.round(S.flags.debt*10)/10)+' 萬');
-  if(S.shame)unresolved.push('有人仲笑你唔識棍波');
-  if(S.record>0)unresolved.push('紀錄 '+S.record+' ／ 3');
-  if(S.inj>0)unresolved.push('傷患 '+S.inj+' 級');
-  if(S.flags.arrested)unresolved.push('被拉過，有人指認你');
-  if(!unresolved.length)unresolved.push('冇');
+  const unresolved=unresolvedList();
   const carried=[S.flags.f3?'F3 席位':(S.flags.f4Seat?'F4 席位未穩':'未有席位')];
   if(!S.transferUsed)carried.push('轉線機會未用');
   carried.push('牌照：'+licenceText());

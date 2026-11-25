@@ -57,7 +57,7 @@
     { id: 'nego', tier: 2, n: '談判', ap: 180, w: 3, d: '所有現金收入 +30%', note: '贊助條件升一級' },
     { id: 'street_net', tier: 3, n: '街頭人脈', ap: 280, w: 4, d: 'FAME 起手 +10', note: '車場以外都有人識你' },
     { id: 'rally_bg', tier: 3, n: '拉力背景', ap: 300, w: 4, d: 'Rally 門一定開', note: '師傅肯帶你入拉力' },
-    { id: 'academy', tier: 3, n: '青訓推薦', ap: 320, w: 4, d: 'F4 門檻 −8', note: '有人幫你講一句' }
+    { id: 'academy', tier: 3, n: '青訓推薦', ap: 320, w: 4, d: '心理 +4、紀律 +2', note: '開季前有人教你點準備' }
   ];
 
   function blank() {
@@ -100,6 +100,9 @@
   }
   function worldPenalty(loadout) {
     return Math.floor(weightOf(loadout) / 4);
+  }
+  function oppDc(loadout) {
+    return worldPenalty(loadout) * 2;
   }
   function achById(id) {
     for (var i = 0; i < ACH.length; i++) if (ACH[i].id === id) return ACH[i];
@@ -170,8 +173,17 @@
   function runBrief() {
     try {
       var o = JSON.parse(readRunRaw() || 'null');
-      if (!o || o.over) return null;
-      return { year: o.year, log: (o.log || []).length };
+      if (!o || typeof o !== 'object') return null;
+      var b = o.brief && typeof o.brief === 'object' ? o.brief : {};
+      return {
+        year: typeof b.y === 'number' ? b.y : o.year,
+        log: typeof b.n === 'number' ? b.n : (o.log || []).length,
+        over: !!o.over,
+        band: b.b || null,
+        bandName: b.bn || null,
+        record: typeof b.rec === 'number' ? b.rec : (typeof o.record === 'number' ? o.record : 0),
+        unresolved: Array.isArray(b.un) ? b.un : null
+      };
     } catch (e) { return null; }
   }
 
@@ -180,7 +192,7 @@
     ACH: ACH, SKILLS: SKILLS, TIERS: TIERS, TIER_AP: TIER_AP,
     TIER_LABEL: TIER_LABEL, TIER_UNITNAME: TIER_UNITNAME, TIER_UNIT: TIER_UNIT,
     blank: blank, read: read, write: write, skillById: skillById,
-    weightOf: weightOf, capacity: capacity, worldPenalty: worldPenalty,
+    weightOf: weightOf, capacity: capacity, worldPenalty: worldPenalty, oppDc: oppDc,
     achById: achById, evaluateRun: evaluateRun, addTotals: addTotals,
     buySkill: buySkill, setLoadout: setLoadout, hasRun: hasRun, runBrief: runBrief
   };
