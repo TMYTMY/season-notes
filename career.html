@@ -45,8 +45,21 @@ p{color:var(--slate);margin:0 0 14px}
 .opts{display:flex;flex-direction:column;gap:9px;margin-top:16px}
 button{font:inherit;color:inherit;cursor:pointer;border-radius:var(--r);border:1px solid var(--line2);background:var(--card);text-align:left}
 button:focus-visible,a:focus-visible{outline:2px solid var(--gold2);outline-offset:2px}
-.opt{display:flex;align-items:center;gap:10px;padding:13px 14px;min-height:56px;transition:border-color .15s,background .15s}
+.opt{position:relative;display:flex;align-items:center;gap:10px;padding:13px 14px 13px 20px;min-height:56px;transition:border-color .15s,background .15s}
+.opt::before{content:"";position:absolute;left:0;top:0;bottom:0;width:6px;background:#7d8798}
 .opt:hover{border-color:var(--gold2);background:var(--cardlift)}
+.opt.risk-hi::before{background:#4f9a72}
+.opt.risk-mid::before{background:#f2c14e}
+.opt.risk-lo::before{background:#c8402f}
+.opt.risk-none::before{background:repeating-linear-gradient(180deg,#7d8798 0 6px,transparent 6px 12px)}
+.who{display:flex;flex-wrap:wrap;gap:8px;margin:12px 0 4px}
+.who input{flex:1 1 132px;min-width:0;min-height:44px;padding:10px 12px;font:inherit;font-size:14px;color:var(--paper);background:#0d141d;border:2px solid var(--px-line);border-radius:2px}
+.who input::placeholder{color:var(--muted)}
+.sic{display:flex;flex-direction:column;align-items:center;justify-content:center;width:44px;height:44px;padding:0;background:var(--px-panel2);border:2px solid var(--px-line);border-radius:2px;font:600 11px/1.15 ui-monospace,"SFMono-Regular",Menlo,monospace;color:var(--slate);box-shadow:2px 2px 0 #000;text-align:center}
+.sic b{display:block;font-size:12px;color:#f0a89a}
+.sic[aria-expanded="true"]{border-color:var(--px-amber);color:var(--px-amber)}
+.snote{display:none;font:11px/1.5 ui-monospace,"SFMono-Regular",Menlo,monospace;color:#f0d38a;padding:4px 0 2px}
+.snote.on{display:block}
 .opt .lab{flex:1}
 .opt .lab small{display:block;color:var(--muted);font-size:var(--fs-12);line-height:1.45;margin-top:3px}
 .opt .tag{font-size:11px;color:var(--muted);border:1px solid var(--line2);border-radius:6px;padding:2px 7px;white-space:nowrap}
@@ -128,7 +141,7 @@ header.hud{background:#070a10;border-bottom:2px solid var(--px-line)}
   h2{font-size:18px}
   .wrap{padding:0 14px 32px}
   header.hud{padding:7px 14px}
-  .opt{padding:12px;min-height:60px}
+  .opt{padding:12px 12px 12px 18px;min-height:60px}
   .btn{width:100%}
   .btnrow{gap:8px}
   .stat{font-size:11px;padding:2px 7px}
@@ -174,6 +187,7 @@ header.hud{background:#070a10;border-bottom:2px solid var(--px-line)}
   <div class="hudrow">
     <div class="stats" id="hStats"></div>
   </div>
+  <div class="hudrow"><div class="snote" id="hudNote"></div></div>
   <div class="hudrow"><div class="bar"><i id="hBar"></i></div></div>
 </header>
 
@@ -187,6 +201,10 @@ header.hud{background:#070a10;border-bottom:2px solid var(--px-line)}
     <div class="card">
       <h2>由 14 歲開始</h2>
       <p style="margin:0">每次決定都會留低嘢：屬性、現金、名聲、紀錄、同三個人對你嘅睇法。</p>
+      <div class="who">
+        <input id="inName" type="text" maxlength="10" autocomplete="off" spellcheck="false" placeholder="角色名，例如 阿俊">
+        <input id="inTitle" type="text" maxlength="10" autocomplete="off" spellcheck="false" placeholder="出身，例如 深水埗">
+      </div>
       <div class="btnrow">
         <button class="btn" id="btnStart">開始</button>
         <button class="btn ghost" id="btnResume" hidden>繼續上一局</button>
@@ -411,7 +429,7 @@ function deepClone(v){
 }
 window.__snapshot=function(){return deepClone(S)};
 function newState(){
-  return {v:5,year:14,bi:0,beats:[],used:[],a:Object.assign({},START),cash:12,fame:0,record:0,respect:0,
+  return {v:5,year:14,bi:0,beats:[],used:[],a:Object.assign({},START),cash:12,fame:0,record:0,respect:0,name:'',title:'',
    rel:{mentor:50,family:60,rival:30},route:null,vals:{trust:0,matey:0,gang:0},licence:null,
    door:null,doors:[],shame:0,inj:0,transferUsed:false,log:[],over:false,prep:0,gear:null,qok:0,
    flags:{f3:false,f4Seat:false,debt:0,arrested:false,noDoor:false,
@@ -429,6 +447,8 @@ function migrateSave(o){
   const legacyRec=typeof o['he'+'at']==='number'?o['he'+'at']:0;
   delete out['he'+'at'];
   out.record=typeof o.record==='number'?clamp(Math.round(o.record),0,3):(legacyRec>=60?1:0);
+  out.name=typeof o.name==='string'?o.name.slice(0,10):'';
+  out.title=typeof o.title==='string'?o.title.slice(0,10):'';
   out.v=5;
   out.a=Object.assign({},base.a,o.a||{});
   out.rel=Object.assign({},base.rel,o.rel||{});
@@ -461,17 +481,38 @@ function show(id){document.querySelectorAll('section').forEach(s=>s.classList.re
 function paintHud(){
   const d=der();
   $('hAge').textContent=S.year+' 歲';
-  $('hStats').innerHTML=
-   '<span class="stat">速度<b>'+d.spd+'</b></span>'+
+  let st='<span class="stat">速度<b>'+d.spd+'</b></span>'+
    '<span class="stat">穩定<b>'+d.stb+'</b></span>'+
    '<span class="stat">攻擊<b>'+d.atk+'</b></span>'+
    '<span class="stat">續航<b>'+d.sta+'</b></span>'+
    '<span class="stat money">CASH<b>'+S.cash.toFixed(1)+' 萬</b></span>'+
-   '<span class="stat">FAME<b>'+S.fame+'</b></span>'+
-   '<span class="stat'+(S.record>=2?' hot':'')+'">紀錄<b>'+S.record+'</b></span>';
+   '<span class="stat">FAME<b>'+S.fame+'</b></span>';
+  if(S.inj>0)st+='<button type="button" class="sic" data-k="inj" aria-expanded="false" aria-label="傷患 '+S.inj+' 級">傷<b>'+S.inj+'</b></button>';
+  if(S.record>0)st+='<button type="button" class="sic" data-k="rec" aria-expanded="false" aria-label="紀錄 '+S.record+' ／ 3">錄<b>'+S.record+'</b></button>';
+  if(S.flags.debt>0)st+='<button type="button" class="sic" data-k="debt" aria-expanded="false" aria-label="欠債 '+debtTxt()+' 萬">債<b>'+debtTxt()+'</b></button>';
+  const box=$('hStats');box.innerHTML=st;
+  box.querySelectorAll('.sic').forEach(function(b){
+    b.onclick=function(){
+      const note=$('hudNote');
+      const open=note.dataset.k===b.dataset.k&&note.classList.contains('on');
+      box.querySelectorAll('.sic').forEach(function(x){x.setAttribute('aria-expanded','false')});
+      if(open){note.className='snote';note.dataset.k='';note.textContent='';return}
+      note.dataset.k=b.dataset.k;
+      note.textContent=HUDNOTE[b.dataset.k]();
+      note.className='snote on';
+      b.setAttribute('aria-expanded','true');
+    };
+  });
   $('hBar').style.width=Math.min(100,S.record/3*100)+'%';
 }
 function logit(txt){S.log.push('['+S.year+' 歲] '+txt)}
+function esc(v){return String(v==null?'':v).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]})}
+function debtTxt(){return String(Math.round((S.flags.debt||0)*10)/10)}
+const HUDNOTE={
+  inj:function(){return '傷患 '+S.inj+' 級：反應同膽量已經永久扣咗，唔會自己好返。'},
+  rec:function(){return '紀錄 '+S.record+' ／ 3：警察同 FIA 知嘅嘢只會加，唔會減。'},
+  debt:function(){return '欠債 '+debtTxt()+' 萬：唔清就會喺報告扣分，下一章跟住你。'}
+};
 function applyFx(fx){
   if(!fx)return;
   ATTRS.forEach(k=>{if(typeof fx[k]==='number')S.a[k]=clamp(S.a[k]+fx[k],0,100)});
@@ -675,9 +716,16 @@ function playBeat(card,o,deltaText,cb){
   }catch(e){finish()}
 }
 
+function cleanWho(v,fallback){
+  const t=String(v==null?'':v).replace(/\s+/g,' ').trim().slice(0,10);
+  return t||fallback;
+}
 function startRun(){
   resetRng();
   resetState(newState());
+  const nEl=$('inName'),tEl=$('inTitle');
+  S.name=cleanWho(nEl&&nEl.value,'阿俊');
+  S.title=cleanWho(tEl&&tEl.value,'屋邨');
   if(location.search.indexOf('door=')>=0){
     const forced=(location.search.match(/door=(\w+)/)||[])[1];
     if(forced)S.forced=forced;
@@ -802,7 +850,7 @@ function renderAlloc() {
 }
 function renderCard(card){
   show('#scCard');
-  $('cardKicker').textContent=S.year+' 歲 · '+String(S.bi===0?1:S.bi)+' / '+S.beats.length;
+  $('cardKicker').textContent=S.year+' 歲 · '+(S.name?S.name+(S.title?' · '+S.title:''):'')+' · '+String(S.bi===0?1:S.bi)+' / '+S.beats.length;
   $('cardTitle').textContent=card.t;
   $('cardPremise').textContent=card.p;
   stageFor(card);
@@ -814,10 +862,12 @@ function renderCard(card){
   optList.forEach(function(o,i){
     const jd=judgeOf(card,i);
     const rate=rateOf(jd);
-    const btn=document.createElement('button');btn.className='opt';
+    const band=rate===null?'none':(rate>=70?'hi':(rate>=40?'mid':'lo'));
+    const btn=document.createElement('button');
+    btn.className='opt risk-'+band;
+    btn.dataset.rate=rate===null?'':String(rate);
     let badge='';
     if(rate!==null){
-      const band=rate>=70?'hi':(rate>=40?'mid':'lo');
       badge='<span class="rate '+band+'">'+L[jd.chk]+' '+S.a[jd.chk]+' · 難度 '+dcOf(jd)+' · 成功率 '+rate+'%</span>';
     }else if(jd){
       badge='<span class="rate auto">無風險</span>';
@@ -873,7 +923,7 @@ function renderGear(){
   stageFor({t:'考車 波箱',kind:'tech'});
   const box=$('cardOpts');box.innerHTML='';
   GEAR.o.forEach(function(o){
-    const btn=document.createElement('button');btn.className='opt';
+    const btn=document.createElement('button');btn.className='opt risk-none';
     btn.innerHTML='<div class="lab">'+o.t+'<small>'+o.s+'</small></div>';
     btn.onclick=function(){
       if(box.dataset.locked==='1')return;
@@ -899,7 +949,7 @@ function renderExam(){
   const box=$('cardOpts');box.innerHTML='';
   const order=shuf(q.a);
   order.forEach(function(a){
-    const btn=document.createElement('button');btn.className='opt';
+    const btn=document.createElement('button');btn.className='opt risk-none';
     btn.innerHTML='<div class="lab">'+a.t+'</div>';
     btn.onclick=function(){
       if(box.dataset.locked==='1')return;
@@ -936,7 +986,7 @@ function renderExamRes() {
     $('cardPremise').textContent='考官簽紙。你手上有一張正式牌照（'+(S.gear==='manual'?'棍波':'自動波')+'）。合格率推算 '+Math.round(p)+'%。';
     stageFor({t:'路試 結果'});
     const box=$('cardOpts');box.innerHTML='';
-    const btn=document.createElement('button');btn.className='opt';btn.disabled=true;
+    const btn=document.createElement('button');btn.className='opt risk-none';btn.disabled=true;
     btn.innerHTML='<div class="lab">繼續</div>';
     btn.onclick=function(){logit('考車合格（'+S.gear+'）');S.stat.decisions++;S.bi++;save();nextBeat()};
     box.appendChild(btn);
@@ -960,7 +1010,7 @@ function spawnFail(){
    {t:'放棄考牌',s:'這條路收咗',fx:{drv:-6},l:'你把筆記掉咗。'}
   ];
   opts.forEach(function(o){
-    const btn=document.createElement('button');btn.className='opt';
+    const btn=document.createElement('button');btn.className='opt risk-none';
     btn.innerHTML='<div class="lab">'+o.t+'<small>'+o.s+'</small></div>';
     btn.onclick=function(){
       if(box.dataset.locked==='1')return;
@@ -1045,7 +1095,7 @@ function toDoors(){
   const box=$('doorOpts');box.innerHTML='';
   open.forEach(function(x){
     const r=x.r,o=doorOffer(r);
-    const btn=document.createElement('button');btn.className='opt';
+    const btn=document.createElement('button');btn.className='opt risk-none';
     btn.innerHTML='<div class="lab">'+DOOR_NAMES[r]+' · '+o.band.n+'<small>'+o.band.t+'</small></div>';
     btn.onclick=function(){
       if(box.dataset.locked==='1')return;
@@ -1178,6 +1228,7 @@ function buildReport(){
   if(S.flags.debt>0)carried.push('債跟身 '+Math.round(S.flags.debt*10)/10+' 萬');
   if(S.record>=2)carried.push('紀錄跟身');
   return {score:score,band:band.b,bandName:band.n,bandNote:band.t,route:r,routeName:DOOR_NAMES[r],
+    who:(S.name||'無名')+(S.title?' · '+S.title:''),
     season:S.seasonScore,repair:S.repairCost||0,top:top,weak:L[weak]+' '+S.a[weak],
     rival:bandAt(RIVAL_BANDS,S.rel.rival).n,unresolved:unresolved,carried:carried,
     next:nextChapterText(r),end:'settle'};
@@ -1193,6 +1244,7 @@ function renderReport(rep,headline){
   $('endBandName').textContent=rep.band+' 級 · '+rep.bandName;
   $('endBandNote').textContent=rep.bandNote;
   const rows=[
+    ['角色',esc(rep.who||((S.name||'無名')+(S.title?' · '+S.title:'')))],
     ['七年得分',rep.score+' ／ 100'],
     ['最強三項',rep.top.join('、')],
     ['最弱',rep.weak],
@@ -1253,7 +1305,7 @@ function ending(msg,res){
 }
 
 $('btnStart').onclick=function(){startRun()};
-$('btnAgain').onclick=function(){wipe();resetState(newState());$('btnResume').hidden=true;show('#scIntro')};
+$('btnAgain').onclick=function(){wipe();resetState(newState());$('btnResume').hidden=true;if($('inName'))$('inName').value='';if($('inTitle'))$('inTitle').value='';show('#scIntro')};
 $('btnReview').onclick=function(){show('#scEnd')};
 $('btnResume').onclick=function(){nextBeat()};
 
