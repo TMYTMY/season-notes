@@ -396,7 +396,8 @@ function newState(){
   return {v:5,year:14,bi:0,beats:[],used:[],a:Object.assign({},START),cash:12,fame:0,record:0,respect:0,
    rel:{mentor:50,family:60,rival:30},route:null,vals:{trust:0,matey:0,gang:0},licence:null,
    door:null,doors:[],shame:0,inj:0,transferUsed:false,log:[],over:false,prep:0,gear:null,qok:0,
-   flags:{f3:false,f4Seat:false,debt:0,arrested:false,noDoor:false},resolved20:null,endKind:null,
+   flags:{f3:false,f4Seat:false,debt:0,arrested:false,noDoor:false,
+     entry_national:false,entry_test_drive:false,entry_street_rep:false,entry_family_ok:false},resolved20:null,endKind:null,
    loadout:[],stat:{km:0,events:0,decisions:0,crashes:0,hard:0,hardWin:0,checks:0,wins:0,fails:0,tags:{shou:0,bo:0,deng:0,res:0},examFails:0,buyLicence:false},
    mod:{school:false,usedcar:false,nego:false,rallyBg:false,academy:false,world:0,negoMul:1}};
 }
@@ -810,6 +811,7 @@ function renderCard(card){
       if(gambleWin!==null)delta=(gambleWin?'賭贏：現金 +18 萬 · FAME +10':'賭輸：現金 −6 萬 · 紀錄 +1 · 欠債 +8 萬');
       playBeat(card,oo,delta,function(){
         applyFx(branch.fx);
+        grantFlags([card.fl,o.fl]);
         if(o.prep)S.prep+=o.prep;
         if(o.gear){S.gear=o.gear;S.licence=o.gear==='auto'?'auto':null}
         if(gambleWin!==null){
@@ -949,31 +951,76 @@ function spawnFail(){
     box.appendChild(btn);
   });
 }
-function toDoors(){
+const DOOR_NAMES={f4:'F4 正規軍',rally:'Rally',street:'街頭'};
+const FLAGTXT={entry_national:'全國賽',entry_test_drive:'試車',entry_street_rep:'街頭名聲',entry_family_ok:'家人放行'};
+const DOOR_TIER={
+ f4:[{at:0,n:'冇人回覆',t:'電話冇响。你帶住自己嘅錢上去。'},
+     {at:40,n:'自費席位',t:'冇人出車。你自己買一個位。'},
+     {at:55,n:'衛星隊席位',t:'衛星隊有車，慢半秒，但你話事。'},
+     {at:68,n:'廠隊席位',t:'廠隊青年軍。車最快，合約六頁。'}],
+ rally:[{at:0,n:'親戚副駕',t:'屋企人坐隔籬。免費，但一世欠。'},
+     {at:45,n:'新手副駕',t:'新手肯學，關鍵時刻會聽錯指令。'},
+     {at:65,n:'老練副駕',t:'跑過十年嘅人肯坐隔籬，人工貴。'}],
+ street:[{at:0,n:'二手車',t:'冇人讓車。你自己砌一部出嚟。'},
+     {at:35,n:'細場',t:'細場照收你。錢少，但有人認得。'},
+     {at:60,n:'大場',t:'大場有人叫你。注碼大，鏡頭多。'}]
+};
+function grantFlags(list){
+  if(!list)return;
+  [].concat(list).forEach(function(f){
+    if(!f||S.flags[f])return;
+    S.flags[f]=true;logit('開咗條路：'+FLAGTXT[f]);
+  });
+}
+function doorTier(r,v){
+  const list=DOOR_TIER[r];let pick=list[0];
+  list.forEach(function(b){if(v>=b.at)pick=b});
+  return pick;
+}
+function doorOffer(r){
   const d=der();
-  const w=(S.mod.world||0)*5, ac=(S.mod.academy?8:0);
-  let open=[];
-  if((d.spd>=60-w||d.stb>=70-w)&&(S.cash>=30-w-ac||S.fame>=40-w-ac)&&S.rel.family>=50)open.push('f4');
-  if(((S.a.feel>=55||S.a.nerve>=65)&&S.rel.mentor>=60&&w<15)||S.mod.rallyBg)open.push('rally');
-  if(S.fame>=50-w)open.push('street');
-  if(S.forced)open=[S.forced];
+  if(r==='f4'){const v=Math.round(d.spd*0.55+d.stb*0.45);return {v:v,at:'速度 '+d.spd+'／穩定 '+d.stb,band:doorTier(r,v)}}
+  if(r==='rally'){const v=Math.round(S.a.feel*0.45+S.rel.mentor*0.35+S.a.nerve*0.2);return {v:v,at:'車感 '+S.a.feel+'／師傅 '+S.rel.mentor,band:doorTier(r,v)}}
+  const v=Math.round(S.fame);
+  return {v:v,at:'FAME '+S.fame,band:doorTier(r,v)};
+}
+function doorOpen(){
+  const F=S.flags,out=[];
+  const famOk=S.rel.family>=50||!!F.entry_family_ok;
+  if((F.entry_test_drive||F.entry_national)&&famOk){
+    out.push({r:'f4',why:[F.entry_test_drive?'試車':'',F.entry_national?'全國賽':''].filter(Boolean).join('、')});
+  }
+  if(F.entry_test_drive&&(S.rel.mentor>=55||S.mod.rallyBg))out.push({r:'rally',why:'試車'});
+  if(F.entry_street_rep)out.push({r:'street',why:'街頭名聲'});
+  return out;
+}
+function toDoors(){
+  let open=doorOpen();
+  S.flags.noDoor=false;
+  if(S.forced){
+    open=open.filter(function(x){return x.r===S.forced});
+    if(!open.length)open=[{r:S.forced,why:'自己敲'}];
+  }
   if(!open.length){
     S.flags.noDoor=true;
-    const score={f4:(d.spd+d.stb)/2,rally:(S.a.feel+S.a.nerve)/2,street:S.fame};
-    open.push(Object.keys(score).sort(function(a,b){return score[b]-score[a]})[0]);
+    const score={f4:doorOffer('f4').v,rally:doorOffer('rally').v,street:doorOffer('street').v};
+    const best=Object.keys(score).sort(function(a,b){return score[b]-score[a]})[0];
+    open=[{r:best,why:'自己敲'}];
   }
-  S.doors=open;save();
+  S.doors=open.map(function(x){return x.r});save();
   show('#scDoor');
-  const names={f4:'F4 正規軍',rally:'Rally',street:'街頭'};
-  $('doorScene').textContent=S.flags.noDoor?'NO DOOR · 冇門開':'DOORS · '+open.length;
-  $('doorTitle').textContent=S.flags.noDoor?'冇門開':'門唔係揀，係開';
-  const doorSub=S.flags.noDoor?'門未開。呢條係最接近嘅路。':'門開咗，你可以行入去';
-  try{PX.still($('stageDoor'),open[0]==='street'?'street':(open[0]==='rally'?'exam':'track'))}catch(e){}
-  $('doorWhy').textContent='速度 '+d.spd+'／穩定 '+d.stb+'／車感 '+S.a.feel+'／膽量 '+S.a.nerve+'／紀錄 '+S.record+'／FAME '+S.fame+'／家人 '+S.rel.family+'／師傅 '+S.rel.mentor+((S.mod.world||0)?'　（技能負重令對手＋'+w+'）':'');
+  $('doorScene').textContent=S.flags.noDoor?'NO DOOR · 自己敲':'DOORS · '+open.length;
+  $('doorTitle').textContent=S.flags.noDoor?'冇門自己開':'門唔係揀，係開';
+  $('doorWhy').textContent=open.map(function(x){
+    const o=doorOffer(x.r);
+    return x.why+' → '+DOOR_NAMES[x.r]+' · '+o.band.n+'（'+o.at+'）';
+  }).join('；');
+  try{PX.still($('stageDoor'),open[0].r==='street'?'street':(open[0].r==='rally'?'exam':'track'))}catch(e){}
   const box=$('doorOpts');box.innerHTML='';
-  open.forEach(function(r){
+  open.forEach(function(x){
+    const r=x.r,o=doorOffer(r);
     const btn=document.createElement('button');btn.className='opt';
-    btn.innerHTML='<div class="lab">'+names[r]+'<small>'+doorSub+'</small></div>';
+    btn.innerHTML='<div class="lab">'+DOOR_NAMES[r]+' · '+o.band.n+'<small>'+o.band.t+'</small></div>';
     btn.onclick=function(){
       if(box.dataset.locked==='1')return;
       box.dataset.locked='1';box.querySelectorAll('button').forEach(b=>b.disabled=true);
@@ -981,14 +1028,14 @@ function toDoors(){
       const tone=r==='street'?'warn':'good';
       const cap=$('doorCap');
       const go=function(){
-        S.door=r;S.year=18;logit('揀咗'+names[r]);
+        S.door=r;S.year=18;logit('揀咗'+DOOR_NAMES[r]+' · '+o.band.n);
         if(r==='rally'){S.a.feel=clamp(S.a.feel+4,0,100)}
         save();box.dataset.locked='0';beginYear();
       };
       $('doorScene').textContent=(r==='f4'?'F4 · 正規':(r==='rally'?'RALLY':'STREET'));
       try{
         PX.play($('stageDoor'),{type:type,tone:tone,dur:1.4}).then(function(){
-          capShow(cap,names[r]+' · 行入去',tone==='warn'?'warn':'good');
+          capShow(cap,DOOR_NAMES[r]+' · 行入去',tone==='warn'?'warn':'good');
           setTimeout(function(){capHide(cap);go()},PX.reduced?350:900);
         });
       }catch(e){go()}
