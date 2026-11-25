@@ -105,6 +105,8 @@ header.hud{background:#070a10;border-bottom:2px solid var(--px-line)}
 .capsule.good{border-color:#3f7d5d;color:#8fd6ae}
 .capsule.bad{border-color:#8a2a1e;color:#f0a89a}
 .capsule.warn{border-color:#8a6f1e;color:#f0d38a}
+.evline{display:none}
+.evline.on{display:block;margin:0 0 12px;padding:7px 10px;border-left:3px solid var(--px-amber);background:rgba(240,211,138,.06);font-size:13px;line-height:1.55;color:var(--paper)}
 .rate{display:inline-block;margin-top:5px;font:600 10.5px/1.4 ui-monospace,"SFMono-Regular",Menlo,monospace;padding:2px 6px;border:1px solid var(--line2);color:var(--muted)}
 .rate.hi{color:#8fd6ae;border-color:#3f7d5d}
 .rate.mid{color:#f0d38a;border-color:#8a6f1e}
@@ -125,12 +127,13 @@ header.hud{background:#070a10;border-bottom:2px solid var(--px-line)}
 .tiern{font-size:12px;color:var(--muted)}
 @media (min-width:760px){
   #scCard.on{display:grid;grid-template-columns:minmax(0,420px) minmax(0,1fr);
-    grid-template-areas:"kick kick" "stage head" "stage prem" "stage opts" "stage log";
+    grid-template-areas:"kick kick" "stage head" "stage prem" "stage line" "stage opts" "stage log";
     column-gap:26px;align-items:start}
   #scCard .kicker{grid-area:kick}
   #scCard .stagewrap{grid-area:stage;max-width:none;margin:0}
   #scCard h2{grid-area:head;margin-top:0}
   #scCard #cardPremise{grid-area:prem}
+  #scCard #cardLine{grid-area:line}
   #scCard #cardOpts{grid-area:opts}
   #scCard #cardLog{grid-area:log}
   #scCard .stagewrap{align-self:start;position:sticky;top:96px}
@@ -228,6 +231,7 @@ header.hud{background:#070a10;border-bottom:2px solid var(--px-line)}
     <div class="stagewrap"><canvas id="stage" width="160" height="90" aria-hidden="true"></canvas><div class="stagelabel" id="stageLabel">TRACK</div><div class="capsule" id="stageCap"></div></div>
     <h2 id="cardTitle">——</h2>
     <p id="cardPremise">——</p>
+    <p id="cardLine" class="evline"></p>
     <div class="opts" id="cardOpts"></div>
     <div class="log" id="cardLog"></div>
   </section>
@@ -325,10 +329,12 @@ function mulberry32(seed){
 function urlSeed(){
   try{return parseSeed(new URLSearchParams(location.search).get('seed'))}catch(e){return null}
 }
-let rng=mulberry32((function(){const s=urlSeed();return s!==null?s:randomSeed()})());
+let SEED=0;
+let rng=mulberry32((function(){const s=urlSeed();SEED=s!==null?s:randomSeed();return SEED})());
 function resetRng(){
   const s=urlSeed();
-  rng=mulberry32(s!==null?s:randomSeed());
+  SEED=s!==null?s:randomSeed();
+  rng=mulberry32(SEED);
 }
 
 const S={};
@@ -439,7 +445,7 @@ function newState(){
    rel:{mentor:50,family:60,rival:30},route:null,vals:{trust:0,matey:0,gang:0},licence:null,
    door:null,doors:[],shame:0,inj:0,transferUsed:false,log:[],over:false,prep:0,gear:null,qok:0,
    flags:{f3:false,f4Seat:false,debt:0,arrested:false,noDoor:false,
-     entry_national:false,entry_test_drive:false,entry_street_rep:false,entry_family_ok:false},resolved20:null,endKind:null,
+     entry_national:false,entry_test_drive:false,entry_street_rep:false,entry_family_ok:false},resolved20:null,endKind:null,evSeen:[],
    loadout:[],stat:{km:0,events:0,decisions:0,crashes:0,hard:0,hardWin:0,checks:0,wins:0,fails:0,tags:{shou:0,bo:0,deng:0,res:0},examFails:0,buyLicence:false},
    mod:{school:false,usedcar:false,nego:false,rallyBg:false,academy:false,world:0,negoMul:1}};
 }
@@ -468,6 +474,7 @@ function migrateSave(o){
   if(!Array.isArray(out.doors))out.doors=[];
   if(!Array.isArray(out.log))out.log=[];
   if(!Array.isArray(out.loadout))out.loadout=[];
+  if(!Array.isArray(out.evSeen))out.evSeen=[];
   return out;
 }
 function save(){
@@ -483,7 +490,7 @@ function load(){try{
 }catch(e){return false}}
 function wipe(){try{localStorage.removeItem(SAVE);localStorage.removeItem('career.save.v4');localStorage.removeItem('career.save.v3')}catch(e){}}
 
-function show(id){document.querySelectorAll('section').forEach(s=>s.classList.remove('on'));$(id).classList.add('on');window.scrollTo(0,0)}
+function show(id){document.querySelectorAll('section').forEach(s=>s.classList.remove('on'));$(id).classList.add('on');if(id==='#scCard'){const ln=$('cardLine');if(ln){ln.className='evline';ln.textContent=''}}window.scrollTo(0,0)}
 function paintHud(){
   const d=der();
   $('hAge').textContent=S.year+' 歲';
@@ -771,6 +778,16 @@ function pushRace(){
     S.beats.push({k:'card',card:card});
   });
 }
+function pushEvent(y){
+  const all=(typeof EVENTS!=='undefined'&&Array.isArray(EVENTS))?EVENTS:[];
+  if(!all.length)return;
+  const pool=all.filter(function(c){return c.years&&c.years.indexOf(y)>=0&&S.used.indexOf(c.id)<0});
+  if(!pool.length)return;
+  const er=mulberry32((SEED+Math.imul(y+1,2654435761))>>>0);
+  const c=pool[Math.floor(er()*pool.length)];
+  S.used.push(c.id);
+  S.beats.push({k:'ev',card:c});
+}
 function beginYear(){
   const y=S.year;S.bi=0;S.beats=[];
   S.prep=0;S.gear=null;S.qok=0;
@@ -786,6 +803,7 @@ function beginYear(){
     chosen.forEach(function(c){S.used.push(c.id);S.beats.push({k:'card',card:c})});
     while(S.beats.length<5&&!raceYear(y)){const c=pick(CARDS.filter(function(x){return x.y===y}));S.beats.push({k:'card',card:c})}
     if(raceYear(y))pushRace();
+    pushEvent(y);
   }else if(y===18){
     EXAM.forEach(c=>S.beats.push({k:'card',card:c}));
     S.beats.push({k:'gear'});
@@ -797,11 +815,13 @@ function beginYear(){
     S.beats.push({k:'card',card:Object.assign({},e,{t:e.t,p:e.p})});
     shuf(ROUTE19[r]||ROUTE19.f4).slice(0,2).forEach(c=>S.beats.push({k:'card',card:c}));
     pushRace();
+    pushEvent(y);
   }else{
     const r=S.door||S.forced||'f4';
     S.beats.push({k:'card',card:Object.assign({id:'r20a'},ROUTE20[r]||ROUTE20.f4)});
     shuf(ROUTE20B[r]||ROUTE20B.f4).slice(0,2).forEach(c=>S.beats.push({k:'card',card:c}));
     pushRace();
+    pushEvent(y);
     S.beats.push({k:'settle'});
   }
   save();nextBeat();
@@ -816,6 +836,7 @@ function nextBeat(){
   const b=S.beats[S.bi];
   if(b.k==='alloc'){renderAlloc();return}
   if(b.k==='card'){renderCard(b.card);return}
+  if(b.k==='ev'){renderEvent(b.card);return}
   if(b.k==='gear'){renderGear();return}
   if(b.k==='exam'){
     if(S.gear!=='manual'){S.bi++;nextBeat();return}
@@ -891,6 +912,7 @@ function renderCard(card){
   $('cardPremise').textContent=card.p;
   stageFor(card);
   const box=$('cardOpts');box.innerHTML='';
+  box.dataset.locked='0';
   let optList=card.o.slice();
   if(card.id==='y14a'&&S.mod.usedcar&&optList.length<4){
     optList.push({t:'兩部都殺價',s:'二手車專家：兩部都試，壓價',fx:{cash:-10,feel:4,men:2},l:'你用行家眼光壓價。兩部車你都試過，最後揀咗一部。'});
@@ -951,6 +973,46 @@ function renderCard(card){
     };
     box.appendChild(btn);
   });
+  renderLog();
+}
+function eventPick(card){
+  const list=card.v||[];
+  for(let i=0;i<list.length;i++){
+    const v=list[i];
+    if(v.f!=null&&!!S.flags[v.f]!==!!v.neg)return v;
+    if(v.a!=null&&(v.lt!=null?S.a[v.a]<v.lt:S.a[v.a]>=v.n))return v;
+    if(v.r!=null&&(v.lt!=null?S.rel[v.r]<v.lt:S.rel[v.r]>=v.n))return v;
+    if(v.s!=null&&(v.lt!=null?S[v.s]<v.lt:S[v.s]>=v.n))return v;
+    if(v.v!=null&&(v.lt!=null?S.vals[v.v]<v.lt:S.vals[v.v]>=v.n))return v;
+  }
+  return null;
+}
+function renderEvent(card){
+  show('#scCard');
+  const v=eventPick(card)||{};
+  const on=v.on||'';
+  $('cardKicker').textContent=S.year+' 歲 · '+(S.name?S.name+(S.title?' · '+S.title:''):'')+' · 事件';
+  $('cardTitle').textContent=card.t;
+  $('cardPremise').textContent=v.p||card.p;
+  const line=$('cardLine');
+  line.textContent=v.l||card.l;
+  line.className='evline on';
+  stageFor(card);
+  const box=$('cardOpts');box.innerHTML='';
+  box.dataset.locked='0';
+  const btn=document.createElement('button');
+  btn.className='opt risk-none';
+  btn.innerHTML='<div class="lab">繼續<small>呢件事你冇得揀</small></div>';
+  btn.onclick=function(){
+    if(box.dataset.locked==='1')return;
+    box.dataset.locked='1';btn.disabled=true;
+    playBeat(card,{tone:'neutral'},v.l||card.l,function(){
+      S.evSeen.push({id:card.id,y:S.year,on:on});
+      logit('事件：'+card.t);
+      S.bi++;save();nextBeat();
+    });
+  };
+  box.appendChild(btn);
   renderLog();
 }
 function renderLog(){

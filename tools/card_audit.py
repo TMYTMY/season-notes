@@ -58,6 +58,7 @@ DATA_JS = r"""() => {
     });
   }
   CARDS.forEach(c=>add(c,'pool',ROUTES.indexOf(c.route)>=0?c.route:null));
+  if(typeof EVENTS!=='undefined'&&Array.isArray(EVENTS)) EVENTS.forEach(c=>add(c,'event',null));
   ROUTES.forEach(r=>{
     add(ENTRY[r],'entry',r);
     (ROUTE19[r]||[]).forEach(c=>add(c,'r19',r));
@@ -76,7 +77,18 @@ DATA_JS = r"""() => {
   entries.forEach(e=>{
     const c=e.c;
     if(c.p!=null && len(c.p)>60) problems.push('premise over 60: '+c.id+' = '+len(c.p)+' chars');
-    if(c.kind==='event') return;
+    if(c.kind==='event'){
+      if(c.o) problems.push('event has options: '+c.id);
+      if(!Array.isArray(c.years)||!c.years.length) problems.push('event missing years: '+c.id);
+      if(c.l==null||String(c.l).trim()==='') problems.push('event missing line: '+c.id);
+      else if(len(c.l)>30) problems.push('event line over 30: '+c.id+' = '+len(c.l)+' chars');
+      (Array.isArray(c.v)?c.v:[]).forEach((x,i)=>{
+        if(!x||!x.on) problems.push('event variant without read: '+c.id+':'+i);
+        if(x&&x.p!=null && len(x.p)>60) problems.push('premise over 60: '+c.id+':'+i+' = '+len(x.p)+' chars');
+        if(x&&x.l!=null && len(x.l)>30) problems.push('event line over 30: '+c.id+':'+i+' = '+len(x.l)+' chars');
+      });
+      return;
+    }
     if(!Array.isArray(c.o)||!c.o.length){ problems.push('card has no options: '+c.id); return; }
     c.o.forEach((o,i)=>{
       const key=c.id+':'+i, jd=judgeOf(c,i);
