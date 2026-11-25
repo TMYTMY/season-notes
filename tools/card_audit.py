@@ -106,7 +106,10 @@ def main():
     target = "file://" + os.path.abspath(args.file) if args.file else args.url
     errors, report = [], {}
     with sync_playwright() as p:
-        browser = p.chromium.launch(args=["--no-sandbox"])
+        browser = p.chromium.launch(
+            args=["--no-sandbox"],
+            executable_path=os.environ.get("PLAYWRIGHT_CHROME_PATH") or None,
+        )
         page = browser.new_page()
         page.on("pageerror", lambda e: errors.append(str(e)))
         page.goto(target, wait_until="domcontentloaded")
