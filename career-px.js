@@ -3,10 +3,11 @@
 
   var W = 160, H = 90;
   var PX_PER_M = 10.6;
-  var PERSON_H_M = 1.7;
+  var ART_SCALE = 0.85;
+  var PERSON_H_M = 1.9;
   var PERSON_W_M = 0.45;
   var DIM = {
-    person: { w: PERSON_W_M, h: PERSON_H_M, head: 0.38, torso: 0.66, legs: 0.66 },
+    person: { w: PERSON_W_M, h: PERSON_H_M, head: 0.42, torso: 0.75, legs: 0.73 },
     homeTable: { w: 1.2, h: 0.75 },
     moneyTable: { w: 1.6, h: 0.75 },
     chair: { w: 0.45, h: 0.85, seat: 0.45 },
@@ -52,15 +53,21 @@
   }
 
   function m(v, scale) { return Math.max(1, Math.round(v * (scale || PX_PER_M))); }
+  function artPx(v) { return Math.max(1, Math.floor(v * ART_SCALE * PX_PER_M)); }
   var PERSON_W = m(DIM.person.w);
   var PERSON_H = m(DIM.person.h);
+  var PERSON_HEAD = m(DIM.person.head);
+  var PERSON_TORSO = m(DIM.person.torso);
 
+  var OVER = { kart: 3, rally: 2 };
   var VEHP = {};
   Object.keys(VEH).forEach(function (k) {
     var v = VEH[k];
+    var over = OVER[k] || 0;
     VEHP[k] = {
       key: k, n: v.n, len_m: v.len, wid_m: v.wid, h_m: v.h, wheel_m: v.wheel, ride_m: v.ride,
-      L: m(v.len), H: m(v.h), WH: m(v.wheel), RD: m(v.ride), halfW: Math.max(1, Math.round(m(v.wid) * 0.08))
+      L: artPx(v.len), H: Math.max(2, Math.round(v.h * ART_SCALE * PX_PER_M)), WH: Math.max(3, artPx(v.wheel)), RD: artPx(v.ride),
+      over: over, draw: artPx(v.len) + over
     };
   });
 
@@ -119,7 +126,7 @@
   }
 
   function body0(ctx, v, x, gy, body, dark, trim, o) {
-    var key = v.key, L = v.L, HH = v.H, WH = v.WH, hw = v.halfW;
+    var key = v.key, L = v.L, WH = v.WH;
     function q(dx, top, w, h, c) { if (w > 0 && h > 0) rect(ctx, x + dx, gy - top, w, h, c); }
     function wheel(dx, chunky) {
       q(dx, WH, WH, WH, C.rubber);
@@ -131,173 +138,163 @@
         q(dx + WH - 1, 2, 1, 1, '#4f5b6e');
       }
     }
-    function archX(dx) { q(dx - 1, WH + 1, WH + 2, WH + 1, dark); }
-    function driver(hx, hy, w) {
+    function arch(dx, w) { q(dx, WH + 2, w, 1, dark); }
+    function seat(cx, crown) {
       if (o.driver === false) return;
-      q(hx, hy, w || 3, 2, o.helmet || C.white);
-      q(hx + (w || 3) - 1, hy - 1, 1, 1, dark);
-      q(hx, hy - 1, 1, 1, o.helmet || C.white);
+      var suit = o.suit || suitFor(body);
+      q(cx + 1, crown, 2, 1, C.white);
+      q(cx, crown - 1, 4, 1, C.white);
+      q(cx + 2, crown - 1, 1, 1, '#1a2130');
+      q(cx + 1, crown - 2, 2, 1, C.skin);
+      q(cx, crown - 3, 5, 2, suit);
+      q(cx + 4, crown - 3, 1, 1, suit);
+      q(cx + 5, crown - 3, 1, 1, C.skin);
+      q(cx + 6, crown - 3, 1, 1, '#1a2130');
     }
 
     if (key === 'kart') {
-      wheel(1); wheel(L - 3);
-      q(0, 4, 1, 2, dark);
-      q(1, 4, L - 2, 1, '#3a4256');
-      q(2, 3, L - 5, 1, '#232b3a');
-      q(L - 3, 4, 1, 2, dark);
-      q(4, 6, 4, 3, '#39445a');
-      q(4, 6, 4, 1, '#4d5b73');
-      q(8, 6, 3, 4, dark);
-      q(8, 6, 3, 1, '#2b3446');
-      q(13, 5, 2, 1, '#7a879c');
-      q(14, 4, 1, 2, '#4a5872');
-      q(15, 3, L - 18, 2, body);
-      q(15, 4, L - 18, 1, trim);
-      q(L - 5, 3, 2, 1, dark);
-      if (o.driver !== false) {
-        q(9, 8, 3, 2, o.helmet || C.white);
-        q(11, 7, 1, 1, dark);
-        q(5, 7, 1, 1, C.skin);
-        q(16, 7, 1, 1, C.skin);
-      }
+      q(-1, 3, 1, 2, '#1a2130');
+      q(L + 1, 3, 1, 2, '#1a2130');
+      wheel(1); wheel(L - 6);
+      q(0, 4, L, 1, '#4d5b73');
+      q(0, 5, L, 1, dark);
+      q(1, 6, 3, 2, '#39445a');
+      q(5, 7, 1, 4, '#6b4a2a');
+      q(12, 5, 1, 2, C.steel);
+      q(14, 4, 8, 2, body);
+      q(14, 4, 8, 1, trim);
+      q(L - 3, 3, 2, 1, dark);
+      seat(6, 9);
     } else if (key === 'street') {
-      q(1, 10, L - 2, 7, body);
-      q(1, 4, L - 2, hw, 'rgba(0,0,0,.16)');
-      q(1, 4, L - 2, 1, dark);
-      q(1, 11, 9, 2, body);
-      q(L - 12, 11, 12, 2, body);
-      q(9, 16, 25, 6, body);
-      q(10, 15, 6, 4, C.glass);
-      q(19, 15, 12, 4, C.glass);
-      q(18, 15, 1, 4, body);
-      q(31, 15, 1, 4, body);
-      q(21, 14, 4, 1, 'rgba(255,255,255,.24)');
-      q(29, 14, 2, 1, 'rgba(255,255,255,.14)');
-      q(9, 16, 25, 1, 'rgba(255,255,255,.10)');
-      q(2, 5, 2, 1, '#8a5a32');
-      q(L - 14, 5, 2, 1, '#8a5a32');
-      q(19, 9, 1, 5, 'rgba(0,0,0,.30)');
-      q(20, 8, 2, 1, dark);
-      q(33, 12, 1, 1, dark);
+      q(0, 6, 1, 3, dark);
+      q(L - 1, 6, 1, 3, dark);
+      q(1, 7, L - 2, 5, body);
+      q(1, 3, L - 2, 1, '#141c29');
+      q(1, 9, L - 2, 3, body);
+      q(1, 9, L - 2, 1, 'rgba(255,255,255,.10)');
+      q(8, 14, 12, 5, body);
+      q(20, 13, 2, 4, body);
+      q(22, 12, 1, 3, body);
+      q(8, 14, 12, 1, 'rgba(255,255,255,.14)');
+      q(9, 13, 6, 4, C.glass);
+      q(16, 13, 5, 4, C.glass);
+      q(15, 13, 1, 4, body);
+      q(15, 9, 1, 4, 'rgba(0,0,0,.25)');
+      q(13, 8, 2, 1, dark);
+      q(L - 2, 8, 1, 2, C.lamp);
+      q(0, 8, 1, 2, C.red);
+      q(2, 6, 2, 1, '#8a5a32');
+      q(L - 8, 6, 2, 1, '#8a5a32');
+      arch(3, 9); arch(L - 16, 9);
+      wheel(5); wheel(L - 13);
+      seat(16, 13);
+    } else if (key === 'streetRace') {
+      q(1, 3, L - 2, 1, '#141c29');
+      q(1, 7, L - 2, 4, body);
+      q(1, 7, L - 2, 1, 'rgba(255,255,255,.10)');
+      q(8, 11, 17, 5, body);
+      q(25, 10, 3, 3, body);
+      q(8, 11, 17, 1, 'rgba(255,255,255,.12)');
+      q(9, 10, 7, 4, C.glass);
+      q(17, 10, 7, 4, C.glass);
+      q(16, 10, 1, 4, body);
+      q(1, 11, 9, 1, trim);
+      q(3, 9, 1, 2, dark);
+      q(8, 9, 1, 2, dark);
+      q(4, 1, L - 8, 1, 'rgba(96,200,255,.55)');
       q(L - 2, 7, 1, 2, C.lamp);
       q(0, 7, 1, 2, C.red);
-      archX(4); archX(L - 12); wheel(4); wheel(L - 12);
-    } else if (key === 'streetRace') {
-      q(1, 8, L - 2, 5, body);
-      q(1, 4, L - 2, hw, 'rgba(0,0,0,.16)');
-      q(1, 3, L - 2, 1, dark);
-      q(L - 13, 8, 12, 2, body);
-      q(8, 12, 20, 4, body);
-      q(10, 11, 17, 3, C.glass);
-      q(8, 12, 20, 1, 'rgba(255,255,255,.12)');
-      q(1, 13, 9, 1, trim);
-      q(2, 11, 1, 2, dark);
-      q(7, 11, 1, 2, dark);
-      q(13, 7, 3, 1, trim);
-      q(19, 6, 5, 1, trim);
-      q(4, 2, L - 8, 1, 'rgba(96,200,255,.55)');
-      q(L - 1, 6, 1, 1, C.lamp);
-      q(0, 6, 1, 1, C.red);
-      q(9, 11, 2, 1, C.dark);
-      archX(4); archX(L - 12); wheel(4); wheel(L - 12);
+      q(L - 1, 5, 1, 2, dark);
+      q(0, 5, 1, 2, dark);
+      arch(3, 9); arch(L - 14, 9);
+      wheel(5); wheel(L - 12);
+      seat(17, 10);
     } else if (key === 'rally') {
-      q(1, 11, L - 2, 6, body);
-      q(1, 6, L - 2, hw, 'rgba(0,0,0,.14)');
-      q(1, 6, L - 2, 1, '#3a4356');
-      q(9, 14, 26, 3, body);
-      q(11, 13, 9, 2, C.glass);
-      q(22, 13, 11, 2, C.glass);
-      q(9, 14, 26, 1, 'rgba(255,255,255,.14)');
-      q(13, 15, 10, 1, '#1a2130');
-      q(13, 14, 10, 1, '#232c3a');
-      q(14, 15, 1, 1, C.lamp);
-      q(16, 15, 1, 1, C.lamp);
-      q(18, 15, 1, 1, C.lamp);
-      q(20, 15, 1, 1, C.lamp);
-      q(6, 15, 4, 1, dark);
-      q(9, 15, 1, 1, '#8a97ab');
-      q(15, 9, 4, 3, C.white);
-      q(16, 9, 1, 1, C.dark);
-      q(18, 8, 1, 1, C.dark);
-      q(2, 6, 3, 1, C.mud);
-      q(L - 10, 6, 2, 1, C.mud);
-      q(2, 3, 1, 3, dark);
-      q(L - 1, 8, 1, 1, C.lamp);
-      q(0, 8, 1, 1, C.red);
-      q(25, 9, 1, 4, 'rgba(0,0,0,.22)');
-      q(28, 8, 2, 1, dark);
-      archX(3); archX(L - 12); wheel(3, true); wheel(L - 12, true);
+      q(-1, 3, 1, 3, C.dark);
+      q(L, 3, 1, 3, C.dark);
+      q(1, 8, L - 2, 5, body);
+      q(1, 4, L - 2, 1, C.mud);
+      q(8, 13, 17, 5, body);
+      q(8, 13, 17, 1, 'rgba(255,255,255,.14)');
+      q(10, 13, 9, 1, '#1a2130');
+      q(11, 13, 1, 1, C.lamp);
+      q(14, 13, 1, 1, C.lamp);
+      q(17, 13, 1, 1, C.lamp);
+      q(9, 12, 6, 4, C.glass);
+      q(16, 12, 6, 4, C.glass);
+      q(15, 12, 1, 4, body);
+      q(12, 8, 4, 3, C.white);
+      q(13, 7, 2, 1, C.dark);
+      q(18, 8, 3, 1, dark);
+      q(L - 2, 8, 1, 2, C.lamp);
+      q(0, 8, 1, 2, C.red);
+      q(2, 5, 3, 1, C.mud);
+      q(L - 9, 5, 2, 1, C.mud);
+      arch(3, 9); arch(L - 14, 9);
+      wheel(4, true); wheel(L - 12, true);
+      seat(16, 12);
     } else {
       var f3 = key === 'f3', f2 = key === 'f2', f1 = key === 'f1';
-      var podTop = f2 ? 6 : 7;
-      var sideEnd = f1 ? L - 21 : (f3 || f2 ? L - 17 : L - 15);
-      q(4, 4, 7, 1, '#2b3446');
-      q(sideEnd - 3, 4, 7, 1, '#2b3446');
-      q(9, podTop, sideEnd - 9, podTop - 2, body);
-      q(9, 3, sideEnd - 9, 1, dark);
-      q(9, podTop, sideEnd - 9, 1, 'rgba(255,255,255,.12)');
-      if (f1) { q(9, 2, sideEnd - 9, 1, '#2c3648'); q(27, 4, 1, 3, dark); }
-      if (f2) { q(9, 2, sideEnd - 9, 1, '#2c3648'); }
-      q(6, 9, 8, 2, body);
-      q(6, 9, 8, 1, 'rgba(255,255,255,.14)');
-      if (f1) { q(11, 10, 3, 1, body); q(12, 9, 1, 1, dark); }
-      q(18, podTop - 1, f1 ? 9 : 7, 2, C.dark);
-      driver(19, podTop + 1, 3);
-      if (f3 || f2 || f1) {
-        q(18, 9, 1, 2, '#5c6b82');
-        q(18, 10, 7, 1, '#5c6b82');
-        q(24, 9, 1, 2, '#5c6b82');
+      var open = f3 || f2 || f1;
+      var ww = f1 ? 10 : (open ? 8 : 6);
+      var cx0 = Math.round(L * 0.42);
+      var cx1 = Math.round(L * 0.66);
+      var fwx = open ? L - 12 : L - 10;
+      q(0, 3, L - 1, 1, '#2b3446');
+      q(0, 6, 6, 3, body);
+      q(0, 6, 6, 1, 'rgba(255,255,255,.10)');
+      q(6, 5, cx1 - 6, 2, body);
+      q(6, 5, cx1 - 6, 1, 'rgba(255,255,255,.14)');
+      q(cx0 - 5, 7, 4, 2, body);
+      q(cx1, 5, L - 3 - cx1, 2, body);
+      q(cx1, 4, L - 3 - cx1, 1, 'rgba(255,255,255,.10)');
+      q(fwx, 2, L - fwx, 1, trim);
+      q(fwx, 3, 1, 1, dark);
+      q(L - 1, 3, 1, 2, dark);
+      q(1, 9, ww, 1, trim);
+      q(1, 8, 1, 2, dark);
+      q(ww, 8, 1, 2, dark);
+      q(2, 7, 1, 2, C.dark);
+      q(ww - 1, 7, 1, 2, C.dark);
+      if (f1) q(1, 8, ww, 1, trim);
+      seat(cx0 - 1, 9);
+      if (open) {
+        q(cx0 + 3, 9, 4, 1, C.steel);
+        q(cx0 + 6, 7, 1, 2, C.steel);
       }
-      var nx = sideEnd - 2;
-      if (f1) {
-        q(nx, 5, 6, 2, body);
-        q(nx + 6, 4, 6, 2, body);
-        q(nx + 12, 3, L - nx - 12, 1, body);
-      } else if (f2) {
-        q(nx, 5, 5, 3, body);
-        q(nx + 5, 4, 5, 1, body);
-        q(nx + 10, 3, L - nx - 10, 1, body);
-      } else {
-        q(nx, 6, 5, 3, body);
-        q(nx + 5, 5, 5, 2, body);
-        q(nx + 10, 4, L - nx - 10, 1, body);
-      }
-      q(L - 6, 2, 6, 1, trim);
-      q(L - 7, 3, 1, 3, dark);
-      if (f3 || f2) { q(L - 8, 3, 4, 1, trim); }
-      if (f1) { q(L - 11, 4, 7, 1, trim); q(L - 10, 3, 1, 1, dark); q(L - 3, 4, 3, 1, trim); }
-      var wingW = f1 ? 10 : (f3 || f2 ? 8 : 6);
-      q(1, 11, wingW, 1, trim);
-      if (f3 || f2 || f1) q(1, 10, wingW, 1, trim);
-      q(1, 9, 1, 2, dark);
-      q(3, 9, 1, 2, dark);
-      q(1 + wingW - 2, 9, 1, 2, dark);
-      if (f2 || f1) { q(9, 11, 9, 1, body); q(9, 10, 9, 1, 'rgba(255,255,255,.10)'); }
-      wheel(2); wheel(L - 15);
+      wheel(2); wheel(fwx + 1);
     }
     rect(ctx, x + 1, gy + 1, L - 2, 1, 'rgba(0,0,0,.5)');
   }
 
+  function suitFor(col) {
+    var c = String(col || '');
+    if (c.charAt(0) !== '#' || c.length < 7) return '#3f6ea8';
+    var r = parseInt(c.substr(1, 2), 16), b = parseInt(c.substr(5, 2), 16);
+    return r >= b ? '#3f6ea8' : '#c0503a';
+  }
+
   function person(ctx, x, y, shirt, pants) {
-    var headH = m(DIM.person.head);
-    var torsoH = m(DIM.person.torso);
-    var legsH = PERSON_H - headH - torsoH;
-    var legY = y + headH + torsoH;
     var legCol = pants || '#222a38';
+    var helm = '#dfe6ef';
     x = Math.round(x); y = Math.round(y);
     rect(ctx, x - 1, y + PERSON_H, PERSON_W + 2, 1, 'rgba(0,0,0,.45)');
-    rect(ctx, x + 1, y, 3, 1, '#1a2130');
-    rect(ctx, x + 1, y + 1, 3, headH - 1, C.skin);
-    rect(ctx, x + 2, y + 2, 1, 1, C.skinD);
-    rect(ctx, x, y + headH, PERSON_W, torsoH - 1, shirt);
-    rect(ctx, x + 1, y + headH + torsoH - 1, 3, 1, shirt);
-    rect(ctx, x, y + headH + torsoH - 2, 1, 1, C.skin);
-    rect(ctx, x + PERSON_W - 1, y + headH + torsoH - 2, 1, 1, C.skin);
-    rect(ctx, x + 1, legY, 3, 1, legCol);
-    rect(ctx, x, legY + 1, 2, legsH - 2, legCol);
-    rect(ctx, x + 3, legY + 1, 2, legsH - 2, legCol);
-    rect(ctx, x, y + PERSON_H - 1, 2, 1, C.dark);
-    rect(ctx, x + 3, y + PERSON_H - 1, 2, 1, C.dark);
+    rect(ctx, x + 1, y, 2, 1, helm);
+    rect(ctx, x, y + 1, 4, 1, helm);
+    rect(ctx, x + 3, y + 1, 1, 1, C.dark);
+    rect(ctx, x + 1, y + 2, 2, 1, C.skin);
+    rect(ctx, x + 1, y + 3, 3, 1, helm);
+    rect(ctx, x, y + 4, PERSON_W, PERSON_TORSO - 1, shirt);
+    rect(ctx, x, y + 5, 1, PERSON_TORSO - 3, 'rgba(0,0,0,.20)');
+    rect(ctx, x + PERSON_W - 1, y + 5, 1, PERSON_TORSO - 3, 'rgba(0,0,0,.20)');
+    rect(ctx, x, y + PERSON_TORSO + 1, 1, 1, C.skin);
+    rect(ctx, x + PERSON_W - 1, y + PERSON_TORSO + 1, 1, 1, C.skin);
+    rect(ctx, x + 1, y + PERSON_TORSO + 3, 3, 1, shirt);
+    rect(ctx, x + 1, y + PERSON_TORSO + 4, 3, 1, legCol);
+    rect(ctx, x, y + PERSON_TORSO + 5, 2, 6, legCol);
+    rect(ctx, x + PERSON_W - 2, y + PERSON_TORSO + 5, 2, 6, legCol);
+    rect(ctx, x, y + PERSON_H - 2, 2, 2, C.dark);
+    rect(ctx, x + PERSON_W - 2, y + PERSON_H - 2, 2, 2, C.dark);
   }
 
   function drawDoor(ctx, x, floorY) {
@@ -1107,7 +1104,7 @@
     rect(ctx, 0, 0, W, H, '#000');
     var gy = 78;
     if (opts.ground) { rect(ctx, 0, gy + 1, W, 1, '#1a2130'); }
-    if (opts.person) person(ctx, W - 26, gy - PERSON_H + 1, C.blue, '#1e2533');
+    if (opts.person) person(ctx, opts.px == null ? W - 26 : opts.px, gy - PERSON_H + 1, C.blue, '#1e2533');
     var pal = PAL[key] || PAL.kart;
     drawVehicle(ctx, key, opts.x == null ? 6 : opts.x, gy, {
       body: pal.body, dark: pal.dark, trim: pal.trim,
@@ -1117,11 +1114,16 @@
 
   var list = Object.keys(VEHP).map(function (k) {
     var v = VEHP[k];
-    return { key: k, name: v.n, len_m: v.len_m, wid_m: v.wid_m, h_m: v.h_m, wheel_m: v.wheel_m, len_px: v.L, h_px: v.H, wheel_px: v.WH };
+    return {
+      key: k, name: v.n, len_m: v.len_m, wid_m: v.wid_m, h_m: v.h_m, wheel_m: v.wheel_m,
+      art_scale: ART_SCALE, len_px: v.L, draw_px: v.draw, h_px: v.H, wheel_px: v.WH,
+      person_px: PERSON_H
+    };
   });
 
   root.PX = {
     W: W, H: H, play: play, still: still, hero: hero, reduced: reduced,
-    render: render, gallery: gallery, vehicles: list, pxPerM: PX_PER_M
+    render: render, gallery: gallery, vehicles: list, pxPerM: PX_PER_M,
+    artScale: ART_SCALE, personPx: PERSON_H
   };
 })(typeof window !== 'undefined' ? window : this);

@@ -6,14 +6,15 @@
   "scale": {
     "world_px_per_m": 10.6,
     "track_px_per_m": 6.0,
-    "person_height_m": 1.7,
-    "person_height_px": 18,
+    "person_height_m": 1.9,
+    "person_height_px": 20,
     "person_parts_px": {
       "head": 4,
-      "torso": 7,
-      "legs": 7
+      "torso": 8,
+      "legs": 8
     },
-    "vehicle_note": "side elevation: length and height are drawn; width informs body depth and wheel track"
+    "vehicle_note": "side elevation: length and height are drawn; width informs body depth and wheel track",
+    "vehicle_art_scale": 0.85
   },
   "rules": {
     "tolerance": 0.2,
@@ -34,15 +35,15 @@
       "px_per_m": 10.6,
       "pixels": [
         5,
-        18
+        20
       ],
       "implied_m": [
         0.47,
-        1.7
+        1.89
       ],
       "target_m": [
         0.45,
-        1.7
+        1.9
       ],
       "tolerance": 0.2,
       "pass": true
@@ -154,15 +155,15 @@
       "px_per_m": 10.6,
       "pixels": [
         5,
-        18
+        20
       ],
       "implied_m": [
         0.47,
-        1.7
+        1.89
       ],
       "target_m": [
         0.45,
-        1.7
+        1.9
       ],
       "tolerance": 0.2,
       "pass": true
@@ -254,15 +255,15 @@
       "px_per_m": 10.6,
       "pixels": [
         5,
-        18
+        20
       ],
       "implied_m": [
         0.47,
-        1.7
+        1.89
       ],
       "target_m": [
         0.45,
-        1.7
+        1.9
       ],
       "tolerance": 0.2,
       "pass": true
@@ -354,15 +355,15 @@
       "px_per_m": 10.6,
       "pixels": [
         5,
-        18
+        20
       ],
       "implied_m": [
         0.47,
-        1.7
+        1.89
       ],
       "target_m": [
         0.45,
-        1.7
+        1.9
       ],
       "tolerance": 0.2,
       "pass": true
@@ -474,15 +475,15 @@
       "px_per_m": 10.6,
       "pixels": [
         5,
-        18
+        20
       ],
       "implied_m": [
         0.47,
-        1.7
+        1.89
       ],
       "target_m": [
         0.45,
-        1.7
+        1.9
       ],
       "tolerance": 0.2,
       "pass": true
@@ -534,15 +535,15 @@
       "px_per_m": 10.6,
       "pixels": [
         5,
-        18
+        20
       ],
       "implied_m": [
         0.47,
-        1.7
+        1.89
       ],
       "target_m": [
         0.45,
-        1.7
+        1.9
       ],
       "tolerance": 0.2,
       "pass": true
@@ -655,12 +656,12 @@
       "kind": "vehicle",
       "px_per_m": 10.6,
       "pixels": [
-        27,
-        6
+        25,
+        9
       ],
       "implied_m": [
-        2.55,
-        0.57
+        2.36,
+        0.85
       ],
       "target_m": [
         2.5,
@@ -669,7 +670,12 @@
       "target_w_m": 1.4,
       "wheel_px": 3,
       "tolerance": 0.2,
-      "pass": true
+      "pass": true,
+      "art_scale": 0.85,
+      "target_art_m": [
+        2.12,
+        0.51
+      ]
     },
     {
       "class": "street-everyday",
@@ -677,21 +683,26 @@
       "kind": "vehicle",
       "px_per_m": 10.6,
       "pixels": [
-        45,
-        16
+        37,
+        14
       ],
       "implied_m": [
-        4.25,
-        1.51
+        3.49,
+        1.32
       ],
       "target_m": [
         4.2,
         1.5
       ],
       "target_w_m": 1.8,
-      "wheel_px": 7,
+      "wheel_px": 6,
       "tolerance": 0.2,
-      "pass": true
+      "pass": true,
+      "art_scale": 0.85,
+      "target_art_m": [
+        3.57,
+        1.27
+      ]
     },
     {
       "class": "street-race",
@@ -699,21 +710,26 @@
       "kind": "vehicle",
       "px_per_m": 10.6,
       "pixels": [
-        47,
-        13
+        39,
+        11
       ],
       "implied_m": [
-        4.43,
-        1.23
+        3.68,
+        1.04
       ],
       "target_m": [
         4.4,
         1.2
       ],
       "target_w_m": 1.8,
-      "wheel_px": 6,
+      "wheel_px": 5,
       "tolerance": 0.2,
-      "pass": true
+      "pass": true,
+      "art_scale": 0.85,
+      "target_art_m": [
+        3.74,
+        1.02
+      ]
     },
     {
       "class": "f4",
@@ -721,21 +737,26 @@
       "kind": "vehicle",
       "px_per_m": 10.6,
       "pixels": [
-        48,
-        11
+        41,
+        9
       ],
       "implied_m": [
-        4.53,
-        1.04
+        3.87,
+        0.85
       ],
       "target_m": [
         4.6,
         1.0
       ],
       "target_w_m": 1.9,
-      "wheel_px": 6,
+      "wheel_px": 5,
       "tolerance": 0.2,
-      "pass": true
+      "pass": true,
+      "art_scale": 0.85,
+      "target_art_m": [
+        3.91,
+        0.85
+      ]
     },
     {
       "class": "f3",
@@ -743,21 +764,26 @@
       "kind": "vehicle",
       "px_per_m": 10.6,
       "pixels": [
-        52,
-        11
+        45,
+        9
       ],
       "implied_m": [
-        4.91,
-        1.04
+        4.25,
+        0.85
       ],
       "target_m": [
         5.0,
         1.0
       ],
       "target_w_m": 1.9,
-      "wheel_px": 7,
+      "wheel_px": 5,
       "tolerance": 0.2,
-      "pass": true
+      "pass": true,
+      "art_scale": 0.85,
+      "target_art_m": [
+        4.25,
+        0.85
+      ]
     },
     {
       "class": "f2",
@@ -765,21 +791,26 @@
       "kind": "vehicle",
       "px_per_m": 10.6,
       "pixels": [
-        52,
-        11
+        45,
+        9
       ],
       "implied_m": [
-        4.91,
-        1.04
+        4.25,
+        0.85
       ],
       "target_m": [
         5.0,
         1.0
       ],
       "target_w_m": 1.9,
-      "wheel_px": 7,
+      "wheel_px": 5,
       "tolerance": 0.2,
-      "pass": true
+      "pass": true,
+      "art_scale": 0.85,
+      "target_art_m": [
+        4.25,
+        0.85
+      ]
     },
     {
       "class": "f1",
@@ -787,21 +818,26 @@
       "kind": "vehicle",
       "px_per_m": 10.6,
       "pixels": [
-        58,
-        11
+        50,
+        9
       ],
       "implied_m": [
-        5.47,
-        1.04
+        4.72,
+        0.85
       ],
       "target_m": [
         5.6,
         1.0
       ],
       "target_w_m": 2.0,
-      "wheel_px": 7,
+      "wheel_px": 5,
       "tolerance": 0.2,
-      "pass": true
+      "pass": true,
+      "art_scale": 0.85,
+      "target_art_m": [
+        4.76,
+        0.85
+      ]
     },
     {
       "class": "rally",
@@ -809,21 +845,26 @@
       "kind": "vehicle",
       "px_per_m": 10.6,
       "pixels": [
-        45,
-        15
+        39,
+        13
       ],
       "implied_m": [
-        4.25,
-        1.42
+        3.68,
+        1.23
       ],
       "target_m": [
         4.2,
         1.4
       ],
       "target_w_m": 1.8,
-      "wheel_px": 7,
+      "wheel_px": 6,
       "tolerance": 0.2,
-      "pass": true
+      "pass": true,
+      "art_scale": 0.85,
+      "target_art_m": [
+        3.57,
+        1.19
+      ]
     }
   ]
 }
